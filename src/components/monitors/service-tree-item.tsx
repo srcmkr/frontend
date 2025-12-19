@@ -251,8 +251,8 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
           )}
         </div>
 
-        {/* Response Time - matches table w-[100px] */}
-        <div className="w-[100px] text-right shrink-0">
+        {/* Response Time */}
+        <div className="w-[70px] text-right shrink-0 hidden 2xl:block">
           {!isGroup && monitor && (
             <span className="font-mono text-sm">
               {formatResponseTime(monitor.lastResponseTime)}
@@ -260,8 +260,8 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
           )}
         </div>
 
-        {/* Uptime Bar - matches table w-[400px] */}
-        <div className="w-[400px] hidden md:block shrink-0">
+        {/* Uptime Bar - flexible width */}
+        <div className="flex-1 min-w-[100px] max-w-[280px] hidden sm:block">
           {!isGroup && monitor && (
             <UptimeBar
               uptime={monitor.uptime24h}
@@ -270,8 +270,8 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
           )}
         </div>
 
-        {/* Last Check - matches table w-[100px] */}
-        <div className="w-[100px] text-right hidden sm:block shrink-0">
+        {/* Last Check */}
+        <div className="w-[70px] text-right hidden md:block shrink-0">
           {!isGroup && monitor && (
             <span className="text-sm text-muted-foreground">
               {formatLastCheck(monitor.lastCheck)}

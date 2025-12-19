@@ -25,8 +25,11 @@ export function UserMenu() {
   // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("light", "dark", "forest", "slate", "kiwi");
-    root.classList.add(theme);
+    root.classList.remove("basic", "dark", "forest", "slate");
+    // Kiwi is now the default (no class needed), other themes add their class
+    if (theme !== "kiwi") {
+      root.classList.add(theme);
+    }
   }, [theme]);
 
   return (
@@ -102,18 +105,18 @@ export function UserMenu() {
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
-                onClick={() => setTheme("light")}
-                className={theme === "light" ? "bg-accent" : ""}
+                onClick={() => setTheme("kiwi")}
+                className={theme === "kiwi" ? "bg-accent" : ""}
               >
-                {t.light}
-                <ThemeColors colors={["#ffffff", "#f4f4f5", "#18181b"]} className="ml-auto" />
+                {t.kiwi}
+                <ThemeColors colors={["#f0f9e8", "#BCEB2D", "#3d6b1f"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setTheme("forest")}
-                className={theme === "forest" ? "bg-accent" : ""}
+                onClick={() => setTheme("basic")}
+                className={theme === "basic" ? "bg-accent" : ""}
               >
-                {t.forest}
-                <ThemeColors colors={["#f0fdf4", "#dcfce7", "#166534"]} className="ml-auto" />
+                {t.basic}
+                <ThemeColors colors={["#ffffff", "#f4f4f5", "#18181b"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("dark")}
@@ -123,18 +126,18 @@ export function UserMenu() {
                 <ThemeColors colors={["#1a2e1a", "#243524", "#4ade80"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
+                onClick={() => setTheme("forest")}
+                className={theme === "forest" ? "bg-accent" : ""}
+              >
+                {t.forest}
+                <ThemeColors colors={["#f0fdf4", "#dcfce7", "#166534"]} className="ml-auto" />
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onClick={() => setTheme("slate")}
                 className={theme === "slate" ? "bg-accent" : ""}
               >
                 {t.slate}
                 <ThemeColors colors={["#1e293b", "#334155", "#94a3b8"]} className="ml-auto" />
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme("kiwi")}
-                className={theme === "kiwi" ? "bg-accent" : ""}
-              >
-                {t.kiwi}
-                <ThemeColors colors={["#f0f9e8", "#BCEB2D", "#3d6b1f"]} className="ml-auto" />
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>

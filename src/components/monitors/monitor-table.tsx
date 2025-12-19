@@ -55,10 +55,9 @@ export function MonitorTable({ monitors, title, embedded }: MonitorTableProps) {
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[40px]"></TableHead>
             <TableHead>Name</TableHead>
-            <TableHead className="hidden lg:table-cell">URL</TableHead>
-            <TableHead className="text-right w-[100px]">Response</TableHead>
-            <TableHead className="hidden md:table-cell w-[400px]">Uptime (24h)</TableHead>
-            <TableHead className="text-right hidden sm:table-cell w-[100px]">Last Check</TableHead>
+            <TableHead className="text-right w-[80px]">Response</TableHead>
+            <TableHead className="hidden sm:table-cell text-right">Uptime (24h)</TableHead>
+            <TableHead className="text-right hidden md:table-cell w-[80px]">Last Check</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,24 +71,23 @@ export function MonitorTable({ monitors, title, embedded }: MonitorTableProps) {
                 <StatusIndicator status={monitor.status} />
               </TableCell>
               <TableCell className="py-2">
-                <span className="font-medium">{monitor.name}</span>
-                <span className="ml-2 text-xs text-muted-foreground uppercase">
-                  {monitor.type}
-                </span>
-              </TableCell>
-              <TableCell className="hidden lg:table-cell py-2 text-muted-foreground text-sm truncate max-w-[300px]">
-                {monitor.url}
+                <div className="flex flex-col">
+                  <span className="font-medium">{monitor.name}</span>
+                  <span className="text-xs text-muted-foreground uppercase">
+                    {monitor.type}
+                  </span>
+                </div>
               </TableCell>
               <TableCell className="text-right py-2 font-mono text-sm">
                 {formatResponseTime(monitor.lastResponseTime)}
               </TableCell>
-              <TableCell className="hidden md:table-cell py-2">
+              <TableCell className="hidden sm:table-cell py-2">
                 <UptimeBar
                   uptime={monitor.uptime24h}
                   segments={monitor.uptimeHistory}
                 />
               </TableCell>
-              <TableCell className="text-right hidden sm:table-cell py-2 text-sm text-muted-foreground">
+              <TableCell className="text-right hidden md:table-cell py-2 text-sm text-muted-foreground">
                 {formatLastCheck(monitor.lastCheck)}
               </TableCell>
             </TableRow>

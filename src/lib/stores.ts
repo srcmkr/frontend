@@ -19,8 +19,21 @@ export const useLanguageStore = create<LanguageState>()(
   )
 );
 
+// Command Palette Store
+interface CommandPaletteState {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  toggle: () => void;
+}
+
+export const useCommandPalette = create<CommandPaletteState>()((set) => ({
+  open: false,
+  setOpen: (open) => set({ open }),
+  toggle: () => set((state) => ({ open: !state.open })),
+}));
+
 // Theme Store
-type Theme = "light" | "dark" | "forest" | "slate" | "kiwi";
+type Theme = "basic" | "dark" | "forest" | "slate" | "kiwi";
 
 interface ThemeState {
   theme: Theme;
@@ -30,7 +43,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: "light",
+      theme: "kiwi",
       setTheme: (theme) => set({ theme }),
     }),
     { name: "theme-storage" }
@@ -52,7 +65,7 @@ export const translations = {
     logout: "Logout",
     english: "English",
     german: "German",
-    light: "Light",
+    basic: "Basic",
     dark: "Dark",
     forest: "Forest",
     slate: "Slate",
@@ -75,7 +88,7 @@ export const translations = {
     logout: "Abmelden",
     english: "Englisch",
     german: "Deutsch",
-    light: "Hell",
+    basic: "Basic",
     dark: "Dunkel",
     forest: "Forest",
     slate: "Slate",

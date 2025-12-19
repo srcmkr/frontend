@@ -78,7 +78,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link href="/monitors/new">
-          <Button>Add Monitor</Button>
+          <Button className="uppercase tracking-wide">Add Monitor</Button>
         </Link>
       </div>
 
@@ -175,7 +175,7 @@ export default function DashboardPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Active Incidents</CardTitle>
-                <Button size="sm">
+                <Button size="sm" className="uppercase tracking-wide">
                   <Plus className="h-4 w-4 mr-1" />
                   New Incident
                 </Button>

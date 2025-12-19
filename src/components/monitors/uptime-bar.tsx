@@ -107,14 +107,14 @@ export function UptimeBar({
   const hoveredSegment = hoveredIndex !== null ? segments[hoveredIndex] : null;
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <div className="flex-1">
+    <div className={cn("flex items-center justify-end gap-2", className)}>
+      <div className="flex justify-end">
         <div className="flex gap-[2px] h-5">
           {segments.map((segment, index) => (
             <div
               key={index}
               className={cn(
-                "flex-1 min-w-[2px] h-full rounded-sm cursor-default transition-all",
+                "w-[7px] shrink-0 h-full rounded-sm cursor-default transition-all",
                 getSegmentColor(segment),
                 hoveredIndex === index && "ring-1 ring-foreground/50"
               )}
