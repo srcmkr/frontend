@@ -1,0 +1,223 @@
+"use client";
+
+import { useMemo } from "react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  Pencil,
+  Pause,
+  Play,
+  Trash2,
+  FileBarChart,
+  Clock,
+  Zap,
+  Globe,
+  Shield,
+  AlertTriangle,
+  Target,
+  Gauge,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { StatusBadge } from "./status-badge";
+import { formatResponseTime, formatLastCheck } from "@/lib/format-utils";
+import { generateMonitorDetailedStats } from "@/mocks/monitors";
+import type { Monitor, MonitorDetailedStats } from "@/types";
+
+interface MonitorDetailHeaderProps {
+  monitor: Monitor;
+  onBack?: () => void;
+  onEdit?: () => void;
+  onTogglePause?: () => void;
+  onDelete?: () => void;
+  onGenerateReport?: () => void;
+}
+
+interface StatItemProps {
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
+  warning?: boolean;
+  className?: string;
+}
+
+function StatItem({ label, value, icon, warning, className }: StatItemProps) {
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      {icon && (
+        <span className={cn("text-muted-foreground", warning && "text-yellow-600")}>
+          {icon}
+        </span>
+      )}
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground truncate">{label}</p>
+        <p className={cn(
+          "text-sm font-medium font-mono truncate",
+          warning && "text-yellow-600"
+        )}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function MonitorDetailHeader({
+  monitor,
+  onBack,
+  onEdit,
+  onTogglePause,
+  onDelete,
+  onGenerateReport,
+}: MonitorDetailHeaderProps) {
+  const isPaused = monitor.status === "paused";
+
+  // Generate detailed stats (memoized)
+  const stats = useMemo(() => generateMonitorDetailedStats(monitor), [monitor]);
+
+  const certWarning = stats.certificateDaysLeft !== null && stats.certificateDaysLeft < 30;
+
+  return (
+    <div className="space-y-2">
+      {/* Mobile back button */}
+      {onBack && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="lg:hidden -ml-2 mb-2"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Zurück
+        </Button>
+      )}
+
+      {/* Title row with actions */}
+      <div className="flex items-start justify-between gap-4">
+        <h2 className="text-xl font-bold">{monitor.name}</h2>
+
+        {/* Actions Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="shrink-0">
+              Aktionen
+              <ChevronDown className="h-4 w-4 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onEdit}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Bearbeiten
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onTogglePause}>
+              {isPaused ? (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Fortsetzen
+                </>
+              ) : (
+                <>
+                  <Pause className="h-4 w-4 mr-2" />
+                  Pausieren
+                </>
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onGenerateReport}>
+              <FileBarChart className="h-4 w-4 mr-2" />
+              Report generieren
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={onDelete}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Löschen
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* URL */}
+      <p className="text-sm text-muted-foreground truncate">{monitor.url}</p>
+
+      {/* Badges */}
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <StatusBadge status={monitor.status} />
+        <Badge variant="outline" className="uppercase text-xs">
+          {monitor.type}
+        </Badge>
+        <span className="text-xs text-muted-foreground">
+          Interval: {monitor.interval}s
+        </span>
+      </div>
+
+      {/* SLA Requirements */}
+      <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t">
+        <StatItem
+          label="SLA-Ziel (Verfügbarkeit)"
+          value={`${monitor.slaTarget}%`}
+          icon={<Target className="h-4 w-4" />}
+        />
+        <StatItem
+          label="Max. Antwortzeit"
+          value={`${monitor.maxResponseTime}ms`}
+          icon={<Gauge className="h-4 w-4" />}
+        />
+      </div>
+
+      {/* Stats Grid - Row 1: Basic Info */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 mt-2 border-t">
+        <StatItem
+          label="Letzter Check"
+          value={formatLastCheck(stats.lastCheck)}
+          icon={<Clock className="h-4 w-4" />}
+        />
+        <StatItem
+          label="Response Time"
+          value={formatResponseTime(stats.lastResponseTime)}
+          icon={<Zap className="h-4 w-4" />}
+        />
+        <StatItem
+          label="IP-Adresse"
+          value={stats.currentIpAddress || "-"}
+          icon={<Globe className="h-4 w-4" />}
+        />
+        <StatItem
+          label="Zertifikat"
+          value={stats.certificateDaysLeft ? `${stats.certificateDaysLeft} Tage` : "-"}
+          icon={certWarning ? <AlertTriangle className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+          warning={certWarning}
+        />
+      </div>
+
+      {/* Stats Grid - Row 2: Performance Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+        <StatItem
+          label="Avg. Response (24h)"
+          value={`${stats.avgResponseTime24h}ms`}
+        />
+        <StatItem
+          label="P95 Response"
+          value={`${stats.p95ResponseTime}ms`}
+        />
+        <StatItem
+          label="Incidents (30d)"
+          value={stats.totalIncidents30d.toString()}
+        />
+        <StatItem
+          label="MTTR"
+          value={`${stats.mttr}min`}
+        />
+      </div>
+    </div>
+  );
+}

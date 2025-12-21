@@ -42,7 +42,7 @@ export function AppShell({ children }: AppShellProps) {
         className={cn(
           "min-h-screen transition-all duration-300",
           "pt-16 lg:pt-0", // Mobile header offset
-          sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-[260px]"
+          sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-[320px]"
         )}
       >
         <div className="p-6 lg:p-8">{children}</div>

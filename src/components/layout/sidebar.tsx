@@ -50,7 +50,7 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
         "fixed left-0 top-0 z-40 h-screen flex flex-col",
         "bg-sidebar border-r border-sidebar-border",
         "transition-all duration-300 ease-in-out",
-        collapsed ? "w-[72px]" : "w-[260px]"
+        collapsed ? "w-[72px]" : "w-[320px]"
       )}
     >
       {/* Logo & Brand */}

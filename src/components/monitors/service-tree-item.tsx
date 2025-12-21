@@ -32,12 +32,6 @@ interface ServiceTreeItemProps {
   onEditingChange?: (editing: boolean) => void;
 }
 
-const formatResponseTime = (ms: number | null) => {
-  if (ms === null) return "-";
-  if (ms < 1000) return `${ms}ms`;
-  return `${(ms / 1000).toFixed(2)}s`;
-};
-
 const formatLastCheck = (date: string | null) => {
   if (!date) return "Never";
   const diff = Date.now() - new Date(date).getTime();
@@ -248,15 +242,6 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
                 </span>
               )}
             </>
-          )}
-        </div>
-
-        {/* Response Time */}
-        <div className="w-[70px] text-right shrink-0 hidden 2xl:block">
-          {!isGroup && monitor && (
-            <span className="font-mono text-sm">
-              {formatResponseTime(monitor.lastResponseTime)}
-            </span>
           )}
         </div>
 

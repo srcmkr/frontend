@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import Link from "next/link";
-import { FolderPlus, LayoutList, Network, Plus, MoreHorizontal, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FolderPlus, LayoutList, Network, Plus, MoreHorizontal, EyeOff, Pencil, Trash2, AlertTriangle, Wrench, Megaphone, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MonitorTable } from "@/components/monitors/monitor-table";
 import { StatsOverview } from "@/components/monitors/stats-overview";
@@ -27,6 +27,7 @@ import type { ServiceGroup } from "@/types";
 type ViewMode = "table" | "tree";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [filters, setFilters] = useState<MonitorFilterState>(defaultFilters);
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [serviceGroups, setServiceGroups] = useState<ServiceGroup[]>(mockServiceGroups);
@@ -77,9 +78,9 @@ export default function DashboardPage() {
             Overview of all monitored services
           </p>
         </div>
-        <Link href="/monitors/new">
-          <Button className="uppercase tracking-wide">Add Monitor</Button>
-        </Link>
+        <Button onClick={() => router.push("/monitors?mode=create")} className="uppercase tracking-wide">
+          Add Monitor
+        </Button>
       </div>
 
       {/* Stats */}
@@ -174,17 +175,39 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Active Incidents</CardTitle>
-                <Button size="sm" className="uppercase tracking-wide">
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Incident
-                </Button>
+                <CardTitle className="text-base">Aktive Incidents</CardTitle>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" className="uppercase tracking-wide">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Neu
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => router.push("/incidents?mode=create&type=incident")}>
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Incident
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/incidents?mode=create&type=maintenance")}>
+                      <Wrench className="h-4 w-4 mr-2" />
+                      Geplante Wartung
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/incidents?mode=create&type=announcement")}>
+                      <Megaphone className="h-4 w-4 mr-2" />
+                      Ankündigung
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/incidents?mode=create&type=incident&historical=true")}>
+                      <Clock className="h-4 w-4 mr-2" />
+                      Historischer Eintrag
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
               {incidents.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No active incidents
+                  Keine aktiven Incidents
                 </p>
               ) : (
                 incidents.map((incident) => (
@@ -201,11 +224,10 @@ export default function DashboardPage() {
                         {incident.cause}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Started{" "}
+                        Seit{" "}
                         {formatDuration(
                           Date.now() - new Date(incident.startedAt).getTime()
-                        )}{" "}
-                        ago
+                        )}
                       </p>
                     </div>
                     <DropdownMenu>
@@ -221,15 +243,15 @@ export default function DashboardPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>
                           <EyeOff className="h-4 w-4 mr-2" />
-                          Ignore
+                          Ignorieren
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Pencil className="h-4 w-4 mr-2" />
-                          Edit
+                          Bearbeiten
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive focus:text-destructive">
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
+                          Löschen
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -241,7 +263,7 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Recent Activity</CardTitle>
+              <CardTitle className="text-base">Letzte Aktivitäten</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -260,8 +282,8 @@ export default function DashboardPage() {
                     </div>
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {incident.status === "resolved"
-                        ? `Resolved ${formatDuration(incident.duration ?? 0)}`
-                        : "Ongoing"}
+                        ? `Behoben nach ${formatDuration(incident.duration ?? 0)}`
+                        : "Andauernd"}
                     </span>
                   </div>
                 ))}

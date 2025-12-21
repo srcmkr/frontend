@@ -10,6 +10,8 @@ export {
   useSensors,
   DragOverlay,
   MeasuringStrategy,
+  useDraggable,
+  useDroppable,
   type DragStartEvent,
   type DragMoveEvent,
   type DragEndEvent,
