@@ -251,6 +251,8 @@ export interface StatusPageGroup {
   order: number; // Reihenfolge
 }
 
+export type StatusPageTheme = "system" | "basic" | "dark" | "forest" | "slate" | "kiwi";
+
 export interface StatusPage {
   id: string;
   slug: string;
@@ -262,6 +264,7 @@ export interface StatusPage {
   customCss?: string;
   logo?: string;
   primaryColor?: string;
+  theme?: StatusPageTheme; // Theme für öffentliche Status-Seite (system = Besucher-Präferenz)
   showUptimeHistory: boolean; // Uptime-Bars anzeigen
   uptimeHistoryDays: number; // Standard: 90
   showIncidents: boolean; // Incident-Sektion anzeigen
@@ -289,6 +292,7 @@ export interface StatusPageFormData {
   customCss?: string;
   logo?: string;
   primaryColor?: string;
+  theme?: StatusPageTheme;
   showUptimeHistory: boolean;
   uptimeHistoryDays: number;
   showIncidents: boolean;
@@ -589,4 +593,56 @@ export interface MonitorDetailedStats {
   mttr: number;
   outagesCount30d: number;
   longestOutage30d: number;
+}
+
+// ============================================
+// System Notification Types
+// ============================================
+
+export type SystemNotificationType =
+  | "monitor_down"
+  | "monitor_up"
+  | "incident_created"
+  | "incident_updated"
+  | "incident_resolved"
+  | "maintenance_scheduled"
+  | "maintenance_started"
+  | "maintenance_completed";
+
+export interface SystemNotification {
+  id: string;
+  type: SystemNotificationType;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  severity?: IncidentSeverity;
+  relatedMonitorId?: string;
+  relatedIncidentId?: string;
+  metadata?: {
+    monitorName?: string;
+    incidentTitle?: string;
+    duration?: number; // seconds
+  };
+}
+
+export interface NotificationFilterState {
+  search: string;
+  readStatus: "all" | "unread" | "read";
+  type: "all" | "monitor" | "incident" | "maintenance";
+}
+
+// ============================================
+// User Types
+// ============================================
+
+export type UserStatus = "active" | "inactive";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  status: UserStatus;
+  createdAt: string;
+  lastLoginAt: string | null;
 }

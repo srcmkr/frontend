@@ -48,3 +48,45 @@ export const systemSettingsSchema = z.object({
 });
 
 export type SystemSettingsFormData = z.infer<typeof systemSettingsSchema>;
+
+// User Schema (for creating new users)
+export const userSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Mindestens 2 Zeichen")
+      .max(50, "Maximal 50 Zeichen"),
+    email: z.string().email("Ungültige E-Mail-Adresse"),
+    password: z.string().min(8, "Mindestens 8 Zeichen"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwörter stimmen nicht überein",
+    path: ["confirmPassword"],
+  });
+
+export type UserFormData = z.infer<typeof userSchema>;
+
+// User Edit Schema (for editing existing users)
+export const userEditSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Mindestens 2 Zeichen")
+    .max(50, "Maximal 50 Zeichen"),
+  email: z.string().email("Ungültige E-Mail-Adresse"),
+});
+
+export type UserEditFormData = z.infer<typeof userEditSchema>;
+
+// User Password Change Schema
+export const userPasswordSchema = z
+  .object({
+    password: z.string().min(8, "Mindestens 8 Zeichen"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwörter stimmen nicht überein",
+    path: ["confirmPassword"],
+  });
+
+export type UserPasswordFormData = z.infer<typeof userPasswordSchema>;

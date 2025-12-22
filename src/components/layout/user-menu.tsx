@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -18,9 +19,15 @@ import {
 import { useLanguageStore, useThemeStore, useTranslation } from "@/lib/stores";
 
 export function UserMenu() {
+  const router = useRouter();
   const t = useTranslation();
   const { language, setLanguage } = useLanguageStore();
   const { theme, setTheme } = useThemeStore();
+
+  const handleLogout = () => {
+    // TODO: Clear auth state/tokens when backend is ready
+    router.push("/login");
+  };
 
   // Apply theme to document
   useEffect(() => {
@@ -52,9 +59,6 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild>
-          <Link href="/profile">{t.profile}</Link>
-        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/settings">{t.settings}</Link>
         </DropdownMenuItem>
@@ -145,7 +149,7 @@ export function UserMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
+        <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
           <LogoutIcon className="mr-2 h-4 w-4" />
           {t.logout}
         </DropdownMenuItem>

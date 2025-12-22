@@ -241,15 +241,18 @@ export default function DashboardPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/incidents?id=${incident.id}`)}>
                           <EyeOff className="h-4 w-4 mr-2" />
-                          Ignorieren
+                          Anzeigen
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/incidents?id=${incident.id}&mode=edit`)}>
                           <Pencil className="h-4 w-4 mr-2" />
                           Bearbeiten
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => router.push(`/incidents?id=${incident.id}&mode=delete`)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Löschen
                         </DropdownMenuItem>

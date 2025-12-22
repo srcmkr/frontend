@@ -10,6 +10,7 @@ import {
   Layers,
   Palette,
   Eye,
+  EyeOff,
   Shield,
   Globe,
   Lock,
@@ -42,7 +43,7 @@ import {
 } from "@/components/ui/select";
 import { StatusPageGroupEditor } from "./status-page-group-editor";
 import { generateSlug } from "@/mocks/status-pages";
-import type { StatusPage, StatusPageGroup, StatusPageFormData, Monitor, StatusPageAnnouncement, StatusPageMaintenance, AnnouncementType } from "@/types";
+import type { StatusPage, StatusPageGroup, StatusPageFormData, Monitor, StatusPageAnnouncement, StatusPageMaintenance, AnnouncementType, StatusPageTheme } from "@/types";
 
 interface StatusPageEditPanelProps {
   statusPage: StatusPage | null; // null for create
@@ -87,6 +88,15 @@ const maintenanceStatusConfig: Record<string, { label: string; className: string
   cancelled: { label: "Abgebrochen", className: "bg-zinc-100 text-zinc-600" },
 };
 
+const themeConfig: Record<StatusPageTheme, { label: string; description: string }> = {
+  system: { label: "System", description: "Folgt den Einstellungen des Besuchers" },
+  basic: { label: "Basic", description: "Helles Standard-Theme" },
+  dark: { label: "Dark", description: "Dunkles Theme" },
+  forest: { label: "Forest", description: "Grüne Farbpalette" },
+  slate: { label: "Slate", description: "Dezente Grautöne" },
+  kiwi: { label: "Kiwi", description: "Kiwi-Grün Akzente" },
+};
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="text-sm text-destructive mt-1">{message}</p>;
@@ -124,6 +134,7 @@ export function StatusPageEditPanel({
   const [formData, setFormData] = useState<StatusPageFormData>(defaultFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isEditing = !!statusPage;
 
@@ -140,6 +151,7 @@ export function StatusPageEditPanel({
         customCss: statusPage.customCss,
         logo: statusPage.logo,
         primaryColor: statusPage.primaryColor,
+        theme: statusPage.theme,
         showUptimeHistory: statusPage.showUptimeHistory,
         uptimeHistoryDays: statusPage.uptimeHistoryDays,
         showIncidents: statusPage.showIncidents,
@@ -533,6 +545,36 @@ export function StatusPageEditPanel({
                     )}
                   </div>
                 </div>
+
+                {/* Theme */}
+                <div className="space-y-2">
+                  <Label htmlFor="theme">Theme</Label>
+                  <Select
+                    value={formData.theme || "system"}
+                    onValueChange={(value: StatusPageTheme) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        theme: value === "system" ? undefined : value,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(themeConfig) as StatusPageTheme[]).map((theme) => (
+                        <SelectItem key={theme} value={theme}>
+                          <div className="flex flex-col">
+                            <span>{themeConfig[theme].label}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {themeConfig[formData.theme || "system"].description}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -658,19 +700,36 @@ export function StatusPageEditPanel({
                 {formData.passwordProtection && (
                   <div className="space-y-2 pt-2 border-t">
                     <Label htmlFor="password">Passwort</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password || ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          password: e.target.value || undefined,
-                        }))
-                      }
-                      placeholder="Passwort eingeben..."
-                      className="max-w-sm"
-                    />
+                    <div className="flex gap-2 max-w-sm">
+                      <div className="relative flex-1">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={formData.password || ""}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              password: e.target.value || undefined,
+                            }))
+                          }
+                          placeholder="Passwort eingeben..."
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
                     <FieldError message={errors.password} />
                     <p className="text-xs text-muted-foreground">
                       Mindestens 4 Zeichen. Besucher müssen dieses Passwort eingeben.

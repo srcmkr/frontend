@@ -1,12 +1,13 @@
 "use client";
 
-import { Activity, Bell, Database, Key, Globe, Settings } from "lucide-react";
+import { Activity, Bell, Database, Key, Users, Globe, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MonitoringSettings,
   NotificationSettings,
   DataSettings,
   ApiSettings,
+  UserSettings,
   StatusPageSettings,
   SystemSettings,
 } from "@/components/settings";
@@ -42,6 +43,10 @@ export default function SettingsPage() {
                 <Key className="h-4 w-4" />
                 <span className="hidden sm:inline">API</span>
               </TabsTrigger>
+              <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-background">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Benutzer</span>
+              </TabsTrigger>
               <TabsTrigger value="status-pages" className="gap-2 data-[state=active]:bg-background">
                 <Globe className="h-4 w-4" />
                 <span className="hidden sm:inline">Status-Seiten</span>
@@ -66,6 +71,9 @@ export default function SettingsPage() {
             </TabsContent>
             <TabsContent value="api" className="mt-0">
               <ApiSettings />
+            </TabsContent>
+            <TabsContent value="users" className="mt-0">
+              <UserSettings />
             </TabsContent>
             <TabsContent value="status-pages" className="mt-0">
               <StatusPageSettings />

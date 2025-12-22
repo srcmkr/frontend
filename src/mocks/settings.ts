@@ -5,6 +5,7 @@ import type {
   StatusPageSettingsFormData,
   SystemSettingsFormData,
 } from "@/lib/validations/settings";
+import type { User } from "@/types";
 
 // Monitoring Defaults
 export const defaultMonitoringSettings: MonitoringSettingsFormData = {
@@ -194,4 +195,32 @@ export const intervalOptions = [
   { value: 900, label: "15 Minuten" },
   { value: 1800, label: "30 Minuten" },
   { value: 3600, label: "1 Stunde" },
+];
+
+// Mock Users
+export const mockUsers: User[] = [
+  {
+    id: "user-1",
+    name: "John Doe",
+    email: "john@example.com",
+    status: "active",
+    createdAt: "2024-01-15T10:00:00Z",
+    lastLoginAt: "2024-12-22T08:30:00Z",
+  },
+  {
+    id: "user-2",
+    name: "Jane Smith",
+    email: "jane@example.com",
+    status: "active",
+    createdAt: "2024-03-20T14:00:00Z",
+    lastLoginAt: "2024-12-21T16:45:00Z",
+  },
+  {
+    id: "user-3",
+    name: "Max Mustermann",
+    email: "max@example.com",
+    status: "inactive",
+    createdAt: "2024-06-01T09:00:00Z",
+    lastLoginAt: null,
+  },
 ];
