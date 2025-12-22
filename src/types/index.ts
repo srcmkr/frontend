@@ -204,20 +204,14 @@ export interface NotificationChannel {
 }
 
 export interface EmailConfig {
-  smtpHost: string;
-  smtpPort: number;
-  smtpUser: string;
-  smtpPassword: string;
+  apiKey: string;
   fromEmail: string;
   toEmails: string[];
-  useTls: boolean;
 }
 
 export interface WebhookConfig {
   url: string;
-  method: "GET" | "POST";
   headers?: Record<string, string>;
-  body?: string;
 }
 
 // Status Page Announcement Types
