@@ -1,0 +1,102 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "monitors": "Monitors",
+    "incidents": "Incidents",
+    "statusPages": "Status Pages",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of all monitored services",
+    "addMonitor": "Add Monitor",
+    "monitors": "Monitors",
+    "loading": "Loading...",
+    "servicesCount": "{count} Services",
+    "servicesFiltered": "{filtered} of {total} Services",
+    "newGroup": "New Group",
+    "groups": "Groups",
+    "list": "List",
+    "errorLoading": "Error loading monitors",
+    "noMonitors": "No monitors found",
+    "activeIncidents": "Active Incidents",
+    "new": "New",
+    "incident": "Incident",
+    "scheduledMaintenance": "Scheduled Maintenance",
+    "announcement": "Announcement",
+    "historicalEntry": "Historical Entry",
+    "noActiveIncidents": "No active incidents",
+    "since": "Since {duration}",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "recentActivity": "Recent Activity",
+    "resolvedAfter": "Resolved after {duration}",
+    "ongoing": "Ongoing"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "create": "Create",
+    "creating": "Creating...",
+    "add": "Add",
+    "remove": "Remove",
+    "close": "Close",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
+  "settings": {
+    "language": "Language",
+    "theme": "Theme",
+    "logout": "Logout"
+  },
+  "languages": {
+    "en": "English",
+    "de": "German"
+  },
+  "themes": {
+    "basic": "Basic",
+    "dark": "Dark",
+    "forest": "Forest",
+    "slate": "Slate",
+    "kiwi": "Kiwi"
+  },
+  "time": {
+    "now": "Just now",
+    "minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+    "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+    "daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "since": "Since {time}"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidUrl": "Please enter a valid URL",
+    "invalidEmail": "Please enter a valid email address",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must be at most {max} characters"
+  },
+  "commandPalette": {
+    "placeholder": "Search or enter command...",
+    "noResults": "No results found.",
+    "quickActions": "Quick Actions",
+    "navigation": "Navigation",
+    "theme": "Theme",
+    "createMonitor": "Create new monitor",
+    "createGroup": "Create new group",
+    "createIncident": "Report new incident",
+    "createStatusPage": "Create status page"
+  }
+}

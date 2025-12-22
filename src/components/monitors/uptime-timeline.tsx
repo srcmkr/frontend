@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { UptimeSegment } from "@/types";
 
@@ -22,6 +23,8 @@ export function UptimeTimeline({
   uptime,
   className,
 }: UptimeTimelineProps) {
+  const t = useTranslations("monitors.timeline");
+  const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
 
@@ -39,13 +42,13 @@ export function UptimeTimeline({
     const start = new Date(timestamp);
     const end = new Date(start.getTime() + 30 * 60 * 1000); // 30 minutes
     const formatTime = (d: Date) =>
-      d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+      d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
     return `${formatTime(start)} - ${formatTime(end)}`;
   };
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString("de-DE", {
+    return date.toLocaleDateString(locale, {
       weekday: "short",
       day: "2-digit",
       month: "2-digit",
@@ -87,8 +90,8 @@ export function UptimeTimeline({
     <div className={cn("space-y-3", className)}>
       {/* Timeline header */}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>24 Stunden zuvor</span>
-        <span>Jetzt</span>
+        <span>{t("hoursAgo")}</span>
+        <span>{t("now")}</span>
       </div>
 
       {/* Responsive segment grid */}
@@ -116,7 +119,7 @@ export function UptimeTimeline({
       {/* Uptime percentage */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          Uptime der letzten 24 Stunden
+          {t("uptime24h")}
         </span>
         <span className={cn("text-lg font-semibold tabular-nums", getUptimeColor(uptime))}>
           {uptime.toFixed(2)}%
@@ -141,7 +144,7 @@ export function UptimeTimeline({
               {formatTimeRange(tooltip.segment.timestamp)}
             </div>
             {tooltip.segment.status === "no-data" ? (
-              <div className="text-muted-foreground">Keine Daten</div>
+              <div className="text-muted-foreground">{t("noData")}</div>
             ) : (
               <>
                 <div
@@ -154,11 +157,11 @@ export function UptimeTimeline({
                         : "text-red-500"
                   )}
                 >
-                  {tooltip.segment.uptime.toFixed(1)}% Uptime
+                  {t("uptimePercent", { percent: tooltip.segment.uptime.toFixed(1) })}
                 </div>
                 {tooltip.segment.failedChecks > 0 && (
                   <div className="text-red-400 mt-0.5">
-                    {tooltip.segment.failedChecks}/{tooltip.segment.totalChecks} fehlgeschlagen
+                    {t("failedChecks", { failed: tooltip.segment.failedChecks, total: tooltip.segment.totalChecks })}
                   </div>
                 )}
               </>

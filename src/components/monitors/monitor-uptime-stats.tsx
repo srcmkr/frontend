@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { UptimeTimeline } from "./uptime-timeline";
 import type { Monitor } from "@/types";
@@ -13,6 +14,8 @@ export function MonitorUptimeStats({
   monitor,
   className,
 }: MonitorUptimeStatsProps) {
+  const t = useTranslations("monitors.detail");
+
   const getUptimeColor = (value: number) => {
     if (value >= 99.9) return "text-green-600";
     if (value >= 95) return "text-yellow-600";
@@ -21,7 +24,7 @@ export function MonitorUptimeStats({
 
   return (
     <div className={cn("space-y-6", className)}>
-      <h3 className="font-semibold text-sm">Uptime</h3>
+      <h3 className="font-semibold text-sm">{t("uptime")}</h3>
 
       {/* Full-width timeline visualization */}
       <UptimeTimeline
@@ -32,13 +35,13 @@ export function MonitorUptimeStats({
       {/* Uptime summary stats for longer periods */}
       <div className="grid grid-cols-2 gap-4 pt-2 border-t">
         <div className="flex items-center justify-between py-2">
-          <span className="text-sm text-muted-foreground">7 Tage</span>
+          <span className="text-sm text-muted-foreground">{t("days7")}</span>
           <span className={cn("text-lg font-semibold tabular-nums", getUptimeColor(monitor.uptime7d))}>
             {monitor.uptime7d.toFixed(2)}%
           </span>
         </div>
         <div className="flex items-center justify-between py-2">
-          <span className="text-sm text-muted-foreground">30 Tage</span>
+          <span className="text-sm text-muted-foreground">{t("days30")}</span>
           <span className={cn("text-lg font-semibold tabular-nums", getUptimeColor(monitor.uptime30d))}>
             {monitor.uptime30d.toFixed(2)}%
           </span>

@@ -1,0 +1,279 @@
+{
+  "title": "Settings",
+  "subtitle": "System configuration",
+
+  "tabs": {
+    "monitoring": "Monitoring",
+    "notifications": "Notifications",
+    "data": "Data",
+    "api": "API",
+    "users": "Users",
+    "statusPages": "Status Pages",
+    "system": "System"
+  },
+
+  "monitoring": {
+    "title": "Monitoring Defaults",
+    "description": "Default values for newly created monitors",
+    "defaultInterval": "Default Interval",
+    "selectInterval": "Select interval",
+    "defaultTimeout": "Default Timeout (seconds)",
+    "defaultRetries": "Default Retries",
+    "defaultSlaTarget": "Default SLA Target (%)",
+    "defaultMaxResponseTime": "Default Max Response Time (ms)",
+    "maxResponseTimeHint": "Response times above this value are considered degradation",
+    "save": "Save",
+    "saved": "Monitoring settings saved"
+  },
+
+  "notificationSettings": {
+    "channelsTitle": "Notification Channels",
+    "channelsDescription": "Channels for incident notifications",
+    "addChannel": "Add Channel",
+    "noChannels": "No channels configured",
+    "tableColumns": {
+      "name": "Name",
+      "type": "Type",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "edit": "Edit",
+    "delete": "Delete",
+    "globalTitle": "Global Settings",
+    "globalDescription": "Settings for all notifications",
+    "failureThreshold": "Notify after X failures",
+    "failureThresholdHint": "Number of consecutive failures before a notification is sent",
+    "save": "Save",
+    "saved": "Notification settings saved",
+    "channelDeleted": "Channel deleted",
+    "channelCreated": "Channel created",
+    "channelUpdated": "Channel updated",
+    "deleteChannelTitle": "Delete Channel",
+    "deleteChannelDescription": "Do you really want to delete the channel \"{name}\"? This action cannot be undone.",
+    "cancel": "Cancel"
+  },
+
+  "channelDialog": {
+    "editTitle": "Edit Channel",
+    "createTitle": "Add Channel",
+    "editDescription": "Edit the notification channel settings.",
+    "createDescription": "Create a new notification channel.",
+    "channelType": "Channel Type",
+    "email": "Email",
+    "webhook": "Webhook",
+    "name": "Name",
+    "namePlaceholder": "e.g. Admin Email or Discord Alerts",
+    "resendApiKey": "Resend API Key",
+    "fromEmail": "Sender Address",
+    "fromEmailPlaceholder": "alerts@example.com",
+    "recipients": "Recipients",
+    "recipientPlaceholder": "recipient@example.com",
+    "webhookUrl": "Webhook URL",
+    "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
+    "httpHeaders": "HTTP Headers (optional)",
+    "headerName": "Header Name",
+    "headerValue": "Value",
+    "cancel": "Cancel",
+    "test": "Test",
+    "save": "Save",
+    "create": "Create",
+    "testSending": "Sending test notification...",
+    "testSuccess": "Test notification sent successfully",
+    "errorName": "Please enter a name",
+    "errorApiKey": "Please enter an API key",
+    "errorFromEmail": "Please enter a sender address",
+    "errorNoRecipients": "Please add at least one recipient",
+    "errorWebhookUrl": "Please enter a webhook URL"
+  },
+
+  "users": {
+    "title": "Users",
+    "description": "Manage users with system access",
+    "newUser": "New User",
+    "noUsers": "No users available",
+    "tableColumns": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "lastLogin": "Last Login",
+      "actions": "Actions"
+    },
+    "you": "(You)",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "edit": "Edit",
+    "changePassword": "Change Password",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "createDialog": {
+      "title": "Create New User",
+      "description": "Create a new user with system access.",
+      "name": "Name",
+      "namePlaceholder": "John Doe",
+      "email": "Email",
+      "emailPlaceholder": "john@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Repeat password",
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "editDialog": {
+      "title": "Edit User",
+      "description": "Change user data.",
+      "name": "Name",
+      "email": "Email",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "passwordDialog": {
+      "title": "Change Password",
+      "description": "Set a new password for {name}.",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Repeat password",
+      "cancel": "Cancel",
+      "change": "Change Password"
+    },
+    "deleteDialog": {
+      "title": "Delete User?",
+      "description": "This action cannot be undone. The user will immediately lose access to the system.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "toast": {
+      "created": "User created",
+      "updated": "User updated",
+      "activated": "User activated",
+      "deactivated": "User deactivated",
+      "deleted": "User deleted",
+      "passwordChanged": "Password for {name} has been changed"
+    },
+    "relativeTime": {
+      "never": "Never",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{days} days ago"
+    }
+  },
+
+  "api": {
+    "title": "API Keys",
+    "description": "Manage API keys for external integrations",
+    "newKey": "New API Key",
+    "noKeys": "No API keys available",
+    "tableColumns": {
+      "name": "Name",
+      "key": "Key",
+      "created": "Created",
+      "lastUsed": "Last Used",
+      "actions": "Actions"
+    },
+    "createDialog": {
+      "title": "Create New API Key",
+      "description": "Enter a name for the API key to identify it later.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Grafana Integration",
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "keyCreatedDialog": {
+      "title": "API Key Created",
+      "description": "Copy the API key now. It will only be shown once!",
+      "copy": "Copy",
+      "close": "Close"
+    },
+    "deleteDialog": {
+      "title": "Delete API Key?",
+      "description": "This action cannot be undone. All integrations using this key will stop working.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "toast": {
+      "copied": "API key copied to clipboard",
+      "deleted": "API key deleted"
+    },
+    "usage": {
+      "title": "API Usage",
+      "description": "Use the API key in the Authorization header:",
+      "example": "Authorization: Bearer sk_live_xxxxx..."
+    },
+    "relativeTime": {
+      "never": "Never",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{days} days ago"
+    }
+  },
+
+  "statusPageSettings": {
+    "title": "Status Page Defaults",
+    "description": "Default values for newly created status pages",
+    "defaultLogo": "Default Logo",
+    "noLogo": "No logo",
+    "uploadLogo": "Upload Logo",
+    "logoHint": "PNG, JPG or SVG, max. 2MB",
+    "logoUploaded": "Logo uploaded",
+    "defaultPrimaryColor": "Default Primary Color",
+    "colorHint": "Used for buttons and accents",
+    "preview": "Preview",
+    "exampleButton": "Example Button",
+    "uptimeHistoryDays": "Uptime History (days)",
+    "uptimeHistoryHint": "Number of days for the uptime bar display",
+    "incidentHistoryDays": "Incident History (days)",
+    "incidentHistoryHint": "Number of days for the incident overview",
+    "save": "Save",
+    "saved": "Status page settings saved"
+  },
+
+  "data": {
+    "statsTitle": "Database Statistics",
+    "statsDescription": "Current usage and storage consumption",
+    "totalChecks": "Total Checks",
+    "storageUsage": "Storage Usage",
+    "totalIncidents": "Total Incidents",
+    "oldestRecord": "Oldest Record",
+    "retentionTitle": "Data Retention",
+    "retentionDescription": "How long should check results be stored?",
+    "retentionPeriod": "Retention Period",
+    "selectPeriod": "Select period",
+    "retentionHint": "Older data will be automatically deleted (pruning)",
+    "estimatedStorage": "Estimated Storage",
+    "estimatedStorageHint": "Based on {monitors} monitors, ~{checks} checks/day",
+    "save": "Save",
+    "saved": "Data settings saved",
+    "exportTitle": "Data Export",
+    "exportDescription": "Export check results and incident data",
+    "exportCsv": "Export as CSV",
+    "exportJson": "Export as JSON",
+    "exportStarted": "Export as {format} started..."
+  },
+
+  "system": {
+    "timezoneTitle": "Timezone",
+    "timezoneDescription": "Timezone for all time displays in the system",
+    "systemTimezone": "System Timezone",
+    "selectTimezone": "Select timezone",
+    "timezoneHint": "Affects all time displays in reports and the interface",
+    "save": "Save",
+    "saved": "System settings saved",
+    "infoTitle": "System Information",
+    "infoDescription": "Version and build information",
+    "version": "Version",
+    "buildDate": "Build Date",
+    "runtime": "Runtime",
+    "license": "License",
+    "aboutTitle": "About Kiwi Status",
+    "aboutSubtitle": "Open-Source Uptime Monitoring & Status Pages",
+    "aboutDescription": "Kiwi Status is a self-hosted monitoring platform for uptime monitoring, incident management, and public status pages.",
+    "aboutTech": "Built with Next.js, ASP.NET Core, and TimescaleDB.",
+    "aboutLicense": "Licensed under the Elastic License 2.0 (ELv2).",
+    "github": "GitHub",
+    "website": "Website"
+  }
+}

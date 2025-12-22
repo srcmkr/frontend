@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Plus,
   MoreHorizontal,
@@ -60,14 +61,23 @@ import {
   type UserEditFormData,
   type UserPasswordFormData,
 } from "@/lib/validations/settings";
-import { mockUsers } from "@/mocks/settings";
+import { useUsers } from "@/features/settings";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { User } from "@/types";
 
 // Mock: Simuliert den aktuell eingeloggten Benutzer (erster Benutzer)
 const CURRENT_USER_ID = "user-1";
 
 export function UserSettings() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const t = useTranslations("settings");
+  const locale = useLocale();
+
+  // Fetch users using React Query
+  const { data: fetchedUsers = [], isLoading } = useUsers();
+
+  // Local state for optimistic updates (until we have mutations)
+  const [localUsers, setLocalUsers] = useState<User[] | null>(null);
+  const users = localUsers ?? fetchedUsers;
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
@@ -98,7 +108,7 @@ export function UserSettings() {
   });
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("de-DE", {
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -106,15 +116,15 @@ export function UserSettings() {
   };
 
   const formatRelativeTime = (dateString: string | null) => {
-    if (!dateString) return "Nie";
+    if (!dateString) return t("users.relativeTime.never");
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Heute";
-    if (diffDays === 1) return "Gestern";
-    if (diffDays < 7) return `Vor ${diffDays} Tagen`;
+    if (diffDays === 0) return t("users.relativeTime.today");
+    if (diffDays === 1) return t("users.relativeTime.yesterday");
+    if (diffDays < 7) return t("users.relativeTime.daysAgo", { days: diffDays });
     return formatDate(dateString);
   };
 
@@ -128,8 +138,8 @@ export function UserSettings() {
       lastLoginAt: null,
     };
 
-    setUsers((prev) => [...prev, newUser]);
-    toast.success("Benutzer erstellt");
+    setLocalUsers((prev) => [...(prev ?? fetchedUsers), newUser]);
+    toast.success(t("users.toast.created"));
     createForm.reset();
     setIsCreateOpen(false);
   };
@@ -137,12 +147,12 @@ export function UserSettings() {
   const onEditUser = (data: UserEditFormData) => {
     if (!editUser) return;
 
-    setUsers((prev) =>
-      prev.map((u) =>
+    setLocalUsers((prev) =>
+      (prev ?? fetchedUsers).map((u) =>
         u.id === editUser.id ? { ...u, name: data.name, email: data.email } : u
       )
     );
-    toast.success("Benutzer aktualisiert");
+    toast.success(t("users.toast.updated"));
     setEditUser(null);
   };
 
@@ -158,59 +168,81 @@ export function UserSettings() {
 
   const onChangePassword = () => {
     if (!passwordUser) return;
-    toast.success(`Passwort für ${passwordUser.name} wurde geändert`);
+    toast.success(t("users.toast.passwordChanged", { name: passwordUser.name }));
     setPasswordUser(null);
     passwordForm.reset();
   };
 
   const handleToggleStatus = (user: User) => {
     const newStatus = user.status === "active" ? "inactive" : "active";
-    setUsers((prev) =>
-      prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u))
+    setLocalUsers((prev) =>
+      (prev ?? fetchedUsers).map((u) => (u.id === user.id ? { ...u, status: newStatus } : u))
     );
     toast.success(
-      newStatus === "active" ? "Benutzer aktiviert" : "Benutzer deaktiviert"
+      newStatus === "active" ? t("users.toast.activated") : t("users.toast.deactivated")
     );
   };
 
   const handleDeleteUser = () => {
     if (deleteUserId) {
-      setUsers((prev) => prev.filter((u) => u.id !== deleteUserId));
-      toast.success("Benutzer gelöscht");
+      setLocalUsers((prev) => (prev ?? fetchedUsers).filter((u) => u.id !== deleteUserId));
+      toast.success(t("users.toast.deleted"));
       setDeleteUserId(null);
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">{t("users.title")}</h3>
+            <p className="text-sm text-muted-foreground">
+              {t("users.description")}
+            </p>
+          </div>
+          <Skeleton className="h-9 w-36" />
+        </div>
+        <div className="border rounded-lg p-4 space-y-3">
+          <Skeleton className="h-12" />
+          <Skeleton className="h-12" />
+          <Skeleton className="h-12" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Benutzer</h3>
+          <h3 className="text-lg font-semibold">{t("users.title")}</h3>
           <p className="text-sm text-muted-foreground">
-            Verwalte Benutzer mit Zugriff auf das System
+            {t("users.description")}
           </p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-1" />
-              Neuer Benutzer
+              {t("users.newUser")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <form onSubmit={createForm.handleSubmit(onCreateUser)}>
               <DialogHeader>
-                <DialogTitle>Neuen Benutzer erstellen</DialogTitle>
+                <DialogTitle>{t("users.createDialog.title")}</DialogTitle>
                 <DialogDescription>
-                  Erstelle einen neuen Benutzer mit Systemzugriff.
+                  {t("users.createDialog.description")}
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="create-name">Name</Label>
+                  <Label htmlFor="create-name">{t("users.createDialog.name")}</Label>
                   <Input
                     id="create-name"
-                    placeholder="Max Mustermann"
+                    placeholder={t("users.createDialog.namePlaceholder")}
                     {...createForm.register("name")}
                   />
                   {createForm.formState.errors.name && (
@@ -220,11 +252,11 @@ export function UserSettings() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="create-email">E-Mail</Label>
+                  <Label htmlFor="create-email">{t("users.createDialog.email")}</Label>
                   <Input
                     id="create-email"
                     type="email"
-                    placeholder="max@example.com"
+                    placeholder={t("users.createDialog.emailPlaceholder")}
                     {...createForm.register("email")}
                   />
                   {createForm.formState.errors.email && (
@@ -234,11 +266,11 @@ export function UserSettings() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="create-password">Passwort</Label>
+                  <Label htmlFor="create-password">{t("users.createDialog.password")}</Label>
                   <Input
                     id="create-password"
                     type="password"
-                    placeholder="Mindestens 8 Zeichen"
+                    placeholder={t("users.createDialog.passwordPlaceholder")}
                     {...createForm.register("password")}
                   />
                   {createForm.formState.errors.password && (
@@ -249,12 +281,12 @@ export function UserSettings() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="create-confirmPassword">
-                    Passwort bestätigen
+                    {t("users.createDialog.confirmPassword")}
                   </Label>
                   <Input
                     id="create-confirmPassword"
                     type="password"
-                    placeholder="Passwort wiederholen"
+                    placeholder={t("users.createDialog.confirmPasswordPlaceholder")}
                     {...createForm.register("confirmPassword")}
                   />
                   {createForm.formState.errors.confirmPassword && (
@@ -270,9 +302,9 @@ export function UserSettings() {
                   variant="outline"
                   onClick={() => setIsCreateOpen(false)}
                 >
-                  Abbrechen
+                  {t("users.createDialog.cancel")}
                 </Button>
-                <Button type="submit">Erstellen</Button>
+                <Button type="submit">{t("users.createDialog.create")}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -284,14 +316,14 @@ export function UserSettings() {
         <DialogContent>
           <form onSubmit={editForm.handleSubmit(onEditUser)}>
             <DialogHeader>
-              <DialogTitle>Benutzer bearbeiten</DialogTitle>
+              <DialogTitle>{t("users.editDialog.title")}</DialogTitle>
               <DialogDescription>
-                Ändere die Benutzerdaten.
+                {t("users.editDialog.description")}
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Name</Label>
+                <Label htmlFor="edit-name">{t("users.editDialog.name")}</Label>
                 <Input id="edit-name" {...editForm.register("name")} />
                 {editForm.formState.errors.name && (
                   <p className="text-sm text-destructive">
@@ -300,7 +332,7 @@ export function UserSettings() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-email">E-Mail</Label>
+                <Label htmlFor="edit-email">{t("users.editDialog.email")}</Label>
                 <Input
                   id="edit-email"
                   type="email"
@@ -319,9 +351,9 @@ export function UserSettings() {
                 variant="outline"
                 onClick={() => setEditUser(null)}
               >
-                Abbrechen
+                {t("users.editDialog.cancel")}
               </Button>
-              <Button type="submit">Speichern</Button>
+              <Button type="submit">{t("users.editDialog.save")}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -332,18 +364,18 @@ export function UserSettings() {
         <DialogContent>
           <form onSubmit={passwordForm.handleSubmit(onChangePassword)}>
             <DialogHeader>
-              <DialogTitle>Passwort ändern</DialogTitle>
+              <DialogTitle>{t("users.passwordDialog.title")}</DialogTitle>
               <DialogDescription>
-                Setze ein neues Passwort für {passwordUser?.name}.
+                {t("users.passwordDialog.description", { name: passwordUser?.name ?? "" })}
               </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="new-password">Neues Passwort</Label>
+                <Label htmlFor="new-password">{t("users.passwordDialog.newPassword")}</Label>
                 <Input
                   id="new-password"
                   type="password"
-                  placeholder="Mindestens 8 Zeichen"
+                  placeholder={t("users.passwordDialog.newPasswordPlaceholder")}
                   {...passwordForm.register("password")}
                 />
                 {passwordForm.formState.errors.password && (
@@ -354,12 +386,12 @@ export function UserSettings() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-new-password">
-                  Passwort bestätigen
+                  {t("users.passwordDialog.confirmPassword")}
                 </Label>
                 <Input
                   id="confirm-new-password"
                   type="password"
-                  placeholder="Passwort wiederholen"
+                  placeholder={t("users.passwordDialog.confirmPasswordPlaceholder")}
                   {...passwordForm.register("confirmPassword")}
                 />
                 {passwordForm.formState.errors.confirmPassword && (
@@ -375,9 +407,9 @@ export function UserSettings() {
                 variant="outline"
                 onClick={() => setPasswordUser(null)}
               >
-                Abbrechen
+                {t("users.passwordDialog.cancel")}
               </Button>
-              <Button type="submit">Passwort ändern</Button>
+              <Button type="submit">{t("users.passwordDialog.change")}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -390,16 +422,15 @@ export function UserSettings() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Benutzer löschen?</AlertDialogTitle>
+            <AlertDialogTitle>{t("users.deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Diese Aktion kann nicht rückgängig gemacht werden. Der Benutzer
-              verliert sofort den Zugriff auf das System.
+              {t("users.deleteDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("users.deleteDialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteUser}>
-              Löschen
+              {t("users.deleteDialog.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -410,11 +441,11 @@ export function UserSettings() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>E-Mail</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Letzter Login</TableHead>
-              <TableHead className="text-right">Aktionen</TableHead>
+              <TableHead>{t("users.tableColumns.name")}</TableHead>
+              <TableHead>{t("users.tableColumns.email")}</TableHead>
+              <TableHead>{t("users.tableColumns.status")}</TableHead>
+              <TableHead>{t("users.tableColumns.lastLogin")}</TableHead>
+              <TableHead className="text-right">{t("users.tableColumns.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -424,7 +455,7 @@ export function UserSettings() {
                   colSpan={5}
                   className="text-center text-muted-foreground py-8"
                 >
-                  Keine Benutzer vorhanden
+                  {t("users.noUsers")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -434,7 +465,7 @@ export function UserSettings() {
                     {user.name}
                     {isCurrentUser(user.id) && (
                       <span className="ml-2 text-xs text-muted-foreground">
-                        (Du)
+                        {t("users.you")}
                       </span>
                     )}
                   </TableCell>
@@ -445,7 +476,7 @@ export function UserSettings() {
                         user.status === "active" ? "default" : "secondary"
                       }
                     >
-                      {user.status === "active" ? "Aktiv" : "Inaktiv"}
+                      {user.status === "active" ? t("users.statusActive") : t("users.statusInactive")}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -466,13 +497,13 @@ export function UserSettings() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleOpenEdit(user)}>
                           <Pencil className="h-4 w-4 mr-2" />
-                          Bearbeiten
+                          {t("users.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleOpenPasswordChange(user)}
                         >
                           <KeyRound className="h-4 w-4 mr-2" />
-                          Passwort ändern
+                          {t("users.changePassword")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleToggleStatus(user)}
@@ -481,12 +512,12 @@ export function UserSettings() {
                           {user.status === "active" ? (
                             <>
                               <UserX className="h-4 w-4 mr-2" />
-                              Deaktivieren
+                              {t("users.deactivate")}
                             </>
                           ) : (
                             <>
                               <UserCheck className="h-4 w-4 mr-2" />
-                              Aktivieren
+                              {t("users.activate")}
                             </>
                           )}
                         </DropdownMenuItem>
@@ -497,7 +528,7 @@ export function UserSettings() {
                           disabled={isCurrentUser(user.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Löschen
+                          {t("users.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

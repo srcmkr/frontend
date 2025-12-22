@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations, useLocale } from "next-intl";
 import { Plus, Copy, Trash2, Key, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -37,10 +38,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { apiKeySchema, type ApiKeyFormData } from "@/lib/validations/settings";
-import { mockApiKeys, type ApiKey } from "@/mocks/settings";
+import { useApiKeys, type ApiKey } from "@/features/settings";
 
 export function ApiSettings() {
-  const [keys, setKeys] = useState<ApiKey[]>(mockApiKeys);
+  const t = useTranslations("settings");
+  const locale = useLocale();
+
+  // Fetch API keys using React Query
+  const { data: fetchedKeys = [], isLoading } = useApiKeys();
+
+  // Local state for optimistic updates (until we have mutations)
+  const [localKeys, setLocalKeys] = useState<ApiKey[] | null>(null);
+  const keys = localKeys ?? fetchedKeys;
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null);
   const [newKeyValue, setNewKeyValue] = useState<string | null>(null);
@@ -55,7 +65,7 @@ export function ApiSettings() {
   });
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("de-DE", {
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -63,14 +73,14 @@ export function ApiSettings() {
   };
 
   const formatRelativeTime = (dateString: string | null) => {
-    if (!dateString) return "Nie";
+    if (!dateString) return t("api.relativeTime.never");
     const date = new Date(dateString);
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Heute";
-    if (diffDays === 1) return "Gestern";
-    if (diffDays < 7) return `Vor ${diffDays} Tagen`;
+    if (diffDays === 0) return t("api.relativeTime.today");
+    if (diffDays === 1) return t("api.relativeTime.yesterday");
+    if (diffDays < 7) return t("api.relativeTime.daysAgo", { days: diffDays });
     return formatDate(dateString);
   };
 
@@ -94,7 +104,7 @@ export function ApiSettings() {
       lastUsed: null,
     };
 
-    setKeys((prev) => [...prev, newKey]);
+    setLocalKeys((prev) => [...(prev ?? fetchedKeys), newKey]);
     setNewKeyValue(fullKey);
     reset();
   };
@@ -102,7 +112,7 @@ export function ApiSettings() {
   const handleCopyKey = () => {
     if (newKeyValue) {
       navigator.clipboard.writeText(newKeyValue);
-      toast.success("API-Key in Zwischenablage kopiert");
+      toast.success(t("api.toast.copied"));
     }
   };
 
@@ -113,42 +123,64 @@ export function ApiSettings() {
 
   const handleDeleteKey = () => {
     if (deleteKeyId) {
-      setKeys((prev) => prev.filter((k) => k.id !== deleteKeyId));
-      toast.success("API-Key gelöscht");
+      setLocalKeys((prev) => (prev ?? fetchedKeys).filter((k) => k.id !== deleteKeyId));
+      toast.success(t("api.toast.deleted"));
       setDeleteKeyId(null);
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">{t("api.title")}</h3>
+            <p className="text-sm text-muted-foreground">
+              {t("api.description")}
+            </p>
+          </div>
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <div className="border rounded-lg p-4 space-y-3">
+          <Skeleton className="h-10" />
+          <Skeleton className="h-10" />
+          <Skeleton className="h-10" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">API-Keys</h3>
+          <h3 className="text-lg font-semibold">{t("api.title")}</h3>
           <p className="text-sm text-muted-foreground">
-            Verwalte API-Keys für externe Integrationen
+            {t("api.description")}
           </p>
         </div>
         <Dialog open={isCreateOpen && !newKeyValue} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-1" />
-              Neuer API-Key
+              {t("api.newKey")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <form onSubmit={handleSubmit(onCreateKey)}>
               <DialogHeader>
-                <DialogTitle>Neuen API-Key erstellen</DialogTitle>
+                <DialogTitle>{t("api.createDialog.title")}</DialogTitle>
                 <DialogDescription>
-                  Gib einen Namen für den API-Key ein, um ihn später identifizieren zu können.
+                  {t("api.createDialog.description")}
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="keyName">Name</Label>
+                  <Label htmlFor="keyName">{t("api.createDialog.name")}</Label>
                   <Input
                     id="keyName"
-                    placeholder="z.B. Grafana Integration"
+                    placeholder={t("api.createDialog.namePlaceholder")}
                     {...register("name")}
                   />
                   {errors.name && (
@@ -158,9 +190,9 @@ export function ApiSettings() {
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                  Abbrechen
+                  {t("api.createDialog.cancel")}
                 </Button>
-                <Button type="submit">Erstellen</Button>
+                <Button type="submit">{t("api.createDialog.create")}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -171,9 +203,9 @@ export function ApiSettings() {
       <Dialog open={!!newKeyValue} onOpenChange={handleCloseNewKeyDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>API-Key erstellt</DialogTitle>
+            <DialogTitle>{t("api.keyCreatedDialog.title")}</DialogTitle>
             <DialogDescription>
-              Kopiere den API-Key jetzt. Er wird nur einmal angezeigt!
+              {t("api.keyCreatedDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -185,10 +217,10 @@ export function ApiSettings() {
           <DialogFooter>
             <Button onClick={handleCopyKey}>
               <Copy className="h-4 w-4 mr-2" />
-              Kopieren
+              {t("api.keyCreatedDialog.copy")}
             </Button>
             <Button variant="outline" onClick={handleCloseNewKeyDialog}>
-              Schließen
+              {t("api.keyCreatedDialog.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -198,16 +230,15 @@ export function ApiSettings() {
       <AlertDialog open={!!deleteKeyId} onOpenChange={() => setDeleteKeyId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>API-Key löschen?</AlertDialogTitle>
+            <AlertDialogTitle>{t("api.deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Diese Aktion kann nicht rückgängig gemacht werden. Alle Integrationen,
-              die diesen Key verwenden, werden nicht mehr funktionieren.
+              {t("api.deleteDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("api.deleteDialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteKey} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Löschen
+              {t("api.deleteDialog.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -218,18 +249,18 @@ export function ApiSettings() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Key</TableHead>
-              <TableHead>Erstellt</TableHead>
-              <TableHead>Zuletzt verwendet</TableHead>
-              <TableHead className="text-right">Aktionen</TableHead>
+              <TableHead>{t("api.tableColumns.name")}</TableHead>
+              <TableHead>{t("api.tableColumns.key")}</TableHead>
+              <TableHead>{t("api.tableColumns.created")}</TableHead>
+              <TableHead>{t("api.tableColumns.lastUsed")}</TableHead>
+              <TableHead className="text-right">{t("api.tableColumns.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {keys.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                  Keine API-Keys vorhanden
+                  {t("api.noKeys")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -267,12 +298,12 @@ export function ApiSettings() {
 
       {/* Usage Hint */}
       <div className="p-4 bg-muted/50 rounded-lg">
-        <h4 className="font-medium mb-2">API-Verwendung</h4>
+        <h4 className="font-medium mb-2">{t("api.usage.title")}</h4>
         <p className="text-sm text-muted-foreground mb-2">
-          Verwende den API-Key im Authorization-Header:
+          {t("api.usage.description")}
         </p>
         <code className="block text-sm bg-background p-3 rounded border">
-          Authorization: Bearer sk_live_xxxxx...
+          {t("api.usage.example")}
         </code>
       </div>
     </div>

@@ -1,0 +1,72 @@
+{
+  "generic": {
+    "title": "Error",
+    "unexpected": "An unexpected error occurred.",
+    "tryAgain": "Please try again.",
+    "contactSupport": "If the problem persists, contact support."
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Dashboard Error",
+      "message": "The dashboard could not be loaded."
+    },
+    "monitors": {
+      "title": "Error Loading Monitors",
+      "message": "Monitor data could not be loaded."
+    },
+    "incidents": {
+      "title": "Error Loading Incidents",
+      "message": "Incident data could not be loaded."
+    },
+    "statusPages": {
+      "title": "Error Loading Status Pages",
+      "message": "Status pages could not be loaded."
+    },
+    "notifications": {
+      "title": "Error Loading Notifications",
+      "message": "Notification settings could not be loaded."
+    }
+  },
+  "global": {
+    "title": "Critical Error",
+    "message": "The application could not be loaded. Please try again."
+  },
+  "api": {
+    "network": "Network error. Please check your connection.",
+    "timeout": "Request timed out. Please try again.",
+    "unauthorized": "Session expired. Please log in again.",
+    "forbidden": "You don't have permission to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Server error. Please try again later."
+  },
+  "mutations": {
+    "monitors": {
+      "createError": "Error creating monitor: {message}",
+      "updateError": "Error updating monitor: {message}",
+      "deleteError": "Error deleting monitor: {message}"
+    },
+    "incidents": {
+      "createError": "Error creating incident: {message}",
+      "updateError": "Error updating incident: {message}",
+      "deleteError": "Error deleting incident: {message}",
+      "resolveError": "Error resolving incident: {message}",
+      "addUpdateError": "Error adding update: {message}",
+      "editUpdateError": "Error editing update: {message}",
+      "deleteUpdateError": "Error deleting update: {message}"
+    },
+    "statusPages": {
+      "createError": "Error creating status page: {message}",
+      "updateError": "Error updating status page: {message}",
+      "deleteError": "Error deleting status page: {message}"
+    },
+    "serviceGroups": {
+      "updateError": "Error saving service groups: {message}"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidFormat": "Invalid format",
+    "tooShort": "Input is too short",
+    "tooLong": "Input is too long"
+  }
+}

@@ -3,45 +3,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Globe, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useLanguageStore } from "@/lib/stores";
-
-const translations = {
-  en: {
-    title: "Welcome back",
-    description: "Sign in to your account to continue",
-    email: "Email",
-    emailPlaceholder: "you@example.com",
-    password: "Password",
-    passwordPlaceholder: "Enter your password",
-    forgotPassword: "Forgot password?",
-    signIn: "Sign In",
-    noAccount: "Don't have an account?",
-    signUp: "Sign up",
-    invalidCredentials: "Invalid email or password",
-  },
-  de: {
-    title: "Willkommen zurück",
-    description: "Melden Sie sich an, um fortzufahren",
-    email: "E-Mail",
-    emailPlaceholder: "du@beispiel.de",
-    password: "Passwort",
-    passwordPlaceholder: "Passwort eingeben",
-    forgotPassword: "Passwort vergessen?",
-    signIn: "Anmelden",
-    noAccount: "Noch kein Konto?",
-    signUp: "Registrieren",
-    invalidCredentials: "Ungültige E-Mail oder Passwort",
-  },
-} as const;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { language } = useLanguageStore();
-  const t = translations[language];
+  const t = useTranslations("login");
+  const tc = useTranslations("common");
+  const { language, setLanguage } = useLanguageStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,14 +41,47 @@ export default function LoginPage() {
     if (email && password.length >= 1) {
       router.push("/");
     } else {
-      setError(t.invalidCredentials);
+      setError(t("invalidCredentials"));
     }
 
     setIsLoading(false);
   };
 
   return (
-    <Card className="w-full max-w-md mx-4 shadow-lg">
+    <Card className="w-full max-w-md mx-4 shadow-lg relative">
+      {/* Language Switcher */}
+      <div className="absolute top-4 right-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Globe className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => setLanguage("en")}
+              className="flex items-center justify-between"
+            >
+              <span className="flex items-center gap-2">
+                <span>🇬🇧</span>
+                {tc("languages.en")}
+              </span>
+              {language === "en" && <Check className="h-4 w-4" />}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setLanguage("de")}
+              className="flex items-center justify-between"
+            >
+              <span className="flex items-center gap-2">
+                <span>🇩🇪</span>
+                {tc("languages.de")}
+              </span>
+              {language === "de" && <Check className="h-4 w-4" />}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       <CardHeader className="text-center space-y-2">
         <div className="flex justify-center mb-4">
           <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
@@ -86,17 +99,17 @@ export default function LoginPage() {
             </svg>
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold">{t.title}</CardTitle>
-        <CardDescription>{t.description}</CardDescription>
+        <CardTitle className="text-2xl font-bold">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">{t.email}</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder={t.emailPlaceholder}
+              placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -107,18 +120,18 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">{t.password}</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Link
                 href="/forgot-password"
                 className="text-sm text-primary hover:underline"
               >
-                {t.forgotPassword}
+                {t("forgotPassword")}
               </Link>
             </div>
             <Input
               id="password"
               type="password"
-              placeholder={t.passwordPlaceholder}
+              placeholder={t("passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -136,10 +149,10 @@ export default function LoginPage() {
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <LoadingSpinner />
-                {t.signIn}...
+                {t("signingIn")}
               </span>
             ) : (
-              t.signIn
+              t("signIn")
             )}
           </Button>
         </form>

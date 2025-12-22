@@ -2,38 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguageStore } from "@/lib/stores";
-
-const translations = {
-  en: {
-    title: "Reset password",
-    description: "Enter your email address and we'll send you a link to reset your password",
-    email: "Email",
-    emailPlaceholder: "you@example.com",
-    sendLink: "Send Reset Link",
-    backToLogin: "Back to login",
-    successTitle: "Check your email",
-    successDescription: "We've sent you a link to reset your password. Please check your inbox.",
-  },
-  de: {
-    title: "Passwort zurücksetzen",
-    description: "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen",
-    email: "E-Mail",
-    emailPlaceholder: "du@beispiel.de",
-    sendLink: "Link senden",
-    backToLogin: "Zurück zur Anmeldung",
-    successTitle: "E-Mail überprüfen",
-    successDescription: "Wir haben Ihnen einen Link zum Zurücksetzen Ihres Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang.",
-  },
-} as const;
 
 export default function ForgotPasswordPage() {
-  const { language } = useLanguageStore();
-  const t = translations[language];
+  const t = useTranslations("login");
 
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -70,14 +46,14 @@ export default function ForgotPasswordPage() {
               </svg>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">{t.successTitle}</CardTitle>
-          <CardDescription>{t.successDescription}</CardDescription>
+          <CardTitle className="text-2xl font-bold">{t("resetPassword.successTitle")}</CardTitle>
+          <CardDescription>{t("resetPassword.successDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Link href="/login">
             <Button variant="outline" className="w-full">
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
-              {t.backToLogin}
+              {t("resetPassword.backToLogin")}
             </Button>
           </Link>
         </CardContent>
@@ -105,17 +81,17 @@ export default function ForgotPasswordPage() {
             </svg>
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold">{t.title}</CardTitle>
-        <CardDescription>{t.description}</CardDescription>
+        <CardTitle className="text-2xl font-bold">{t("resetPassword.title")}</CardTitle>
+        <CardDescription>{t("resetPassword.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">{t.email}</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder={t.emailPlaceholder}
+              placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -128,17 +104,17 @@ export default function ForgotPasswordPage() {
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <LoadingSpinner />
-                {t.sendLink}...
+                {t("resetPassword.sendingLink")}
               </span>
             ) : (
-              t.sendLink
+              t("resetPassword.sendLink")
             )}
           </Button>
 
           <Link href="/login" className="block">
             <Button variant="ghost" className="w-full">
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
-              {t.backToLogin}
+              {t("resetPassword.backToLogin")}
             </Button>
           </Link>
         </form>

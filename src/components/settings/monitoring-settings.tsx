@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,7 @@ import {
 import { defaultMonitoringSettings, intervalOptions } from "@/mocks/settings";
 
 export function MonitoringSettings() {
+  const t = useTranslations("settings");
   const {
     register,
     handleSubmit,
@@ -36,28 +38,28 @@ export function MonitoringSettings() {
   const onSubmit = (data: MonitoringSettingsFormData) => {
     // TODO: API call
     console.log("Saving monitoring settings:", data);
-    toast.success("Monitoring-Einstellungen gespeichert");
+    toast.success(t("monitoring.saved"));
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-1">Monitoring-Defaults</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("monitoring.title")}</h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Standardwerte für neu erstellte Monitore
+          {t("monitoring.description")}
         </p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         {/* Default Interval */}
         <div className="space-y-2">
-          <Label htmlFor="defaultInterval">Standard-Intervall</Label>
+          <Label htmlFor="defaultInterval">{t("monitoring.defaultInterval")}</Label>
           <Select
             value={String(currentInterval)}
             onValueChange={(value) => setValue("defaultInterval", Number(value), { shouldDirty: true })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Intervall wählen" />
+              <SelectValue placeholder={t("monitoring.selectInterval")} />
             </SelectTrigger>
             <SelectContent>
               {intervalOptions.map((option) => (
@@ -74,7 +76,7 @@ export function MonitoringSettings() {
 
         {/* Default Timeout */}
         <div className="space-y-2">
-          <Label htmlFor="defaultTimeout">Standard-Timeout (Sekunden)</Label>
+          <Label htmlFor="defaultTimeout">{t("monitoring.defaultTimeout")}</Label>
           <Input
             id="defaultTimeout"
             type="number"
@@ -87,7 +89,7 @@ export function MonitoringSettings() {
 
         {/* Default Retries */}
         <div className="space-y-2">
-          <Label htmlFor="defaultRetries">Standard-Wiederholungen</Label>
+          <Label htmlFor="defaultRetries">{t("monitoring.defaultRetries")}</Label>
           <Input
             id="defaultRetries"
             type="number"
@@ -100,7 +102,7 @@ export function MonitoringSettings() {
 
         {/* Default SLA Target */}
         <div className="space-y-2">
-          <Label htmlFor="defaultSlaTarget">Standard-SLA-Ziel (%)</Label>
+          <Label htmlFor="defaultSlaTarget">{t("monitoring.defaultSlaTarget")}</Label>
           <Input
             id="defaultSlaTarget"
             type="number"
@@ -114,7 +116,7 @@ export function MonitoringSettings() {
 
         {/* Default Max Response Time */}
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="defaultMaxResponseTime">Standard-Max-Antwortzeit (ms)</Label>
+          <Label htmlFor="defaultMaxResponseTime">{t("monitoring.defaultMaxResponseTime")}</Label>
           <Input
             id="defaultMaxResponseTime"
             type="number"
@@ -124,14 +126,14 @@ export function MonitoringSettings() {
             <p className="text-sm text-destructive">{errors.defaultMaxResponseTime.message}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Antwortzeiten über diesem Wert werden als Degradation gewertet
+            {t("monitoring.maxResponseTimeHint")}
           </p>
         </div>
       </div>
 
       <div className="flex justify-end pt-4 border-t">
         <Button type="submit" disabled={!isDirty}>
-          Speichern
+          {t("monitoring.save")}
         </Button>
       </div>
     </form>

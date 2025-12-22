@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   GripVertical,
   Plus,
@@ -130,6 +131,7 @@ function DroppableGroup({
   onDelete,
   onRemoveMonitor,
   isOver,
+  dragMonitorsHereText,
 }: {
   group: StatusPageGroup;
   monitors: Monitor[];
@@ -138,6 +140,7 @@ function DroppableGroup({
   onDelete: (id: string) => void;
   onRemoveMonitor: (groupId: string, monitorId: string) => void;
   isOver: boolean;
+  dragMonitorsHereText: string;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(group.name);
@@ -273,7 +276,7 @@ function DroppableGroup({
           {groupMonitors.length === 0 ? (
             <div className="flex items-center justify-center h-[44px] border-2 border-dashed rounded-lg text-sm text-muted-foreground">
               <ArrowRight className="h-4 w-4 mr-2" />
-              Monitors hierher ziehen
+              {dragMonitorsHereText}
             </div>
           ) : (
             groupMonitors.map((monitor) => (
@@ -297,6 +300,7 @@ export function StatusPageGroupEditor({
   onChange,
   className,
 }: StatusPageGroupEditorProps) {
+  const t = useTranslations("statusPages");
   const [newGroupName, setNewGroupName] = useState("");
   const [search, setSearch] = useState("");
   const [activeMonitorId, setActiveMonitorId] = useState<string | null>(null);
@@ -497,14 +501,14 @@ export function StatusPageGroupEditor({
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Monitors suchen..."
+                placeholder={t("groupEditor.searchMonitors")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-8 h-8"
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {monitors.length} Monitors verfügbar
+              {t("groupEditor.monitorsAvailable", { count: monitors.length })}
             </p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
@@ -518,7 +522,7 @@ export function StatusPageGroupEditor({
             ))}
             {filteredMonitors.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-8">
-                {search ? "Keine Monitors gefunden" : "Keine Monitors verfügbar"}
+                {search ? t("groupEditor.noMonitorsFound") : t("groupEditor.noMonitorsAvailable")}
               </p>
             )}
           </div>
@@ -529,7 +533,7 @@ export function StatusPageGroupEditor({
           <div className="p-2 border-b bg-muted/30">
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Neue Gruppe..."
+                placeholder={t("groupEditor.newGroup")}
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
                 className="flex-1 h-8"
@@ -548,7 +552,7 @@ export function StatusPageGroupEditor({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {groups.length} Gruppen · Monitors per Drag & Drop zuweisen
+              {t("groupEditor.groupsCount", { count: groups.length })} · {t("groupEditor.dragAndDropHint")}
             </p>
           </div>
           <div className="flex-1 overflow-y-auto p-2">
@@ -569,6 +573,7 @@ export function StatusPageGroupEditor({
                       onDelete={handleDeleteGroup}
                       onRemoveMonitor={handleRemoveMonitor}
                       isOver={overGroupId === group.id}
+                      dragMonitorsHereText={t("groupEditor.dragMonitorsHere")}
                     />
                   ))}
               </div>
@@ -577,10 +582,10 @@ export function StatusPageGroupEditor({
             {groups.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center py-8">
                 <p className="text-sm text-muted-foreground mb-2">
-                  Noch keine Gruppen erstellt
+                  {t("groupEditor.noGroupsCreated")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Erstelle eine Gruppe um Monitors zuzuweisen
+                  {t("groupEditor.createGroupHint")}
                 </p>
               </div>
             )}

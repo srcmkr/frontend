@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ export function StatusPageListPanel({
   onSelectPage,
   className,
 }: StatusPageListPanelProps) {
+  const t = useTranslations("statusPages");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -82,7 +84,7 @@ export function StatusPageListPanel({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Suchen..."
+              placeholder={t("list.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
@@ -90,7 +92,7 @@ export function StatusPageListPanel({
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          {statusPages.length} {statusPages.length === 1 ? "Statusseite" : "Statusseiten"}
+          {t("list.statusPagesCount", { count: statusPages.length })}
         </p>
       </div>
 
@@ -99,7 +101,7 @@ export function StatusPageListPanel({
         {filteredStatusPages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
             <p className="text-muted-foreground mb-2">
-              {search ? "Keine Statusseiten gefunden" : "Noch keine Statusseiten erstellt"}
+              {search ? t("list.noStatusPagesFound") : t("list.noStatusPagesCreated")}
             </p>
             {search && (
               <Button
@@ -107,7 +109,7 @@ export function StatusPageListPanel({
                 size="sm"
                 onClick={() => setSearch("")}
               >
-                Suche zurücksetzen
+                {t("list.clearSearch")}
               </Button>
             )}
           </div>

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,11 +17,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLanguageStore, useThemeStore, useTranslation } from "@/lib/stores";
+import { useLanguageStore, useThemeStore } from "@/lib/stores";
 
 export function UserMenu() {
   const router = useRouter();
-  const t = useTranslation();
+  const t = useTranslations("common");
   const { language, setLanguage } = useLanguageStore();
   const { theme, setTheme } = useThemeStore();
 
@@ -60,10 +61,10 @@ export function UserMenu() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href="/settings">{t.settings}</Link>
+          <Link href="/settings">{t("navigation.settings")}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/notifications">{t.notifications}</Link>
+          <Link href="/notifications">{t("navigation.notifications")}</Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -73,7 +74,7 @@ export function UserMenu() {
           <DropdownMenuSubTrigger>
             <span className="flex items-center gap-2">
               <LanguageIcon className="h-4 w-4" />
-              {t.language}
+              {t("settings.language")}
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
@@ -83,7 +84,7 @@ export function UserMenu() {
                 className={language === "en" ? "bg-accent" : ""}
               >
                 <span className="mr-2">🇬🇧</span>
-                {t.english}
+                {t("languages.en")}
                 {language === "en" && <CheckIcon className="ml-auto h-4 w-4" />}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -91,7 +92,7 @@ export function UserMenu() {
                 className={language === "de" ? "bg-accent" : ""}
               >
                 <span className="mr-2">🇩🇪</span>
-                {t.german}
+                {t("languages.de")}
                 {language === "de" && <CheckIcon className="ml-auto h-4 w-4" />}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -103,7 +104,7 @@ export function UserMenu() {
           <DropdownMenuSubTrigger>
             <span className="flex items-center gap-2">
               <ThemeIcon className="h-4 w-4" />
-              {t.theme}
+              {t("settings.theme")}
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
@@ -112,35 +113,35 @@ export function UserMenu() {
                 onClick={() => setTheme("kiwi")}
                 className={theme === "kiwi" ? "bg-accent" : ""}
               >
-                {t.kiwi}
+                {t("themes.kiwi")}
                 <ThemeColors colors={["#f0f9e8", "#BCEB2D", "#3d6b1f"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("basic")}
                 className={theme === "basic" ? "bg-accent" : ""}
               >
-                {t.basic}
+                {t("themes.basic")}
                 <ThemeColors colors={["#ffffff", "#f4f4f5", "#18181b"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("dark")}
                 className={theme === "dark" ? "bg-accent" : ""}
               >
-                {t.dark}
+                {t("themes.dark")}
                 <ThemeColors colors={["#1a2e1a", "#243524", "#4ade80"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("forest")}
                 className={theme === "forest" ? "bg-accent" : ""}
               >
-                {t.forest}
+                {t("themes.forest")}
                 <ThemeColors colors={["#f0fdf4", "#dcfce7", "#166534"]} className="ml-auto" />
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme("slate")}
                 className={theme === "slate" ? "bg-accent" : ""}
               >
-                {t.slate}
+                {t("themes.slate")}
                 <ThemeColors colors={["#1e293b", "#334155", "#94a3b8"]} className="ml-auto" />
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -151,7 +152,7 @@ export function UserMenu() {
 
         <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
           <LogoutIcon className="mr-2 h-4 w-4" />
-          {t.logout}
+          {t("settings.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

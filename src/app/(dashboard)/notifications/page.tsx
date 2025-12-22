@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ const defaultFilters: NotificationFilterState = {
 };
 
 export default function NotificationsPage() {
+  const t = useTranslations("notifications");
   const [notifications, setNotifications] = useState<SystemNotification[]>(
     () => getMockNotifications()
   );
@@ -122,12 +124,12 @@ export default function NotificationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Benachrichtigungen</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Systemereignisse und Status-Updates
+            {t("subtitle")}
             {unreadCount > 0 && (
               <span className="ml-2 text-primary font-medium">
-                ({unreadCount} ungelesen)
+                {t("unreadCount", { count: unreadCount })}
               </span>
             )}
           </p>
@@ -135,7 +137,7 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <Button onClick={handleMarkAllAsRead} variant="outline">
             <CheckCheck className="h-4 w-4 mr-2" />
-            Alle als gelesen
+            {t("markAllAsRead")}
           </Button>
         )}
       </div>
@@ -166,10 +168,10 @@ export default function NotificationsPage() {
                 disabled={validCurrentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Zurück
+                {t("pagination.previous")}
               </Button>
               <span className="text-sm text-muted-foreground px-3">
-                Seite {validCurrentPage} von {totalPages}
+                {t("pagination.pageOf", { current: validCurrentPage, total: totalPages })}
               </span>
               <Button
                 variant="outline"
@@ -179,7 +181,7 @@ export default function NotificationsPage() {
                 }
                 disabled={validCurrentPage === totalPages}
               >
-                Weiter
+                {t("pagination.next")}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

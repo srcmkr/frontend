@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Server, Code, FileText, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,7 @@ import {
 } from "@/mocks/settings";
 
 export function SystemSettings() {
+  const t = useTranslations("settings");
   const {
     setValue,
     watch,
@@ -40,7 +42,7 @@ export function SystemSettings() {
   const onSubmit = (data: SystemSettingsFormData) => {
     // TODO: API call
     console.log("Saving system settings:", data);
-    toast.success("System-Einstellungen gespeichert");
+    toast.success(t("system.saved"));
   };
 
   return (
@@ -48,20 +50,20 @@ export function SystemSettings() {
       {/* Timezone Settings */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold mb-1">Zeitzone</h3>
+          <h3 className="text-lg font-semibold mb-1">{t("system.timezoneTitle")}</h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Zeitzone für alle Zeitangaben im System
+            {t("system.timezoneDescription")}
           </p>
         </div>
 
         <div className="max-w-sm space-y-2">
-          <Label htmlFor="timezone">System-Zeitzone</Label>
+          <Label htmlFor="timezone">{t("system.systemTimezone")}</Label>
           <Select
             value={currentTimezone}
             onValueChange={(value) => setValue("timezone", value, { shouldDirty: true })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Zeitzone wählen" />
+              <SelectValue placeholder={t("system.selectTimezone")} />
             </SelectTrigger>
             <SelectContent>
               {commonTimezones.map((tz) => (
@@ -72,22 +74,22 @@ export function SystemSettings() {
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            Beeinflusst alle Zeitangaben in Reports und der Oberfläche
+            {t("system.timezoneHint")}
           </p>
         </div>
 
         <div className="flex justify-end pt-4 border-t">
           <Button type="submit" disabled={!isDirty}>
-            Speichern
+            {t("system.save")}
           </Button>
         </div>
       </form>
 
       {/* System Information */}
       <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold mb-1">System-Informationen</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("system.infoTitle")}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Version und Build-Informationen
+          {t("system.infoDescription")}
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -99,7 +101,7 @@ export function SystemSettings() {
                 </div>
                 <div>
                   <p className="text-lg font-bold">{mockSystemInfo.version}</p>
-                  <p className="text-xs text-muted-foreground">Version</p>
+                  <p className="text-xs text-muted-foreground">{t("system.version")}</p>
                 </div>
               </div>
             </CardContent>
@@ -113,7 +115,7 @@ export function SystemSettings() {
                 </div>
                 <div>
                   <p className="text-lg font-bold">{mockSystemInfo.buildDate}</p>
-                  <p className="text-xs text-muted-foreground">Build-Datum</p>
+                  <p className="text-xs text-muted-foreground">{t("system.buildDate")}</p>
                 </div>
               </div>
             </CardContent>
@@ -127,7 +129,7 @@ export function SystemSettings() {
                 </div>
                 <div>
                   <p className="text-lg font-bold">Node {mockSystemInfo.nodeVersion}</p>
-                  <p className="text-xs text-muted-foreground">Runtime</p>
+                  <p className="text-xs text-muted-foreground">{t("system.runtime")}</p>
                 </div>
               </div>
             </CardContent>
@@ -141,7 +143,7 @@ export function SystemSettings() {
                 </div>
                 <div>
                   <p className="text-lg font-bold">{mockSystemInfo.license}</p>
-                  <p className="text-xs text-muted-foreground">Lizenz</p>
+                  <p className="text-xs text-muted-foreground">{t("system.license")}</p>
                 </div>
               </div>
             </CardContent>
@@ -151,31 +153,30 @@ export function SystemSettings() {
 
       {/* About */}
       <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold mb-1">Über Kiwi Status</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("system.aboutTitle")}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Open-Source Uptime Monitoring & Status Pages
+          {t("system.aboutSubtitle")}
         </p>
 
         <div className="p-4 bg-muted/50 rounded-lg space-y-2">
           <p className="text-sm">
-            Kiwi Status ist eine selbst gehostete Monitoring-Plattform für
-            Uptime-Überwachung, Incident-Management und öffentliche Status-Seiten.
+            {t("system.aboutDescription")}
           </p>
           <p className="text-sm text-muted-foreground">
-            Entwickelt mit Next.js, ASP.NET Core und TimescaleDB.
+            {t("system.aboutTech")}
           </p>
           <p className="text-sm text-muted-foreground">
-            Lizenziert unter der Elastic License 2.0 (ELv2).
+            {t("system.aboutLicense")}
           </p>
           <div className="pt-2 flex gap-4">
             <Button variant="link" className="h-auto p-0 text-sm" asChild>
               <a href="https://github.com/AMNAU-GmbH/kiwistatus" target="_blank" rel="noopener noreferrer">
-                GitHub →
+                {t("system.github")} →
               </a>
             </Button>
             <Button variant="link" className="h-auto p-0 text-sm" asChild>
               <a href="https://kiwistatus.com" target="_blank" rel="noopener noreferrer">
-                Website →
+                {t("system.website")} →
               </a>
             </Button>
           </div>

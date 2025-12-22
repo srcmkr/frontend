@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -29,6 +30,7 @@ export function MonitorDetailPanel({
   onDelete,
   className,
 }: MonitorDetailPanelProps) {
+  const t = useTranslations("monitors");
   // Report dialog state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
@@ -57,10 +59,8 @@ export function MonitorDetailPanel({
         )}
       >
         <div className="text-center">
-          <p className="text-lg font-medium">Kein Monitor ausgewählt</p>
-          <p className="text-sm mt-1">
-            Wähle einen Monitor aus der Liste aus
-          </p>
+          <p className="text-lg font-medium">{t("detail.noMonitorSelected")}</p>
+          <p className="text-sm mt-1">{t("detail.selectFromList")}</p>
         </div>
       </div>
     );
@@ -91,7 +91,9 @@ export function MonitorDetailPanel({
         {/* Response Time Chart */}
         <Card>
           <CardContent className="pt-4">
-            <h3 className="font-semibold text-sm mb-3">Response Time</h3>
+            <h3 className="font-semibold text-sm mb-3">
+              {t("detail.responseTime")}
+            </h3>
             <ResponseTimeChart checks={checkResults} />
           </CardContent>
         </Card>

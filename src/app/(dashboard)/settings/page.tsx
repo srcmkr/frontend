@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Activity, Bell, Database, Key, Users, Globe, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -13,12 +14,14 @@ import {
 } from "@/components/settings";
 
 export default function SettingsPage() {
+  const t = useTranslations("settings");
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Einstellungen</h1>
-        <p className="text-muted-foreground">Systemkonfiguration</p>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       {/* Floating Card mit Tabs */}
@@ -29,31 +32,31 @@ export default function SettingsPage() {
             <TabsList className="h-auto p-1 bg-muted/50">
               <TabsTrigger value="monitoring" className="gap-2 data-[state=active]:bg-background">
                 <Activity className="h-4 w-4" />
-                <span className="hidden sm:inline">Monitoring</span>
+                <span className="hidden sm:inline">{t("tabs.monitoring")}</span>
               </TabsTrigger>
               <TabsTrigger value="notifications" className="gap-2 data-[state=active]:bg-background">
                 <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline">Benachrichtigungen</span>
+                <span className="hidden sm:inline">{t("tabs.notifications")}</span>
               </TabsTrigger>
               <TabsTrigger value="data" className="gap-2 data-[state=active]:bg-background">
                 <Database className="h-4 w-4" />
-                <span className="hidden sm:inline">Daten</span>
+                <span className="hidden sm:inline">{t("tabs.data")}</span>
               </TabsTrigger>
               <TabsTrigger value="api" className="gap-2 data-[state=active]:bg-background">
                 <Key className="h-4 w-4" />
-                <span className="hidden sm:inline">API</span>
+                <span className="hidden sm:inline">{t("tabs.api")}</span>
               </TabsTrigger>
               <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-background">
                 <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Benutzer</span>
+                <span className="hidden sm:inline">{t("tabs.users")}</span>
               </TabsTrigger>
               <TabsTrigger value="status-pages" className="gap-2 data-[state=active]:bg-background">
                 <Globe className="h-4 w-4" />
-                <span className="hidden sm:inline">Status-Seiten</span>
+                <span className="hidden sm:inline">{t("tabs.statusPages")}</span>
               </TabsTrigger>
               <TabsTrigger value="system" className="gap-2 data-[state=active]:bg-background">
                 <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">System</span>
+                <span className="hidden sm:inline">{t("tabs.system")}</span>
               </TabsTrigger>
             </TabsList>
           </div>

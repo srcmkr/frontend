@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,6 +61,8 @@ export function MonitorRecentChecks({
   onLoadDetails,
   className,
 }: MonitorRecentChecksProps) {
+  const t = useTranslations("monitors.detail");
+  const locale = useLocale();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCheck, setSelectedCheck] = useState<BasicCheckResult | null>(null);
@@ -90,12 +93,12 @@ export function MonitorRecentChecks({
   const formatDateTime = (dateStr: string) => {
     const date = new Date(dateStr);
     return {
-      date: date.toLocaleDateString("de-DE", {
+      date: date.toLocaleDateString(locale, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       }),
-      time: date.toLocaleTimeString("de-DE", {
+      time: date.toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -106,11 +109,11 @@ export function MonitorRecentChecks({
   const formatShortDateTime = (dateStr: string) => {
     const date = new Date(dateStr);
     return {
-      date: date.toLocaleDateString("de-DE", {
+      date: date.toLocaleDateString(locale, {
         day: "2-digit",
         month: "2-digit",
       }),
-      time: date.toLocaleTimeString("de-DE", {
+      time: date.toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -122,7 +125,7 @@ export function MonitorRecentChecks({
     const date = new Date(dateStr);
     const now = new Date();
     const daysLeft = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return `${daysLeft} Tage`;
+    return t("daysLeft", { days: daysLeft });
   };
 
   // Reset to page 1 when filter changes
@@ -158,8 +161,8 @@ export function MonitorRecentChecks({
   if (checks.length === 0) {
     return (
       <div className={cn("space-y-3", className)}>
-        <h3 className="font-semibold text-sm">Check-Verlauf</h3>
-        <p className="text-sm text-muted-foreground">Keine Checks vorhanden</p>
+        <h3 className="font-semibold text-sm">{t("checkHistory")}</h3>
+        <p className="text-sm text-muted-foreground">{t("noChecks")}</p>
       </div>
     );
   }
@@ -168,20 +171,20 @@ export function MonitorRecentChecks({
     <div className={cn("space-y-4", className)}>
       {/* Header with filter */}
       <div className="flex items-center justify-between gap-4">
-        <h3 className="font-semibold text-sm">Check-Verlauf</h3>
+        <h3 className="font-semibold text-sm">{t("checkHistory")}</h3>
         <Select value={statusFilter} onValueChange={handleFilterChange}>
           <SelectTrigger className="w-[140px] h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">
-              Alle ({checks.length})
+              {t("all")} ({checks.length})
             </SelectItem>
             <SelectItem value="up">
-              Erfolgreich ({upCount})
+              {t("successful")} ({upCount})
             </SelectItem>
             <SelectItem value="down">
-              Fehlgeschlagen ({downCount})
+              {t("failed")} ({downCount})
             </SelectItem>
           </SelectContent>
         </Select>
@@ -242,7 +245,7 @@ export function MonitorRecentChecks({
         <div className="flex items-center justify-between pt-2 border-t">
           <span className="text-xs text-muted-foreground">
             {(currentPage - 1) * PAGE_SIZE + 1}-
-            {Math.min(currentPage * PAGE_SIZE, filteredChecks.length)} von{" "}
+            {Math.min(currentPage * PAGE_SIZE, filteredChecks.length)} {t("of")}{" "}
             {filteredChecks.length}
           </span>
           <div className="flex items-center gap-1">
@@ -280,7 +283,7 @@ export function MonitorRecentChecks({
                 status={selectedCheck?.status === "up" ? "up" : "down"}
                 size="sm"
               />
-              Check Details
+              {t("checkDetails")}
             </DialogTitle>
           </DialogHeader>
 
@@ -289,14 +292,14 @@ export function MonitorRecentChecks({
               {/* Basic info */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground block text-xs">Zeitpunkt</span>
+                  <span className="text-muted-foreground block text-xs">{t("timestamp")}</span>
                   <span className="font-mono">
                     {formatDateTime(selectedCheck.checkedAt).date}{" "}
                     {formatDateTime(selectedCheck.checkedAt).time}
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block text-xs">Status</span>
+                  <span className="text-muted-foreground block text-xs">{t("status")}</span>
                   <span className={cn(
                     "font-medium",
                     selectedCheck.status === "up" ? "text-green-600" : "text-red-600"
@@ -305,7 +308,7 @@ export function MonitorRecentChecks({
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block text-xs">Response Time</span>
+                  <span className="text-muted-foreground block text-xs">{t("responseTime")}</span>
                   <span className="font-mono">
                     {formatResponseTime(selectedCheck.responseTime)}
                   </span>
@@ -316,7 +319,7 @@ export function MonitorRecentChecks({
               {loadingDetails && (
                 <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Lade Details...
+                  {t("loadingDetails")}
                 </div>
               )}
 
@@ -327,41 +330,41 @@ export function MonitorRecentChecks({
                   {selectedCheck.status === "up" && (
                     <div className="space-y-2">
                       <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Timing Breakdown
+                        {t("timingBreakdown")}
                       </h4>
                       <div className="space-y-1.5">
                         <TimingBar
-                          label="DNS Lookup"
+                          label={t("dnsLookup")}
                           value={selectedDetails.dnsTime}
                           total={selectedCheck.responseTime}
                           color="bg-blue-500"
                         />
                         <TimingBar
-                          label="TCP Connect"
+                          label={t("tcpConnect")}
                           value={selectedDetails.tcpTime}
                           total={selectedCheck.responseTime}
                           color="bg-green-500"
                         />
                         <TimingBar
-                          label="TLS Handshake"
+                          label={t("tlsHandshake")}
                           value={selectedDetails.tlsTime}
                           total={selectedCheck.responseTime}
                           color="bg-purple-500"
                         />
                         <TimingBar
-                          label="Time to First Byte"
+                          label={t("ttfb")}
                           value={selectedDetails.ttfb}
                           total={selectedCheck.responseTime}
                           color="bg-orange-500"
                         />
                         <TimingBar
-                          label="Content Transfer"
+                          label={t("contentTransfer")}
                           value={selectedDetails.transferTime}
                           total={selectedCheck.responseTime}
                           color="bg-cyan-500"
                         />
                         <div className="flex items-center justify-between text-sm pt-1 border-t">
-                          <span className="font-medium">Total</span>
+                          <span className="font-medium">{t("total")}</span>
                           <span className="font-mono font-semibold">
                             {selectedCheck.responseTime}ms
                           </span>
@@ -374,26 +377,26 @@ export function MonitorRecentChecks({
                   {(selectedDetails.ipAddress || selectedDetails.tlsVersion || selectedDetails.certificateExpiry) && (
                     <div className="space-y-2">
                       <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Verbindung
+                        {t("connection")}
                       </h4>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         {selectedDetails.ipAddress && (
                           <div>
-                            <span className="text-muted-foreground block text-xs">IP-Adresse</span>
+                            <span className="text-muted-foreground block text-xs">{t("ipAddress")}</span>
                             <span className="font-mono">{selectedDetails.ipAddress}</span>
                           </div>
                         )}
                         {selectedDetails.tlsVersion && (
                           <div>
-                            <span className="text-muted-foreground block text-xs">TLS Version</span>
+                            <span className="text-muted-foreground block text-xs">{t("tlsVersion")}</span>
                             <span className="font-mono">{selectedDetails.tlsVersion}</span>
                           </div>
                         )}
                         {selectedDetails.certificateExpiry && (
                           <div>
-                            <span className="text-muted-foreground block text-xs">Zertifikat läuft ab</span>
+                            <span className="text-muted-foreground block text-xs">{t("certificateExpires")}</span>
                             <span className="font-mono">
-                              in {formatCertExpiry(selectedDetails.certificateExpiry)}
+                              {t("in")} {formatCertExpiry(selectedDetails.certificateExpiry)}
                             </span>
                           </div>
                         )}
@@ -406,14 +409,14 @@ export function MonitorRecentChecks({
               {/* No details available */}
               {!loadingDetails && !selectedDetails && !onLoadDetails && (
                 <div className="text-sm text-muted-foreground text-center py-4">
-                  Keine weiteren Details verfügbar
+                  {t("noDetailsAvailable")}
                 </div>
               )}
 
               {/* Error details for failed checks */}
               {selectedCheck.status === "down" && selectedCheck.message && (
                 <div className="bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded-md p-3 text-sm">
-                  <span className="font-medium">Fehler: </span>
+                  <span className="font-medium">{t("error")}: </span>
                   {selectedCheck.message}
                 </div>
               )}

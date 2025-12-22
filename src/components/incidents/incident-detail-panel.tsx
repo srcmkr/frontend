@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import {
   ArrowLeft,
   Pencil,
@@ -40,8 +41,8 @@ interface IncidentDetailPanelProps {
   className?: string;
 }
 
-function formatDateTime(dateString: string): string {
-  return new Date(dateString).toLocaleString("de-DE", {
+function formatDateTime(dateString: string, locale: string): string {
+  return new Date(dateString).toLocaleString(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -50,29 +51,38 @@ function formatDateTime(dateString: string): string {
   });
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds} Sekunden`;
+interface DurationTranslations {
+  seconds: (count: number) => string;
+  minutes: (count: number) => string;
+  hours: (count: number) => string;
+  hoursMinutes: (hours: number, minutes: number) => string;
+  days: (count: number) => string;
+  daysHours: (days: number, hours: number) => string;
+}
+
+function formatDurationWithTranslations(seconds: number, translations: DurationTranslations): string {
+  if (seconds < 60) return translations.seconds(seconds);
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} Minuten`;
+  if (minutes < 60) return translations.minutes(minutes);
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   if (hours < 24) {
     return remainingMinutes > 0
-      ? `${hours} Stunden ${remainingMinutes} Minuten`
-      : `${hours} Stunden`;
+      ? translations.hoursMinutes(hours, remainingMinutes)
+      : translations.hours(hours);
   }
   const days = Math.floor(hours / 24);
   const remainingHours = hours % 24;
   return remainingHours > 0
-    ? `${days} Tage ${remainingHours} Stunden`
-    : `${days} Tage`;
+    ? translations.daysHours(days, remainingHours)
+    : translations.days(days);
 }
 
-function getOngoingDuration(startedAt: string): string {
+function getOngoingDurationWithTranslations(startedAt: string, translations: DurationTranslations): string {
   const start = new Date(startedAt);
   const now = new Date();
   const diffSeconds = Math.floor((now.getTime() - start.getTime()) / 1000);
-  return formatDuration(diffSeconds);
+  return formatDurationWithTranslations(diffSeconds, translations);
 }
 
 export function IncidentDetailPanel({
@@ -87,6 +97,19 @@ export function IncidentDetailPanel({
   onDeleteUpdate,
   className,
 }: IncidentDetailPanelProps) {
+  const t = useTranslations("incidents");
+  const locale = useLocale();
+
+  // Create duration translations object for type-safe translation calls
+  const durationTranslations: DurationTranslations = useMemo(() => ({
+    seconds: (count: number) => t("time.seconds", { count }),
+    minutes: (count: number) => t("time.minutes", { count }),
+    hours: (count: number) => t("time.hours", { count }),
+    hoursMinutes: (hours: number, minutes: number) => t("time.hoursMinutes", { hours, minutes }),
+    days: (count: number) => t("time.days", { count }),
+    daysHours: (days: number, hours: number) => t("time.daysHours", { days, hours }),
+  }), [t]);
+
   const affectedMonitorObjects = useMemo(() => {
     if (!incident) return [];
     return monitors.filter((m) => incident.affectedMonitors.includes(m.id));
@@ -103,9 +126,9 @@ export function IncidentDetailPanel({
       >
         <div className="text-center">
           <div className="text-4xl mb-4">📋</div>
-          <h3 className="font-medium text-lg mb-1">Kein Vorfall ausgewählt</h3>
+          <h3 className="font-medium text-lg mb-1">{t("detail.noIncidentSelected")}</h3>
           <p className="text-muted-foreground text-sm">
-            Wähle einen Vorfall aus der Liste aus, um Details anzuzeigen.
+            {t("detail.noIncidentSelectedHint")}
           </p>
         </div>
       </div>
@@ -127,7 +150,7 @@ export function IncidentDetailPanel({
             onClick={onBack}
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Zurück
+            {t("detail.back")}
           </Button>
 
           {/* Actions */}
@@ -138,7 +161,7 @@ export function IncidentDetailPanel({
                 onClick={() => onResolve(incident)}
               >
                 <CheckCircle className="h-4 w-4 mr-1.5" />
-                Beheben
+                {t("actions.resolve")}
               </Button>
             )}
 
@@ -152,13 +175,13 @@ export function IncidentDetailPanel({
                 {onEdit && (
                   <DropdownMenuItem onClick={() => onEdit(incident)}>
                     <Pencil className="h-4 w-4 mr-2" />
-                    Bearbeiten
+                    {t("actions.edit")}
                   </DropdownMenuItem>
                 )}
                 {!isOngoing && onResolve && (
                   <DropdownMenuItem onClick={() => onResolve(incident)}>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Als behoben markieren
+                    {t("actions.markResolved")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -168,7 +191,7 @@ export function IncidentDetailPanel({
                     onClick={() => onDelete(incident)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Löschen
+                    {t("actions.delete")}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -189,20 +212,20 @@ export function IncidentDetailPanel({
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
-            <span>Gestartet: {formatDateTime(incident.startedAt)}</span>
+            <span>{t("detail.started")}: {formatDateTime(incident.startedAt, locale)}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
             {isOngoing ? (
               <span className="text-red-600 dark:text-red-400 font-medium">
-                Dauer: {getOngoingDuration(incident.startedAt)} (laufend)
+                {t("detail.duration")}: {getOngoingDurationWithTranslations(incident.startedAt, durationTranslations)} ({t("detail.durationOngoing")})
               </span>
             ) : (
               <span>
-                Dauer:{" "}
+                {t("detail.duration")}:{" "}
                 {incident.duration
-                  ? formatDuration(incident.duration)
-                  : "Unbekannt"}
+                  ? formatDurationWithTranslations(incident.duration, durationTranslations)
+                  : t("detail.unknown")}
               </span>
             )}
           </div>
@@ -214,7 +237,7 @@ export function IncidentDetailPanel({
         {/* Affected Services */}
         <section>
           <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-3">
-            Betroffene Services
+            {t("detail.affectedServices")}
           </h3>
           <div className="space-y-2">
             {affectedMonitorObjects.length > 0 ? (
@@ -246,7 +269,7 @@ export function IncidentDetailPanel({
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                Keine Monitore zugeordnet
+                {t("detail.noMonitorsAssigned")}
               </p>
             )}
           </div>
@@ -255,7 +278,7 @@ export function IncidentDetailPanel({
         {/* Cause */}
         <section>
           <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-2">
-            Ursache
+            {t("detail.cause")}
           </h3>
           <p className="text-sm">{incident.cause}</p>
         </section>
@@ -264,7 +287,7 @@ export function IncidentDetailPanel({
         {incident.description && (
           <section>
             <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground mb-2">
-              Beschreibung
+              {t("detail.description")}
             </h3>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
               {incident.description}

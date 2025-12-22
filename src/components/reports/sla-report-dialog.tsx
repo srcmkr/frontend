@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Download, Loader2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -10,9 +10,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Popover,
   PopoverContent,
@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/popover";
 import { SLAReportPeriodSelector } from "./sla-report-period-selector";
 import { SLAReportContent } from "./sla-report-content";
-import { generateReportPeriods, generateSLAReport } from "@/mocks/monitors";
-import type { Monitor, ReportPeriod, ReportPeriodType, SLAReport } from "@/types";
+import { useReportPeriods, useSLAReport } from "@/features/reports";
+import type { Monitor, ReportPeriod, ReportPeriodType } from "@/types";
 
 interface SLAReportDialogProps {
   monitor: Monitor;
@@ -36,10 +36,7 @@ export function SLAReportDialog({
 }: SLAReportDialogProps) {
   // Period selection state
   const [periodType, setPeriodType] = useState<ReportPeriodType>("month");
-  const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod | null>(() => {
-    const periods = generateReportPeriods("month");
-    return periods[0] || null;
-  });
+  const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod | null>(null);
 
   // SLA target state - initialize from monitor config
   const [slaTarget, setSlaTarget] = useState(monitor.slaTarget);
@@ -48,15 +45,34 @@ export function SLAReportDialog({
   // PDF export state
   const [isExporting, setIsExporting] = useState(false);
 
-  // Generate report based on current selections
-  const report = useMemo(() => {
-    if (!selectedPeriod) return null;
-    return generateSLAReport(monitor, selectedPeriod, slaTarget, maxResponseTime);
-  }, [monitor, selectedPeriod, slaTarget, maxResponseTime]);
+  // Fetch available periods using React Query
+  const { data: periods = [] } = useReportPeriods(periodType);
+
+  // Set initial period when periods are loaded
+  useEffect(() => {
+    if (periods.length > 0 && !selectedPeriod) {
+      setSelectedPeriod(periods[0]);
+    }
+  }, [periods, selectedPeriod]);
+
+  // Reset selected period when period type changes
+  useEffect(() => {
+    if (periods.length > 0) {
+      setSelectedPeriod(periods[0]);
+    }
+  }, [periodType, periods]);
+
+  // Fetch SLA report using React Query
+  const {
+    data: report,
+    isLoading: reportLoading,
+    error: reportError,
+  } = useSLAReport(monitor.id, selectedPeriod, slaTarget, maxResponseTime);
 
   // Handle period type change
   const handlePeriodTypeChange = useCallback((type: ReportPeriodType) => {
     setPeriodType(type);
+    setSelectedPeriod(null);
   }, []);
 
   // Handle PDF export
@@ -198,7 +214,7 @@ export function SLAReportDialog({
             variant="default"
             size="sm"
             onClick={handleExportPDF}
-            disabled={isExporting || !report}
+            disabled={isExporting || !report || reportLoading}
           >
             {isExporting ? (
               <>
@@ -216,7 +232,17 @@ export function SLAReportDialog({
 
         {/* Report Content */}
         <div className="flex-1 overflow-y-auto py-4">
-          {report ? (
+          {reportLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-32" />
+              <Skeleton className="h-64" />
+              <Skeleton className="h-48" />
+            </div>
+          ) : reportError ? (
+            <div className="flex items-center justify-center h-40 text-destructive">
+              Fehler beim Laden des Reports: {reportError.message}
+            </div>
+          ) : report ? (
             <SLAReportContent report={report} />
           ) : (
             <div className="flex items-center justify-center h-40 text-muted-foreground">

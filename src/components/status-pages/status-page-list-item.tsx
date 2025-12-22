@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Globe, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,19 @@ interface StatusPageListItemProps {
   className?: string;
 }
 
-function formatRelativeTime(dateString: string): string {
+interface RelativeTimeTranslations {
+  justNow: string;
+  minutesAgo: (count: number) => string;
+  hoursAgo: (count: number) => string;
+  yesterday: string;
+  daysAgo: (count: number) => string;
+}
+
+function formatRelativeTime(
+  dateString: string,
+  translations: RelativeTimeTranslations,
+  locale: string
+): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -21,13 +34,13 @@ function formatRelativeTime(dateString: string): string {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffMin < 1) return "gerade eben";
-  if (diffMin < 60) return `vor ${diffMin}m`;
-  if (diffHour < 24) return `vor ${diffHour}h`;
-  if (diffDay === 1) return "gestern";
-  if (diffDay < 7) return `vor ${diffDay}d`;
+  if (diffMin < 1) return translations.justNow;
+  if (diffMin < 60) return translations.minutesAgo(diffMin);
+  if (diffHour < 24) return translations.hoursAgo(diffHour);
+  if (diffDay === 1) return translations.yesterday;
+  if (diffDay < 7) return translations.daysAgo(diffDay);
 
-  return date.toLocaleDateString("de-DE", {
+  return date.toLocaleDateString(locale, {
     day: "numeric",
     month: "short",
   });
@@ -39,6 +52,17 @@ export function StatusPageListItem({
   onSelect,
   className,
 }: StatusPageListItemProps) {
+  const t = useTranslations("statusPages");
+  const locale = useLocale();
+
+  const relativeTimeTranslations: RelativeTimeTranslations = {
+    justNow: t("list.justNow"),
+    minutesAgo: (count: number) => t("list.minutesAgo", { count }),
+    hoursAgo: (count: number) => t("list.hoursAgo", { count }),
+    yesterday: t("list.yesterday"),
+    daysAgo: (count: number) => t("list.daysAgo", { count }),
+  };
+
   const monitorCount = statusPage.monitors.length;
   const groupCount = statusPage.groups.length;
 
@@ -72,12 +96,12 @@ export function StatusPageListItem({
           {statusPage.isPublic ? (
             <>
               <Globe className="h-3 w-3 mr-0.5" />
-              Öffentlich
+              {t("list.public")}
             </>
           ) : (
             <>
               <Lock className="h-3 w-3 mr-0.5" />
-              Privat
+              {t("list.private")}
             </>
           )}
         </Badge>
@@ -91,14 +115,14 @@ export function StatusPageListItem({
       {/* Meta: Monitor count, Groups, Last updated */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>
-          {monitorCount} {monitorCount === 1 ? "Monitor" : "Monitors"}
+          {t("list.monitors", { count: monitorCount })}
         </span>
         <span className="text-border">|</span>
         <span>
-          {groupCount} {groupCount === 1 ? "Gruppe" : "Gruppen"}
+          {t("list.groups", { count: groupCount })}
         </span>
         <span className="text-border">|</span>
-        <span>{formatRelativeTime(statusPage.updatedAt)}</span>
+        <span>{formatRelativeTime(statusPage.updatedAt, relativeTimeTranslations, locale)}</span>
       </div>
 
       {/* Description preview */}

@@ -1,21 +1,46 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Locale } from "@/i18n";
+
+// Helper to set cookie (for server-side reading by next-intl)
+function setLocaleCookie(locale: Locale) {
+  if (typeof document !== "undefined") {
+    // Set cookie with 1 year expiry, accessible by server
+    document.cookie = `locale=${locale};path=/;max-age=31536000;SameSite=Lax`;
+  }
+}
 
 // Language Store
-type Language = "en" | "de";
-
+// Note: The language is persisted via Zustand (localStorage) AND as a cookie.
+// The cookie is read by next-intl on the server to determine the locale.
 interface LanguageState {
-  language: Language;
-  setLanguage: (language: Language) => void;
+  language: Locale;
+  setLanguage: (language: Locale) => void;
 }
 
 export const useLanguageStore = create<LanguageState>()(
   persist(
     (set) => ({
       language: "en",
-      setLanguage: (language) => set({ language }),
+      setLanguage: (language) => {
+        set({ language });
+        // Set cookie for server-side reading
+        setLocaleCookie(language);
+        // Reload to fetch new translations from server
+        if (typeof window !== "undefined") {
+          window.location.reload();
+        }
+      },
     }),
-    { name: "language-storage" }
+    {
+      name: "language-storage",
+      // On rehydration, sync cookie with stored value
+      onRehydrateStorage: () => (state) => {
+        if (state?.language) {
+          setLocaleCookie(state.language);
+        }
+      },
+    }
   )
 );
 
@@ -50,7 +75,9 @@ export const useThemeStore = create<ThemeState>()(
   )
 );
 
-// Translations
+// Legacy translations export - deprecated, use useTranslations from next-intl instead
+// Keeping for backwards compatibility during migration
+/** @deprecated Use `useTranslations` from 'next-intl' instead */
 export const translations = {
   en: {
     dashboard: "Dashboard",
@@ -74,7 +101,6 @@ export const translations = {
     servicesDown: "Services Down",
     avgUptime: "Avg. Uptime (24h)",
     avgResponseTime: "Avg. Response Time",
-    // Incident translations
     incidentTitle: "Incidents",
     createIncident: "Create Incident",
     editIncident: "Edit Incident",
@@ -122,7 +148,6 @@ export const translations = {
     servicesDown: "Dienste Offline",
     avgUptime: "Durchschn. Uptime (24h)",
     avgResponseTime: "Durchschn. Antwortzeit",
-    // Incident translations
     incidentTitle: "Vorfälle",
     createIncident: "Vorfall erstellen",
     editIncident: "Vorfall bearbeiten",
@@ -150,6 +175,7 @@ export const translations = {
   },
 } as const;
 
+/** @deprecated Use `useTranslations` from 'next-intl' instead */
 export function useTranslation() {
   const { language } = useLanguageStore();
   return translations[language];

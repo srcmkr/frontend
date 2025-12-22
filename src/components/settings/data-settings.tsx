@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations, useLocale } from "next-intl";
 import { Download, Database, Activity, AlertTriangle, Calendar, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -40,6 +41,9 @@ import { mockMonitors } from "@/mocks/monitors";
 const BYTES_PER_CHECK = 130;
 
 export function DataSettings() {
+  const t = useTranslations("settings");
+  const locale = useLocale();
+
   const {
     setValue,
     watch,
@@ -83,20 +87,20 @@ export function DataSettings() {
   const onSubmit = (data: DataSettingsFormData) => {
     // TODO: API call
     console.log("Saving data settings:", data);
-    toast.success("Daten-Einstellungen gespeichert");
+    toast.success(t("data.saved"));
   };
 
   const handleExport = (format: "csv" | "json") => {
     // TODO: Trigger export
-    toast.info(`Export als ${format.toUpperCase()} gestartet...`);
+    toast.info(t("data.exportStarted", { format: format.toUpperCase() }));
   };
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("de-DE").format(num);
+    return new Intl.NumberFormat(locale).format(num);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("de-DE", {
+    return new Date(dateString).toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -107,9 +111,9 @@ export function DataSettings() {
     <div className="space-y-8">
       {/* Statistics Cards */}
       <div>
-        <h3 className="text-lg font-semibold mb-1">Datenbank-Statistiken</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("data.statsTitle")}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Aktuelle Nutzung und Speicherverbrauch
+          {t("data.statsDescription")}
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -121,7 +125,7 @@ export function DataSettings() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{formatNumber(mockDatabaseStats.totalChecks)}</p>
-                  <p className="text-xs text-muted-foreground">Checks gesamt</p>
+                  <p className="text-xs text-muted-foreground">{t("data.totalChecks")}</p>
                 </div>
               </div>
             </CardContent>
@@ -135,7 +139,7 @@ export function DataSettings() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{mockDatabaseStats.databaseSize}</p>
-                  <p className="text-xs text-muted-foreground">Speicherverbrauch</p>
+                  <p className="text-xs text-muted-foreground">{t("data.storageUsage")}</p>
                 </div>
               </div>
             </CardContent>
@@ -149,7 +153,7 @@ export function DataSettings() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{mockDatabaseStats.totalIncidents}</p>
-                  <p className="text-xs text-muted-foreground">Incidents gesamt</p>
+                  <p className="text-xs text-muted-foreground">{t("data.totalIncidents")}</p>
                 </div>
               </div>
             </CardContent>
@@ -163,7 +167,7 @@ export function DataSettings() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{formatDate(mockDatabaseStats.oldestRecord)}</p>
-                  <p className="text-xs text-muted-foreground">Ältester Eintrag</p>
+                  <p className="text-xs text-muted-foreground">{t("data.oldestRecord")}</p>
                 </div>
               </div>
             </CardContent>
@@ -174,21 +178,21 @@ export function DataSettings() {
       {/* Retention Settings */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold mb-1">Datenaufbewahrung</h3>
+          <h3 className="text-lg font-semibold mb-1">{t("data.retentionTitle")}</h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Wie lange sollen Check-Ergebnisse gespeichert werden?
+            {t("data.retentionDescription")}
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1 max-w-sm space-y-2">
-            <Label htmlFor="retentionDays">Aufbewahrungszeitraum</Label>
+            <Label htmlFor="retentionDays">{t("data.retentionPeriod")}</Label>
             <Select
               value={String(currentRetention)}
               onValueChange={(value) => setValue("retentionDays", Number(value), { shouldDirty: true })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Zeitraum wählen" />
+                <SelectValue placeholder={t("data.selectPeriod")} />
               </SelectTrigger>
               <SelectContent>
                 {retentionOptions.map((option) => (
@@ -199,7 +203,7 @@ export function DataSettings() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Ältere Daten werden automatisch gelöscht (Pruning)
+              {t("data.retentionHint")}
             </p>
           </div>
 
@@ -211,37 +215,37 @@ export function DataSettings() {
               </div>
               <div>
                 <p className="text-lg font-semibold">~{estimatedStorage}</p>
-                <p className="text-xs text-muted-foreground">Geschätzter Speicherbedarf</p>
+                <p className="text-xs text-muted-foreground">{t("data.estimatedStorage")}</p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Basierend auf {mockMonitors.length} Monitoren, ~{checksPerDay.toLocaleString("de-DE")} Checks/Tag
+              {t("data.estimatedStorageHint", { monitors: mockMonitors.length, checks: checksPerDay.toLocaleString(locale) })}
             </p>
           </div>
         </div>
 
         <div className="flex justify-end pt-4 border-t">
           <Button type="submit" disabled={!isDirty}>
-            Speichern
+            {t("data.save")}
           </Button>
         </div>
       </form>
 
       {/* Export Section */}
       <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold mb-1">Daten-Export</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("data.exportTitle")}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Exportiere Check-Ergebnisse und Incident-Daten
+          {t("data.exportDescription")}
         </p>
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => handleExport("csv")}>
             <Download className="h-4 w-4 mr-2" />
-            Export als CSV
+            {t("data.exportCsv")}
           </Button>
           <Button variant="outline" onClick={() => handleExport("json")}>
             <Download className="h-4 w-4 mr-2" />
-            Export als JSON
+            {t("data.exportJson")}
           </Button>
         </div>
       </div>

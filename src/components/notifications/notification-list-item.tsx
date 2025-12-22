@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ChevronDown,
   ChevronRight,
@@ -77,28 +78,19 @@ const TYPE_CONFIG: Record<
   },
 };
 
-const TYPE_LABELS: Record<SystemNotificationType, string> = {
-  monitor_down: "Monitor",
-  monitor_up: "Monitor",
-  incident_created: "Incident",
-  incident_updated: "Incident",
-  incident_resolved: "Incident",
-  maintenance_scheduled: "Wartung",
-  maintenance_started: "Wartung",
-  maintenance_completed: "Wartung",
-};
-
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
+function formatDuration(seconds: number, t: ReturnType<typeof useTranslations<"notifications">>): string {
+  if (seconds < 60) return t("duration.seconds", { count: seconds });
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} Min.`;
+  if (minutes < 60) return t("duration.minutes", { count: minutes });
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   if (hours < 24) {
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    return remainingMinutes > 0
+      ? t("duration.hoursMinutes", { hours, minutes: remainingMinutes })
+      : t("duration.hours", { hours });
   }
   const days = Math.floor(hours / 24);
-  return `${days} Tage`;
+  return t("duration.days", { count: days });
 }
 
 export function NotificationListItem({
@@ -109,6 +101,7 @@ export function NotificationListItem({
   onDelete,
 }: NotificationListItemProps) {
   const router = useRouter();
+  const t = useTranslations("notifications");
   const config = TYPE_CONFIG[notification.type];
   const Icon = config.icon;
 
@@ -164,7 +157,7 @@ export function NotificationListItem({
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
             <span>{formatLastCheck(notification.timestamp)}</span>
             <span className="text-border">|</span>
-            <span>{TYPE_LABELS[notification.type]}</span>
+            <span>{t(`typeLabels.${notification.type}`)}</span>
           </div>
         </div>
 
@@ -187,7 +180,7 @@ export function NotificationListItem({
 
           {notification.metadata?.duration && (
             <p className="text-xs text-muted-foreground mb-4">
-              Dauer: {formatDuration(notification.metadata.duration)}
+              {t("item.duration", { duration: formatDuration(notification.metadata.duration, t) })}
             </p>
           )}
 
@@ -197,15 +190,15 @@ export function NotificationListItem({
               <Button size="sm" variant="outline" onClick={handleNavigate}>
                 <ExternalLink className="h-3 w-3 mr-1" />
                 {notification.relatedMonitorId
-                  ? "Monitor ansehen"
-                  : "Incident ansehen"}
+                  ? t("item.viewMonitor")
+                  : t("item.viewIncident")}
               </Button>
             )}
 
             {!notification.read && (
               <Button size="sm" variant="ghost" onClick={onMarkAsRead}>
                 <Check className="h-3 w-3 mr-1" />
-                Als gelesen
+                {t("item.markAsRead")}
               </Button>
             )}
 
@@ -216,7 +209,7 @@ export function NotificationListItem({
               onClick={onDelete}
             >
               <Trash2 className="h-3 w-3 mr-1" />
-              Löschen
+              {t("item.delete")}
             </Button>
           </div>
         </div>

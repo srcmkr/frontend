@@ -1081,6 +1081,28 @@ export function resetExtendedIncidents(): void {
   mutableExtendedIncidents = null;
 }
 
+// Mutable copy for service groups
+let mutableServiceGroups: ServiceGroup[] | null = null;
+
+// Get current service groups (creates mutable copy on first access)
+export function getServiceGroups(): ServiceGroup[] {
+  if (mutableServiceGroups === null) {
+    mutableServiceGroups = JSON.parse(JSON.stringify(mockServiceGroups)) as ServiceGroup[];
+  }
+  return mutableServiceGroups;
+}
+
+// Update service groups (replaces entire tree)
+export function updateServiceGroups(groups: ServiceGroup[]): ServiceGroup[] {
+  mutableServiceGroups = JSON.parse(JSON.stringify(groups)) as ServiceGroup[];
+  return mutableServiceGroups;
+}
+
+// Reset service groups to initial state
+export function resetServiceGroups(): void {
+  mutableServiceGroups = null;
+}
+
 // Mock service groups with hierarchical structure
 export const mockServiceGroups: ServiceGroup[] = [
   {

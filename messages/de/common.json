@@ -1,0 +1,102 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "monitors": "Monitore",
+    "incidents": "Vorfälle",
+    "statusPages": "Statusseiten",
+    "notifications": "Benachrichtigungen",
+    "profile": "Profil",
+    "settings": "Einstellungen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Überblick über alle überwachten Services",
+    "addMonitor": "Monitor hinzufügen",
+    "monitors": "Monitore",
+    "loading": "Laden...",
+    "servicesCount": "{count} Services",
+    "servicesFiltered": "{filtered} von {total} Services",
+    "newGroup": "Neue Gruppe",
+    "groups": "Gruppen",
+    "list": "Liste",
+    "errorLoading": "Fehler beim Laden der Monitore",
+    "noMonitors": "Keine Monitore gefunden",
+    "activeIncidents": "Aktive Incidents",
+    "new": "Neu",
+    "incident": "Incident",
+    "scheduledMaintenance": "Geplante Wartung",
+    "announcement": "Ankündigung",
+    "historicalEntry": "Historischer Eintrag",
+    "noActiveIncidents": "Keine aktiven Incidents",
+    "since": "Seit {duration}",
+    "view": "Anzeigen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "recentActivity": "Letzte Aktivitäten",
+    "resolvedAfter": "Behoben nach {duration}",
+    "ongoing": "Andauernd"
+  },
+  "actions": {
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "deleting": "Löschen...",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "creating": "Erstellen...",
+    "add": "Hinzufügen",
+    "remove": "Entfernen",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "retry": "Erneut versuchen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "reset": "Zurücksetzen",
+    "copy": "Kopieren",
+    "copied": "Kopiert!"
+  },
+  "settings": {
+    "language": "Sprache",
+    "theme": "Design",
+    "logout": "Abmelden"
+  },
+  "languages": {
+    "en": "Englisch",
+    "de": "Deutsch"
+  },
+  "themes": {
+    "basic": "Basic",
+    "dark": "Dunkel",
+    "forest": "Forest",
+    "slate": "Slate",
+    "kiwi": "Kiwi"
+  },
+  "time": {
+    "now": "Gerade eben",
+    "minutesAgo": "{count, plural, one {vor # Minute} other {vor # Minuten}}",
+    "hoursAgo": "{count, plural, one {vor # Stunde} other {vor # Stunden}}",
+    "daysAgo": "{count, plural, one {vor # Tag} other {vor # Tagen}}",
+    "since": "Seit {time}"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalidUrl": "Bitte geben Sie eine gültige URL ein",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "minLength": "Muss mindestens {min} Zeichen lang sein",
+    "maxLength": "Darf maximal {max} Zeichen lang sein"
+  },
+  "commandPalette": {
+    "placeholder": "Suchen oder Befehl eingeben...",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "quickActions": "Schnellaktionen",
+    "navigation": "Navigation",
+    "theme": "Design",
+    "createMonitor": "Neuen Monitor erstellen",
+    "createGroup": "Neue Gruppe erstellen",
+    "createIncident": "Neuen Vorfall melden",
+    "createStatusPage": "Statusseite erstellen"
+  }
+}

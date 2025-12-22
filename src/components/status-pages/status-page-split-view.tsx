@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -42,6 +43,7 @@ export function StatusPageSplitView({
   onDelete,
   className,
 }: StatusPageSplitViewProps) {
+  const t = useTranslations("statusPages");
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -201,20 +203,22 @@ export function StatusPageSplitView({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="h-5 w-5 text-destructive" />
-              Statusseite löschen
+              {t("dialogs.deleteTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Möchtest du die Statusseite &quot;{pageToDelete?.title}&quot; wirklich löschen?
-              Die öffentliche URL /status/{pageToDelete?.slug} wird nicht mehr erreichbar sein.
+              {t("dialogs.deleteDescription", {
+                name: pageToDelete?.title ?? "",
+                slug: pageToDelete?.slug ?? ""
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("dialogs.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              Löschen
+              {t("dialogs.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

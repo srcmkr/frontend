@@ -1,0 +1,167 @@
+{
+  "title": "Vorfälle",
+  "subtitle": "Verwalte Incidents, Wartungsarbeiten und Ankündigungen",
+  "createIncident": "Vorfall erstellen",
+  "editIncident": "Vorfall bearbeiten",
+  "newIncident": "Neuen Vorfall erstellen",
+  "selectIncident": "Wähle einen Vorfall aus",
+  "noIncidents": "Keine Vorfälle",
+  "noIncidentsFound": "Keine Vorfälle gefunden",
+  "allSystemsOperational": "Alle Systeme funktionieren einwandfrei",
+  "activeIncidents": "Aktive Vorfälle",
+  "incidentsCount": "{count} Vorfälle",
+  "types": {
+    "incident": "Vorfall",
+    "maintenance": "Wartung",
+    "announcement": "Ankündigung"
+  },
+  "typeDescriptions": {
+    "incident": "Unerwartetes Problem oder Ausfall",
+    "maintenance": "Geplante Wartungsarbeiten",
+    "announcement": "Allgemeine Information",
+    "historical": "Historischen Eintrag hinzufügen"
+  },
+  "severity": {
+    "info": "Info",
+    "infoDescription": "Informativ, kein Ausfall",
+    "minor": "Gering",
+    "minorDescription": "Geringfügige Einschränkung",
+    "major": "Mittel",
+    "majorDescription": "Teilweiser Ausfall",
+    "critical": "Kritisch",
+    "criticalDescription": "Vollständiger Ausfall"
+  },
+  "status": {
+    "investigating": "Wird untersucht",
+    "identified": "Identifiziert",
+    "monitoring": "Wird überwacht",
+    "resolved": "Behoben",
+    "scheduled": "Geplant",
+    "inProgress": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "ongoing": "Aktiv"
+  },
+  "form": {
+    "title": "Titel",
+    "titlePlaceholder": "z.B. API-Server nicht erreichbar",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Weitere Details, Auswirkungen, geplante Maßnahmen...",
+    "descriptionOptional": "Detaillierte Beschreibung (optional)",
+    "cause": "Ursache",
+    "causePlaceholder": "Kurze Beschreibung der Ursache...",
+    "causeHint": "Diese Information wird öffentlich angezeigt",
+    "type": "Typ",
+    "severity": "Schweregrad",
+    "severityQuestion": "Wie schwerwiegend ist das Problem?",
+    "affectedMonitors": "Betroffene Monitore",
+    "affectedMonitorsHint": "Wähle alle Services aus, die von diesem Vorfall betroffen sind",
+    "noMonitorsFound": "Keine Monitore gefunden",
+    "searchMonitors": "Monitore suchen...",
+    "selectAll": "Alle",
+    "selectNone": "Keine",
+    "selectedCount": "{selected} von {total} ausgewählt",
+    "servicesAffected": "{count} Service{count, plural, one {} other {s}} betroffen",
+    "startTime": "Startzeit",
+    "endTime": "Endzeit",
+    "scheduledStart": "Geplanter Start",
+    "scheduledEnd": "Geplantes Ende",
+    "tabGeneral": "Typ & Schwere",
+    "tabMonitors": "Services",
+    "tabDetails": "Details",
+    "tabTime": "Zeitraum",
+    "incidentType": "Vorfallstyp",
+    "incidentTypeDescription": "Wähle den passenden Typ für diesen Eintrag",
+    "titleAndDescription": "Titel & Beschreibung",
+    "titleAndDescriptionHint": "Beschreibe den Vorfall für Nutzer und Administratoren",
+    "timePeriod": "Zeitraum",
+    "timePeriodDescription": "Wann hat der Vorfall begonnen und wann wurde er behoben?",
+    "statusLabel": "Status",
+    "ongoingNote": "Der Vorfall wird als \"aktiv\" markiert. Du kannst ihn später über die Detail-Ansicht als behoben markieren.",
+    "save": "Speichern",
+    "create": "Erstellen"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "addUpdate": "Update",
+    "editUpdate": "Update bearbeiten",
+    "deleteUpdate": "Update löschen",
+    "updatePlaceholder": "Update-Nachricht eingeben...",
+    "noUpdates": "Keine Updates vorhanden",
+    "cmdEnterToSend": "Cmd+Enter zum Senden",
+    "cmdEnterToSave": "Cmd+Enter zum Speichern, Escape zum Abbrechen",
+    "system": "System",
+    "send": "Senden"
+  },
+  "actions": {
+    "resolve": "Beheben",
+    "resolving": "Wird behoben...",
+    "reopen": "Erneut öffnen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "markResolved": "Als behoben markieren",
+    "startMaintenance": "Wartung starten",
+    "completeMaintenance": "Wartung abschließen"
+  },
+  "filters": {
+    "all": "Alle",
+    "ongoing": "Aktiv",
+    "resolved": "Behoben",
+    "scheduled": "Geplant"
+  },
+  "metrics": {
+    "mttr": "MTTR",
+    "mttrFull": "Mittlere Zeit bis zur Behebung",
+    "duration": "Dauer",
+    "affected": "Betroffene Services"
+  },
+  "stats": {
+    "active": "Aktiv",
+    "resolved": "Behoben"
+  },
+  "createOptions": {
+    "incident": "Incident",
+    "maintenance": "Geplante Wartung",
+    "announcement": "Ankündigung",
+    "historical": "Historischer Eintrag"
+  },
+  "list": {
+    "search": "Suchen...",
+    "clearSearch": "Suche zurücksetzen"
+  },
+  "detail": {
+    "noIncidentSelected": "Kein Vorfall ausgewählt",
+    "noIncidentSelectedHint": "Wähle einen Vorfall aus der Liste aus, um Details anzuzeigen.",
+    "back": "Zurück",
+    "started": "Gestartet",
+    "duration": "Dauer",
+    "durationOngoing": "laufend",
+    "unknown": "Unbekannt",
+    "affectedServices": "Betroffene Services",
+    "noMonitorsAssigned": "Keine Monitore zugeordnet",
+    "cause": "Ursache",
+    "description": "Beschreibung"
+  },
+  "dialogs": {
+    "deleteTitle": "Vorfall löschen",
+    "deleteDescription": "Möchtest du \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteUpdateTitle": "Update löschen",
+    "deleteUpdateDescription": "Möchtest du dieses Update wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "delete": "Löschen"
+  },
+  "time": {
+    "seconds": "{count} Sekunden",
+    "minutes": "{count} Minuten",
+    "hours": "{count} Stunden",
+    "hoursMinutes": "{hours} Stunden {minutes} Minuten",
+    "days": "{count} Tage",
+    "daysHours": "{days} Tage {hours} Stunden"
+  },
+  "headings": {
+    "editIncident": "Vorfall bearbeiten",
+    "createHistorical": "Historischen Eintrag erstellen",
+    "createMaintenance": "Geplante Wartung erstellen",
+    "createAnnouncement": "Ankündigung erstellen",
+    "createIncident": "Neuen Vorfall erstellen"
+  }
+}

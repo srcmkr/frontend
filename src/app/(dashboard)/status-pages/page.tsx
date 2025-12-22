@@ -1,37 +1,42 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusPageSplitView } from "@/components/status-pages/status-page-split-view";
 import {
-  getStatusPages,
-  createStatusPage,
-  updateStatusPage,
-  deleteStatusPage,
-} from "@/mocks/status-pages";
-import { getMockMonitors, generateMockUptimeHistory } from "@/mocks/monitors";
-import type { StatusPage, StatusPageFormData, Monitor } from "@/types";
+  useStatusPages,
+  useCreateStatusPage,
+  useUpdateStatusPage,
+  useDeleteStatusPage,
+} from "@/features/status-pages";
+import { useMonitors } from "@/features/monitors";
+import type { StatusPage, StatusPageFormData } from "@/types";
 
 export default function StatusPagesPage() {
+  const t = useTranslations("statusPages");
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const selectedPageId = searchParams.get("id");
 
-  // Status pages state (TODO: Replace with React Query)
-  const [statusPages, setStatusPages] = useState<StatusPage[]>(() =>
-    getStatusPages()
-  );
+  // Fetch status pages using React Query
+  const {
+    data: statusPages = [],
+    isLoading: statusPagesLoading,
+    error: statusPagesError,
+  } = useStatusPages();
 
-  // Monitors for displaying in detail panel
-  const [monitors] = useState<Monitor[]>(() =>
-    getMockMonitors().map((m) => ({
-      ...m,
-      uptimeHistory: generateMockUptimeHistory(m.uptime24h),
-    }))
-  );
+  // Fetch monitors (read-only, for display in detail panel)
+  const { data: monitors = [] } = useMonitors();
+
+  // Mutations
+  const createStatusPage = useCreateStatusPage();
+  const updateStatusPage = useUpdateStatusPage();
+  const deleteStatusPage = useDeleteStatusPage();
 
   // Handle status page selection
   const handleSelectPage = useCallback(
@@ -46,49 +51,87 @@ export default function StatusPagesPage() {
   );
 
   // Handle create
-  const handleCreate = useCallback((data: StatusPageFormData) => {
-    const newPage = createStatusPage(data);
-    setStatusPages(getStatusPages());
-    // Select the new page
-    router.push(`/status-pages?id=${newPage.id}`, { scroll: false });
-  }, [router]);
+  const handleCreate = useCallback(
+    (data: StatusPageFormData) => {
+      createStatusPage.mutate(data, {
+        onSuccess: (newPage) => {
+          router.push(`/status-pages?id=${newPage.id}`, { scroll: false });
+        },
+      });
+    },
+    [createStatusPage, router]
+  );
 
   // Handle update
   const handleUpdate = useCallback(
     (id: string, data: Partial<StatusPage>) => {
-      updateStatusPage(id, data);
-      setStatusPages(getStatusPages());
+      updateStatusPage.mutate({ id, data });
     },
-    []
+    [updateStatusPage]
   );
 
   // Handle delete
-  const handleDelete = useCallback((id: string) => {
-    deleteStatusPage(id);
-    setStatusPages(getStatusPages());
-  }, []);
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteStatusPage.mutate(id, {
+        onSuccess: () => {
+          if (selectedPageId === id) {
+            router.push("/status-pages", { scroll: false });
+          }
+        },
+      });
+    },
+    [deleteStatusPage, selectedPageId, router]
+  );
 
   // Trigger create mode from header button
   const handleCreateClick = useCallback(() => {
     router.push("/status-pages?mode=create", { scroll: false });
   }, [router]);
 
+  // Loading state
+  if (statusPagesLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{t("title")}</h1>
+            <p className="text-muted-foreground">
+              {t("subtitle")}
+            </p>
+          </div>
+          <Skeleton className="h-10 w-44" />
+        </div>
+        <div className="flex h-[calc(100vh-220px)] min-h-[400px] gap-4">
+          <Skeleton className="w-full lg:w-[400px] lg:shrink-0 rounded-2xl" />
+          <Skeleton className="flex-1 rounded-2xl hidden lg:block" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error handling is done by error.tsx - throw to trigger error boundary
+  if (statusPagesError) {
+    throw statusPagesError;
+  }
+
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Statusseiten</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Öffentliche und private Statusseiten verwalten
+            {t("subtitle")}
           </p>
         </div>
         <Button
           onClick={handleCreateClick}
           className="uppercase tracking-wide"
+          disabled={createStatusPage.isPending}
         >
           <Plus className="h-4 w-4 mr-1" />
-          Statusseite erstellen
+          {t("createStatusPage")}
         </Button>
       </div>
 

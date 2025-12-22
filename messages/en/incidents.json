@@ -1,0 +1,167 @@
+{
+  "title": "Incidents",
+  "subtitle": "Manage incidents, maintenance, and announcements",
+  "createIncident": "Create Incident",
+  "editIncident": "Edit Incident",
+  "newIncident": "Create New Incident",
+  "selectIncident": "Select an incident",
+  "noIncidents": "No incidents",
+  "noIncidentsFound": "No incidents found",
+  "allSystemsOperational": "All systems operational",
+  "activeIncidents": "Active Incidents",
+  "incidentsCount": "{count} incidents",
+  "types": {
+    "incident": "Incident",
+    "maintenance": "Maintenance",
+    "announcement": "Announcement"
+  },
+  "typeDescriptions": {
+    "incident": "Unexpected problem or outage",
+    "maintenance": "Planned maintenance work",
+    "announcement": "General information",
+    "historical": "Add historical entry"
+  },
+  "severity": {
+    "info": "Info",
+    "infoDescription": "Informational, no outage",
+    "minor": "Minor",
+    "minorDescription": "Minor impact",
+    "major": "Major",
+    "majorDescription": "Partial outage",
+    "critical": "Critical",
+    "criticalDescription": "Complete outage"
+  },
+  "status": {
+    "investigating": "Investigating",
+    "identified": "Identified",
+    "monitoring": "Monitoring",
+    "resolved": "Resolved",
+    "scheduled": "Scheduled",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "ongoing": "Active"
+  },
+  "form": {
+    "title": "Title",
+    "titlePlaceholder": "e.g. API server unreachable",
+    "description": "Description",
+    "descriptionPlaceholder": "Additional details, impacts, planned actions...",
+    "descriptionOptional": "Detailed description (optional)",
+    "cause": "Cause",
+    "causePlaceholder": "Brief description of the cause...",
+    "causeHint": "This information will be displayed publicly",
+    "type": "Type",
+    "severity": "Severity",
+    "severityQuestion": "How severe is the problem?",
+    "affectedMonitors": "Affected Monitors",
+    "affectedMonitorsHint": "Select all services affected by this incident",
+    "noMonitorsFound": "No monitors found",
+    "searchMonitors": "Search monitors...",
+    "selectAll": "All",
+    "selectNone": "None",
+    "selectedCount": "{selected} of {total} selected",
+    "servicesAffected": "{count} service{count, plural, one {} other {s}} affected",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "scheduledStart": "Scheduled Start",
+    "scheduledEnd": "Scheduled End",
+    "tabGeneral": "Type & Severity",
+    "tabMonitors": "Services",
+    "tabDetails": "Details",
+    "tabTime": "Time Period",
+    "incidentType": "Incident Type",
+    "incidentTypeDescription": "Choose the appropriate type for this entry",
+    "titleAndDescription": "Title & Description",
+    "titleAndDescriptionHint": "Describe the incident for users and administrators",
+    "timePeriod": "Time Period",
+    "timePeriodDescription": "When did the incident start and when was it resolved?",
+    "statusLabel": "Status",
+    "ongoingNote": "The incident will be marked as \"active\". You can mark it as resolved later from the detail view.",
+    "save": "Save",
+    "create": "Create"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "addUpdate": "Update",
+    "editUpdate": "Edit Update",
+    "deleteUpdate": "Delete Update",
+    "updatePlaceholder": "Enter update message...",
+    "noUpdates": "No updates yet",
+    "cmdEnterToSend": "Cmd+Enter to send",
+    "cmdEnterToSave": "Cmd+Enter to save, Escape to cancel",
+    "system": "System",
+    "send": "Send"
+  },
+  "actions": {
+    "resolve": "Resolve",
+    "resolving": "Resolving...",
+    "reopen": "Reopen",
+    "delete": "Delete",
+    "edit": "Edit",
+    "markResolved": "Mark as resolved",
+    "startMaintenance": "Start Maintenance",
+    "completeMaintenance": "Complete Maintenance"
+  },
+  "filters": {
+    "all": "All",
+    "ongoing": "Ongoing",
+    "resolved": "Resolved",
+    "scheduled": "Scheduled"
+  },
+  "metrics": {
+    "mttr": "MTTR",
+    "mttrFull": "Mean Time To Resolve",
+    "duration": "Duration",
+    "affected": "Affected Services"
+  },
+  "stats": {
+    "active": "Active",
+    "resolved": "Resolved"
+  },
+  "createOptions": {
+    "incident": "Incident",
+    "maintenance": "Scheduled Maintenance",
+    "announcement": "Announcement",
+    "historical": "Historical Entry"
+  },
+  "list": {
+    "search": "Search...",
+    "clearSearch": "Clear search"
+  },
+  "detail": {
+    "noIncidentSelected": "No incident selected",
+    "noIncidentSelectedHint": "Select an incident from the list to view details.",
+    "back": "Back",
+    "started": "Started",
+    "duration": "Duration",
+    "durationOngoing": "ongoing",
+    "unknown": "Unknown",
+    "affectedServices": "Affected Services",
+    "noMonitorsAssigned": "No monitors assigned",
+    "cause": "Cause",
+    "description": "Description"
+  },
+  "dialogs": {
+    "deleteTitle": "Delete Incident",
+    "deleteDescription": "Do you really want to delete \"{name}\"? This action cannot be undone.",
+    "deleteUpdateTitle": "Delete Update",
+    "deleteUpdateDescription": "Do you really want to delete this update? This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "time": {
+    "seconds": "{count} seconds",
+    "minutes": "{count} minutes",
+    "hours": "{count} hours",
+    "hoursMinutes": "{hours} hours {minutes} minutes",
+    "days": "{count} days",
+    "daysHours": "{days} days {hours} hours"
+  },
+  "headings": {
+    "editIncident": "Edit Incident",
+    "createHistorical": "Create Historical Entry",
+    "createMaintenance": "Create Scheduled Maintenance",
+    "createAnnouncement": "Create Announcement",
+    "createIncident": "Create New Incident"
+  }
+}

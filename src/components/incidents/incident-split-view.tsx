@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -52,6 +53,7 @@ export function IncidentSplitView({
   onDeleteUpdate,
   className,
 }: IncidentSplitViewProps) {
+  const t = useTranslations("incidents");
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -244,20 +246,19 @@ export function IncidentSplitView({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="h-5 w-5 text-destructive" />
-              Vorfall löschen
+              {t("dialogs.deleteTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Möchtest du &quot;{incidentToDelete?.title}&quot; wirklich löschen?
-              Diese Aktion kann nicht rückgängig gemacht werden.
+              {t("dialogs.deleteDescription", { name: incidentToDelete?.title ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("dialogs.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              Löschen
+              {t("dialogs.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

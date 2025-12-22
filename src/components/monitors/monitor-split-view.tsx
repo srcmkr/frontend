@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -46,6 +47,7 @@ export function MonitorSplitView({
 }: MonitorSplitViewProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("monitors.dialogs");
 
   // View mode state
   const [viewMode, setViewMode] = useState<ViewMode>("view");
@@ -198,20 +200,19 @@ export function MonitorSplitView({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="h-5 w-5 text-destructive" />
-              Monitor löschen
+              {t("deleteTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Möchtest du &quot;{monitorToDelete?.name}&quot; wirklich löschen?
-              Alle zugehörigen Daten und Statistiken werden unwiderruflich entfernt.
+              {t("deleteDescription", { name: monitorToDelete?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              Löschen
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

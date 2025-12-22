@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronDown,
   ChevronLeft,
@@ -78,6 +79,7 @@ export function MonitorDetailHeader({
   onDelete,
   onGenerateReport,
 }: MonitorDetailHeaderProps) {
+  const t = useTranslations("monitors.detail");
   const isPaused = monitor.status === "paused";
 
   // Generate detailed stats (memoized)
@@ -96,7 +98,7 @@ export function MonitorDetailHeader({
           className="lg:hidden -ml-2 mb-2"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Zurück
+          {t("back")}
         </Button>
       )}
 
@@ -108,31 +110,31 @@ export function MonitorDetailHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="shrink-0">
-              Aktionen
+              {t("actions")}
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onEdit}>
               <Pencil className="h-4 w-4 mr-2" />
-              Bearbeiten
+              {t("edit")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onTogglePause}>
               {isPaused ? (
                 <>
                   <Play className="h-4 w-4 mr-2" />
-                  Fortsetzen
+                  {t("resume")}
                 </>
               ) : (
                 <>
                   <Pause className="h-4 w-4 mr-2" />
-                  Pausieren
+                  {t("pause")}
                 </>
               )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onGenerateReport}>
               <FileBarChart className="h-4 w-4 mr-2" />
-              Report generieren
+              {t("generateReport")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -140,7 +142,7 @@ export function MonitorDetailHeader({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Löschen
+              {t("delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -156,19 +158,19 @@ export function MonitorDetailHeader({
           {monitor.type}
         </Badge>
         <span className="text-xs text-muted-foreground">
-          Interval: {monitor.interval}s
+          {t("interval")}: {monitor.interval}s
         </span>
       </div>
 
       {/* SLA Requirements */}
       <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t">
         <StatItem
-          label="SLA-Ziel (Verfügbarkeit)"
+          label={t("slaTarget")}
           value={`${monitor.slaTarget}%`}
           icon={<Target className="h-4 w-4" />}
         />
         <StatItem
-          label="Max. Antwortzeit"
+          label={t("maxResponseTime")}
           value={`${monitor.maxResponseTime}ms`}
           icon={<Gauge className="h-4 w-4" />}
         />
@@ -177,23 +179,23 @@ export function MonitorDetailHeader({
       {/* Stats Grid - Row 1: Basic Info */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 mt-2 border-t">
         <StatItem
-          label="Letzter Check"
+          label={t("lastCheck")}
           value={formatLastCheck(stats.lastCheck)}
           icon={<Clock className="h-4 w-4" />}
         />
         <StatItem
-          label="Response Time"
+          label={t("responseTime")}
           value={formatResponseTime(stats.lastResponseTime)}
           icon={<Zap className="h-4 w-4" />}
         />
         <StatItem
-          label="IP-Adresse"
+          label={t("ipAddress")}
           value={stats.currentIpAddress || "-"}
           icon={<Globe className="h-4 w-4" />}
         />
         <StatItem
-          label="Zertifikat"
-          value={stats.certificateDaysLeft ? `${stats.certificateDaysLeft} Tage` : "-"}
+          label={t("certificate")}
+          value={stats.certificateDaysLeft ? t("daysLeft", { days: stats.certificateDaysLeft }) : "-"}
           icon={certWarning ? <AlertTriangle className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
           warning={certWarning}
         />
@@ -202,19 +204,19 @@ export function MonitorDetailHeader({
       {/* Stats Grid - Row 2: Performance Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
         <StatItem
-          label="Avg. Response (24h)"
+          label={t("avgResponse24h")}
           value={`${stats.avgResponseTime24h}ms`}
         />
         <StatItem
-          label="P95 Response"
+          label={t("p95Response")}
           value={`${stats.p95ResponseTime}ms`}
         />
         <StatItem
-          label="Incidents (30d)"
+          label={t("incidents30d")}
           value={stats.totalIncidents30d.toString()}
         />
         <StatItem
-          label="MTTR"
+          label={t("mttr")}
           value={`${stats.mttr}min`}
         />
       </div>

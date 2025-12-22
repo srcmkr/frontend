@@ -1,0 +1,72 @@
+{
+  "generic": {
+    "title": "Fehler",
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+    "tryAgain": "Bitte versuchen Sie es erneut.",
+    "contactSupport": "Falls das Problem weiterhin besteht, kontaktieren Sie den Support."
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Dashboard-Fehler",
+      "message": "Das Dashboard konnte nicht geladen werden."
+    },
+    "monitors": {
+      "title": "Fehler beim Laden der Monitore",
+      "message": "Die Monitor-Daten konnten nicht geladen werden."
+    },
+    "incidents": {
+      "title": "Fehler beim Laden der Vorfälle",
+      "message": "Die Vorfall-Daten konnten nicht geladen werden."
+    },
+    "statusPages": {
+      "title": "Fehler beim Laden der Statusseiten",
+      "message": "Die Statusseiten konnten nicht geladen werden."
+    },
+    "notifications": {
+      "title": "Fehler beim Laden der Benachrichtigungen",
+      "message": "Die Benachrichtigungseinstellungen konnten nicht geladen werden."
+    }
+  },
+  "global": {
+    "title": "Kritischer Fehler",
+    "message": "Die Anwendung konnte nicht geladen werden. Bitte versuchen Sie es erneut."
+  },
+  "api": {
+    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "timeout": "Zeitüberschreitung. Bitte versuchen Sie es erneut.",
+    "unauthorized": "Sitzung abgelaufen. Bitte melden Sie sich erneut an.",
+    "forbidden": "Sie haben keine Berechtigung für diese Aktion.",
+    "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut."
+  },
+  "mutations": {
+    "monitors": {
+      "createError": "Fehler beim Erstellen des Monitors: {message}",
+      "updateError": "Fehler beim Aktualisieren des Monitors: {message}",
+      "deleteError": "Fehler beim Löschen des Monitors: {message}"
+    },
+    "incidents": {
+      "createError": "Fehler beim Erstellen des Vorfalls: {message}",
+      "updateError": "Fehler beim Aktualisieren des Vorfalls: {message}",
+      "deleteError": "Fehler beim Löschen des Vorfalls: {message}",
+      "resolveError": "Fehler beim Beheben des Vorfalls: {message}",
+      "addUpdateError": "Fehler beim Hinzufügen des Updates: {message}",
+      "editUpdateError": "Fehler beim Bearbeiten des Updates: {message}",
+      "deleteUpdateError": "Fehler beim Löschen des Updates: {message}"
+    },
+    "statusPages": {
+      "createError": "Fehler beim Erstellen der Statusseite: {message}",
+      "updateError": "Fehler beim Aktualisieren der Statusseite: {message}",
+      "deleteError": "Fehler beim Löschen der Statusseite: {message}"
+    },
+    "serviceGroups": {
+      "updateError": "Fehler beim Speichern der Service-Gruppen: {message}"
+    }
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalidFormat": "Ungültiges Format",
+    "tooShort": "Eingabe ist zu kurz",
+    "tooLong": "Eingabe ist zu lang"
+  }
+}

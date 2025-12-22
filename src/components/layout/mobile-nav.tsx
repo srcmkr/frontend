@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
   Activity,
@@ -15,14 +16,13 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "@/lib/stores";
 import { UserMenu } from "./user-menu";
 import { Button } from "@/components/ui/button";
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const t = useTranslation();
+  const t = useTranslations("common");
 
   // Close menu on route change
   useEffect(() => {
@@ -42,12 +42,12 @@ export function MobileNav() {
   }, [isOpen]);
 
   const navigation = [
-    { name: t.dashboard, href: "/", icon: LayoutDashboard },
-    { name: t.monitors, href: "/monitors", icon: Activity },
-    { name: t.incidents, href: "/incidents", icon: AlertTriangle },
-    { name: t.statusPages, href: "/status-pages", icon: Globe },
-    { name: t.notifications, href: "/notifications", icon: Bell },
-    { name: t.settings, href: "/settings", icon: Settings },
+    { name: t("navigation.dashboard"), href: "/", icon: LayoutDashboard },
+    { name: t("navigation.monitors"), href: "/monitors", icon: Activity },
+    { name: t("navigation.incidents"), href: "/incidents", icon: AlertTriangle },
+    { name: t("navigation.statusPages"), href: "/status-pages", icon: Globe },
+    { name: t("navigation.notifications"), href: "/notifications", icon: Bell },
+    { name: t("navigation.settings"), href: "/settings", icon: Settings },
   ];
 
   const isActive = (href: string) => {

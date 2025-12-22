@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Bot, User, Plus, Send, Pencil, Trash2, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,9 @@ interface IncidentUpdatesListProps {
   className?: string;
 }
 
-function formatDateTime(dateString: string): string {
+function formatDateTime(dateString: string, locale: string): string {
   const date = new Date(dateString);
-  return date.toLocaleString("de-DE", {
+  return date.toLocaleString(locale, {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -44,6 +45,8 @@ export function IncidentUpdatesList({
   canAddUpdate,
   className,
 }: IncidentUpdatesListProps) {
+  const t = useTranslations("incidents");
+  const locale = useLocale();
   const [isAdding, setIsAdding] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,7 +118,7 @@ export function IncidentUpdatesList({
       {/* Header with Title and Add Button */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Timeline
+          {t("timeline.title")}
         </h3>
         {canAddUpdate && !isAdding && (
           <Button
@@ -125,7 +128,7 @@ export function IncidentUpdatesList({
             onClick={() => setIsAdding(true)}
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
-            Update
+            {t("timeline.addUpdate")}
           </Button>
         )}
       </div>
@@ -134,7 +137,7 @@ export function IncidentUpdatesList({
       {canAddUpdate && isAdding && (
         <div className="space-y-2 mb-4">
           <Textarea
-            placeholder="Update-Nachricht eingeben..."
+            placeholder={t("timeline.updatePlaceholder")}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -143,7 +146,7 @@ export function IncidentUpdatesList({
           />
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
-              Cmd+Enter zum Senden
+              {t("timeline.cmdEnterToSend")}
             </span>
             <div className="flex gap-2">
               <Button
@@ -155,7 +158,7 @@ export function IncidentUpdatesList({
                 }}
                 disabled={isSubmitting}
               >
-                Abbrechen
+                {t("dialogs.cancel")}
               </Button>
               <Button
                 size="sm"
@@ -163,7 +166,7 @@ export function IncidentUpdatesList({
                 disabled={!newMessage.trim() || isSubmitting}
               >
                 <Send className="h-3.5 w-3.5 mr-1.5" />
-                Senden
+                {t("timeline.send")}
               </Button>
             </div>
           </div>
@@ -239,16 +242,16 @@ export function IncidentUpdatesList({
                   )}
                   {update.isAutomatic && (
                     <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70 bg-muted px-1.5 py-0.5 rounded">
-                      System
+                      {t("timeline.system")}
                     </span>
                   )}
                   {update.status === "resolved" && (
                     <span className="text-[10px] uppercase tracking-wide text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-1.5 py-0.5 rounded">
-                      Behoben
+                      {t("status.resolved")}
                     </span>
                   )}
                   <span className="text-xs text-muted-foreground ml-auto">
-                    {formatDateTime(update.createdAt)}
+                    {formatDateTime(update.createdAt, locale)}
                   </span>
                 </div>
 
@@ -264,7 +267,7 @@ export function IncidentUpdatesList({
                     />
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        Cmd+Enter zum Speichern, Escape zum Abbrechen
+                        {t("timeline.cmdEnterToSave")}
                       </span>
                       <div className="flex gap-1">
                         <Button
@@ -274,7 +277,7 @@ export function IncidentUpdatesList({
                           onClick={handleCancelEdit}
                         >
                           <X className="h-3.5 w-3.5 mr-1" />
-                          Abbrechen
+                          {t("dialogs.cancel")}
                         </Button>
                         <Button
                           size="sm"
@@ -283,7 +286,7 @@ export function IncidentUpdatesList({
                           disabled={!editMessage.trim()}
                         >
                           <Check className="h-3.5 w-3.5 mr-1" />
-                          Speichern
+                          {t("form.save")}
                         </Button>
                       </div>
                     </div>
@@ -302,7 +305,7 @@ export function IncidentUpdatesList({
       {/* Empty state */}
       {sortedUpdates.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4">
-          Keine Updates vorhanden
+          {t("timeline.noUpdates")}
         </p>
       )}
 
@@ -315,20 +318,19 @@ export function IncidentUpdatesList({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="h-5 w-5 text-destructive" />
-              Update löschen
+              {t("dialogs.deleteUpdateTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Möchtest du dieses Update wirklich löschen? Diese Aktion kann nicht
-              rückgängig gemacht werden.
+              {t("dialogs.deleteUpdateDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("dialogs.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              Löschen
+              {t("dialogs.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

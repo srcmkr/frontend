@@ -1,0 +1,279 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Systemkonfiguration",
+
+  "tabs": {
+    "monitoring": "Monitoring",
+    "notifications": "Benachrichtigungen",
+    "data": "Daten",
+    "api": "API",
+    "users": "Benutzer",
+    "statusPages": "Status-Seiten",
+    "system": "System"
+  },
+
+  "monitoring": {
+    "title": "Monitoring-Defaults",
+    "description": "Standardwerte für neu erstellte Monitore",
+    "defaultInterval": "Standard-Intervall",
+    "selectInterval": "Intervall wählen",
+    "defaultTimeout": "Standard-Timeout (Sekunden)",
+    "defaultRetries": "Standard-Wiederholungen",
+    "defaultSlaTarget": "Standard-SLA-Ziel (%)",
+    "defaultMaxResponseTime": "Standard-Max-Antwortzeit (ms)",
+    "maxResponseTimeHint": "Antwortzeiten über diesem Wert werden als Degradation gewertet",
+    "save": "Speichern",
+    "saved": "Monitoring-Einstellungen gespeichert"
+  },
+
+  "notificationSettings": {
+    "channelsTitle": "Benachrichtigungskanäle",
+    "channelsDescription": "Kanäle für Incident-Benachrichtigungen",
+    "addChannel": "Kanal hinzufügen",
+    "noChannels": "Keine Kanäle konfiguriert",
+    "tableColumns": {
+      "name": "Name",
+      "type": "Typ",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "globalTitle": "Globale Einstellungen",
+    "globalDescription": "Einstellungen für alle Benachrichtigungen",
+    "failureThreshold": "Benachrichtigung nach X Fehlschlägen",
+    "failureThresholdHint": "Anzahl aufeinanderfolgender Fehlschläge bevor eine Benachrichtigung gesendet wird",
+    "save": "Speichern",
+    "saved": "Benachrichtigungs-Einstellungen gespeichert",
+    "channelDeleted": "Kanal gelöscht",
+    "channelCreated": "Kanal erstellt",
+    "channelUpdated": "Kanal aktualisiert",
+    "deleteChannelTitle": "Kanal löschen",
+    "deleteChannelDescription": "Möchtest du den Kanal \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen"
+  },
+
+  "channelDialog": {
+    "editTitle": "Kanal bearbeiten",
+    "createTitle": "Kanal hinzufügen",
+    "editDescription": "Bearbeite die Einstellungen des Benachrichtigungskanals.",
+    "createDescription": "Erstelle einen neuen Benachrichtigungskanal.",
+    "channelType": "Kanal-Typ",
+    "email": "E-Mail",
+    "webhook": "Webhook",
+    "name": "Name",
+    "namePlaceholder": "z.B. Admin E-Mail oder Discord Alerts",
+    "resendApiKey": "Resend API-Key",
+    "fromEmail": "Absender-Adresse",
+    "fromEmailPlaceholder": "alerts@example.com",
+    "recipients": "Empfänger",
+    "recipientPlaceholder": "empfaenger@example.com",
+    "webhookUrl": "Webhook-URL",
+    "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
+    "httpHeaders": "HTTP-Headers (optional)",
+    "headerName": "Header-Name",
+    "headerValue": "Wert",
+    "cancel": "Abbrechen",
+    "test": "Test",
+    "save": "Speichern",
+    "create": "Erstellen",
+    "testSending": "Test-Benachrichtigung wird gesendet...",
+    "testSuccess": "Test-Benachrichtigung erfolgreich gesendet",
+    "errorName": "Bitte gib einen Namen ein",
+    "errorApiKey": "Bitte gib einen API-Key ein",
+    "errorFromEmail": "Bitte gib eine Absender-Adresse ein",
+    "errorNoRecipients": "Bitte füge mindestens einen Empfänger hinzu",
+    "errorWebhookUrl": "Bitte gib eine Webhook-URL ein"
+  },
+
+  "users": {
+    "title": "Benutzer",
+    "description": "Verwalte Benutzer mit Zugriff auf das System",
+    "newUser": "Neuer Benutzer",
+    "noUsers": "Keine Benutzer vorhanden",
+    "tableColumns": {
+      "name": "Name",
+      "email": "E-Mail",
+      "status": "Status",
+      "lastLogin": "Letzter Login",
+      "actions": "Aktionen"
+    },
+    "you": "(Du)",
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "edit": "Bearbeiten",
+    "changePassword": "Passwort ändern",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren",
+    "delete": "Löschen",
+    "createDialog": {
+      "title": "Neuen Benutzer erstellen",
+      "description": "Erstelle einen neuen Benutzer mit Systemzugriff.",
+      "name": "Name",
+      "namePlaceholder": "Max Mustermann",
+      "email": "E-Mail",
+      "emailPlaceholder": "max@example.com",
+      "password": "Passwort",
+      "passwordPlaceholder": "Mindestens 8 Zeichen",
+      "confirmPassword": "Passwort bestätigen",
+      "confirmPasswordPlaceholder": "Passwort wiederholen",
+      "cancel": "Abbrechen",
+      "create": "Erstellen"
+    },
+    "editDialog": {
+      "title": "Benutzer bearbeiten",
+      "description": "Ändere die Benutzerdaten.",
+      "name": "Name",
+      "email": "E-Mail",
+      "cancel": "Abbrechen",
+      "save": "Speichern"
+    },
+    "passwordDialog": {
+      "title": "Passwort ändern",
+      "description": "Setze ein neues Passwort für {name}.",
+      "newPassword": "Neues Passwort",
+      "newPasswordPlaceholder": "Mindestens 8 Zeichen",
+      "confirmPassword": "Passwort bestätigen",
+      "confirmPasswordPlaceholder": "Passwort wiederholen",
+      "cancel": "Abbrechen",
+      "change": "Passwort ändern"
+    },
+    "deleteDialog": {
+      "title": "Benutzer löschen?",
+      "description": "Diese Aktion kann nicht rückgängig gemacht werden. Der Benutzer verliert sofort den Zugriff auf das System.",
+      "cancel": "Abbrechen",
+      "delete": "Löschen"
+    },
+    "toast": {
+      "created": "Benutzer erstellt",
+      "updated": "Benutzer aktualisiert",
+      "activated": "Benutzer aktiviert",
+      "deactivated": "Benutzer deaktiviert",
+      "deleted": "Benutzer gelöscht",
+      "passwordChanged": "Passwort für {name} wurde geändert"
+    },
+    "relativeTime": {
+      "never": "Nie",
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "daysAgo": "Vor {days} Tagen"
+    }
+  },
+
+  "api": {
+    "title": "API-Keys",
+    "description": "Verwalte API-Keys für externe Integrationen",
+    "newKey": "Neuer API-Key",
+    "noKeys": "Keine API-Keys vorhanden",
+    "tableColumns": {
+      "name": "Name",
+      "key": "Key",
+      "created": "Erstellt",
+      "lastUsed": "Zuletzt verwendet",
+      "actions": "Aktionen"
+    },
+    "createDialog": {
+      "title": "Neuen API-Key erstellen",
+      "description": "Gib einen Namen für den API-Key ein, um ihn später identifizieren zu können.",
+      "name": "Name",
+      "namePlaceholder": "z.B. Grafana Integration",
+      "cancel": "Abbrechen",
+      "create": "Erstellen"
+    },
+    "keyCreatedDialog": {
+      "title": "API-Key erstellt",
+      "description": "Kopiere den API-Key jetzt. Er wird nur einmal angezeigt!",
+      "copy": "Kopieren",
+      "close": "Schließen"
+    },
+    "deleteDialog": {
+      "title": "API-Key löschen?",
+      "description": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Integrationen, die diesen Key verwenden, werden nicht mehr funktionieren.",
+      "cancel": "Abbrechen",
+      "delete": "Löschen"
+    },
+    "toast": {
+      "copied": "API-Key in Zwischenablage kopiert",
+      "deleted": "API-Key gelöscht"
+    },
+    "usage": {
+      "title": "API-Verwendung",
+      "description": "Verwende den API-Key im Authorization-Header:",
+      "example": "Authorization: Bearer sk_live_xxxxx..."
+    },
+    "relativeTime": {
+      "never": "Nie",
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "daysAgo": "Vor {days} Tagen"
+    }
+  },
+
+  "statusPageSettings": {
+    "title": "Status-Seiten Defaults",
+    "description": "Standardwerte für neu erstellte Status-Seiten",
+    "defaultLogo": "Standard-Logo",
+    "noLogo": "Kein Logo",
+    "uploadLogo": "Logo hochladen",
+    "logoHint": "PNG, JPG oder SVG, max. 2MB",
+    "logoUploaded": "Logo hochgeladen",
+    "defaultPrimaryColor": "Standard-Primärfarbe",
+    "colorHint": "Wird für Buttons und Akzente verwendet",
+    "preview": "Vorschau",
+    "exampleButton": "Beispiel-Button",
+    "uptimeHistoryDays": "Uptime-Historie (Tage)",
+    "uptimeHistoryHint": "Anzahl der Tage für die Uptime-Balkendarstellung",
+    "incidentHistoryDays": "Incident-Historie (Tage)",
+    "incidentHistoryHint": "Anzahl der Tage für die Incident-Übersicht",
+    "save": "Speichern",
+    "saved": "Status-Seiten-Einstellungen gespeichert"
+  },
+
+  "data": {
+    "statsTitle": "Datenbank-Statistiken",
+    "statsDescription": "Aktuelle Nutzung und Speicherverbrauch",
+    "totalChecks": "Checks gesamt",
+    "storageUsage": "Speicherverbrauch",
+    "totalIncidents": "Incidents gesamt",
+    "oldestRecord": "Ältester Eintrag",
+    "retentionTitle": "Datenaufbewahrung",
+    "retentionDescription": "Wie lange sollen Check-Ergebnisse gespeichert werden?",
+    "retentionPeriod": "Aufbewahrungszeitraum",
+    "selectPeriod": "Zeitraum wählen",
+    "retentionHint": "Ältere Daten werden automatisch gelöscht (Pruning)",
+    "estimatedStorage": "Geschätzter Speicherbedarf",
+    "estimatedStorageHint": "Basierend auf {monitors} Monitoren, ~{checks} Checks/Tag",
+    "save": "Speichern",
+    "saved": "Daten-Einstellungen gespeichert",
+    "exportTitle": "Daten-Export",
+    "exportDescription": "Exportiere Check-Ergebnisse und Incident-Daten",
+    "exportCsv": "Export als CSV",
+    "exportJson": "Export als JSON",
+    "exportStarted": "Export als {format} gestartet..."
+  },
+
+  "system": {
+    "timezoneTitle": "Zeitzone",
+    "timezoneDescription": "Zeitzone für alle Zeitangaben im System",
+    "systemTimezone": "System-Zeitzone",
+    "selectTimezone": "Zeitzone wählen",
+    "timezoneHint": "Beeinflusst alle Zeitangaben in Reports und der Oberfläche",
+    "save": "Speichern",
+    "saved": "System-Einstellungen gespeichert",
+    "infoTitle": "System-Informationen",
+    "infoDescription": "Version und Build-Informationen",
+    "version": "Version",
+    "buildDate": "Build-Datum",
+    "runtime": "Runtime",
+    "license": "Lizenz",
+    "aboutTitle": "Über Kiwi Status",
+    "aboutSubtitle": "Open-Source Uptime Monitoring & Status Pages",
+    "aboutDescription": "Kiwi Status ist eine selbst gehostete Monitoring-Plattform für Uptime-Überwachung, Incident-Management und öffentliche Status-Seiten.",
+    "aboutTech": "Entwickelt mit Next.js, ASP.NET Core und TimescaleDB.",
+    "aboutLicense": "Lizenziert unter der Elastic License 2.0 (ELv2).",
+    "github": "GitHub",
+    "website": "Website"
+  }
+}

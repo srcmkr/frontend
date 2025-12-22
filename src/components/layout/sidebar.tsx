@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
   Activity,
@@ -15,7 +15,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "@/lib/stores";
 import { UserMenu } from "./user-menu";
 
 interface SidebarProps {
@@ -25,18 +24,18 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
-  const t = useTranslation();
+  const t = useTranslations("common");
 
   const navigation = [
-    { name: t.dashboard, href: "/", icon: LayoutDashboard },
-    { name: t.monitors, href: "/monitors", icon: Activity },
-    { name: t.incidents, href: "/incidents", icon: AlertTriangle },
-    { name: t.statusPages, href: "/status-pages", icon: Globe },
+    { name: t("navigation.dashboard"), href: "/", icon: LayoutDashboard },
+    { name: t("navigation.monitors"), href: "/monitors", icon: Activity },
+    { name: t("navigation.incidents"), href: "/incidents", icon: AlertTriangle },
+    { name: t("navigation.statusPages"), href: "/status-pages", icon: Globe },
   ];
 
   const bottomNavigation = [
-    { name: t.notifications, href: "/notifications", icon: Bell },
-    { name: t.settings, href: "/settings", icon: Settings },
+    { name: t("navigation.notifications"), href: "/notifications", icon: Bell },
+    { name: t("navigation.settings"), href: "/settings", icon: Settings },
   ];
 
   const isActive = (href: string) => {
@@ -175,8 +174,6 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
 }
 
 function UserMenuSidebar({ collapsed }: { collapsed: boolean }) {
-  const t = useTranslation();
-
   if (collapsed) {
     return <UserMenu />;
   }

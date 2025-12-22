@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
   Activity,
@@ -16,12 +17,12 @@ import {
   Command,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation, useCommandPalette } from "@/lib/stores";
+import { useCommandPalette } from "@/lib/stores";
 import { UserMenu } from "./user-menu";
 
 export function FloatingNav() {
   const pathname = usePathname();
-  const t = useTranslation();
+  const t = useTranslations("common");
   const { setOpen: openCommandPalette } = useCommandPalette();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -39,10 +40,10 @@ export function FloatingNav() {
   }, [pathname]);
 
   const mainNav = [
-    { name: t.dashboard, href: "/", icon: LayoutDashboard },
-    { name: t.monitors, href: "/monitors", icon: Activity },
-    { name: t.incidents, href: "/incidents", icon: AlertTriangle },
-    { name: t.statusPages, href: "/status-pages", icon: Globe },
+    { name: t("navigation.dashboard"), href: "/", icon: LayoutDashboard },
+    { name: t("navigation.monitors"), href: "/monitors", icon: Activity },
+    { name: t("navigation.incidents"), href: "/incidents", icon: AlertTriangle },
+    { name: t("navigation.statusPages"), href: "/status-pages", icon: Globe },
   ];
 
   const isActive = (href: string) => {
@@ -115,7 +116,7 @@ export function FloatingNav() {
                 className="hidden xl:flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-400 bg-zinc-800/50 hover:bg-zinc-800 rounded-lg border border-zinc-700/50 transition-colors"
               >
                 <Command className="h-3 w-3" />
-                <span>Search</span>
+                <span>{t("actions.search")}</span>
                 <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-zinc-950 text-zinc-300 rounded border border-zinc-700">
                   ⌘K
                 </kbd>
@@ -221,14 +222,14 @@ export function FloatingNav() {
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 transition-colors"
           >
             <Bell className="h-5 w-5" />
-            <span className="font-medium">{t.notifications}</span>
+            <span className="font-medium">{t("navigation.notifications")}</span>
           </Link>
           <Link
             href="/settings"
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 transition-colors"
           >
             <Settings className="h-5 w-5" />
-            <span className="font-medium">{t.settings}</span>
+            <span className="font-medium">{t("navigation.settings")}</span>
           </Link>
         </div>
       </header>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronLeft,
   Loader2,
@@ -74,28 +75,34 @@ const defaultFormData: StatusPageFormData = {
   showMaintenanceCalendar: true,
 };
 
-const announcementTypeConfig: Record<AnnouncementType, { label: string; icon: React.ReactNode; className: string }> = {
-  info: { label: "Information", icon: <Info className="h-4 w-4" />, className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400" },
-  warning: { label: "Warnung", icon: <AlertTriangle className="h-4 w-4" />, className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400" },
-  maintenance: { label: "Wartung", icon: <Wrench className="h-4 w-4" />, className: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400" },
-  success: { label: "Erfolg", icon: <CheckCircle className="h-4 w-4" />, className: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400" },
-};
+function getAnnouncementTypeConfig(t: ReturnType<typeof useTranslations<"statusPages">>): Record<AnnouncementType, { label: string; icon: React.ReactNode; className: string }> {
+  return {
+    info: { label: t("announcements.typeInfo"), icon: <Info className="h-4 w-4" />, className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400" },
+    warning: { label: t("announcements.typeWarning"), icon: <AlertTriangle className="h-4 w-4" />, className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400" },
+    maintenance: { label: t("announcements.typeMaintenance"), icon: <Wrench className="h-4 w-4" />, className: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400" },
+    success: { label: t("announcements.typeSuccess"), icon: <CheckCircle className="h-4 w-4" />, className: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400" },
+  };
+}
 
-const maintenanceStatusConfig: Record<string, { label: string; className: string }> = {
-  scheduled: { label: "Geplant", className: "bg-blue-100 text-blue-700" },
-  in_progress: { label: "Läuft", className: "bg-amber-100 text-amber-700" },
-  completed: { label: "Abgeschlossen", className: "bg-green-100 text-green-700" },
-  cancelled: { label: "Abgebrochen", className: "bg-zinc-100 text-zinc-600" },
-};
+function getMaintenanceStatusConfig(t: ReturnType<typeof useTranslations<"statusPages">>): Record<string, { label: string; className: string }> {
+  return {
+    scheduled: { label: t("maintenance.statusScheduled"), className: "bg-blue-100 text-blue-700" },
+    in_progress: { label: t("maintenance.statusInProgress"), className: "bg-amber-100 text-amber-700" },
+    completed: { label: t("maintenance.statusCompleted"), className: "bg-green-100 text-green-700" },
+    cancelled: { label: t("maintenance.statusCancelled"), className: "bg-zinc-100 text-zinc-600" },
+  };
+}
 
-const themeConfig: Record<StatusPageTheme, { label: string; description: string }> = {
-  system: { label: "System", description: "Folgt den Einstellungen des Besuchers" },
-  basic: { label: "Basic", description: "Helles Standard-Theme" },
-  dark: { label: "Dark", description: "Dunkles Theme" },
-  forest: { label: "Forest", description: "Grüne Farbpalette" },
-  slate: { label: "Slate", description: "Dezente Grautöne" },
-  kiwi: { label: "Kiwi", description: "Kiwi-Grün Akzente" },
-};
+function getThemeConfig(t: ReturnType<typeof useTranslations<"statusPages">>): Record<StatusPageTheme, { label: string; description: string }> {
+  return {
+    system: { label: t("branding.themeSystem"), description: t("branding.themeSystemDescription") },
+    basic: { label: t("branding.themeBasic"), description: t("branding.themeBasicDescription") },
+    dark: { label: t("branding.themeDark"), description: t("branding.themeDarkDescription") },
+    forest: { label: t("branding.themeForest"), description: t("branding.themeForestDescription") },
+    slate: { label: t("branding.themeSlate"), description: t("branding.themeSlateDescription") },
+    kiwi: { label: t("branding.themeKiwi"), description: t("branding.themeKiwiDescription") },
+  };
+}
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -130,6 +137,7 @@ export function StatusPageEditPanel({
   onCancel,
   className,
 }: StatusPageEditPanelProps) {
+  const t = useTranslations("statusPages");
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<StatusPageFormData>(defaultFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -137,6 +145,9 @@ export function StatusPageEditPanel({
   const [showPassword, setShowPassword] = useState(false);
 
   const isEditing = !!statusPage;
+  const announcementTypeConfig = getAnnouncementTypeConfig(t);
+  const maintenanceStatusConfig = getMaintenanceStatusConfig(t);
+  const themeConfig = getThemeConfig(t);
 
   // Initialize form when statusPage changes
   useEffect(() => {
@@ -184,40 +195,40 @@ export function StatusPageEditPanel({
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = "Titel ist erforderlich";
+      newErrors.title = t("form.titleRequired");
     }
 
     if (!formData.slug.trim()) {
-      newErrors.slug = "Slug ist erforderlich";
+      newErrors.slug = t("form.slugRequired");
     } else if (!/^[a-z0-9-]+$/.test(formData.slug)) {
-      newErrors.slug = "Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten";
+      newErrors.slug = t("form.slugInvalidChars");
     } else if (existingSlugs.includes(formData.slug)) {
-      newErrors.slug = "Dieser Slug wird bereits verwendet";
+      newErrors.slug = t("form.slugAlreadyUsed");
     }
 
     if (formData.uptimeHistoryDays < 1 || formData.uptimeHistoryDays > 365) {
-      newErrors.uptimeHistoryDays = "Muss zwischen 1 und 365 Tagen liegen";
+      newErrors.uptimeHistoryDays = t("display.uptimeHistoryDaysError");
     }
 
     if (formData.incidentHistoryDays < 1 || formData.incidentHistoryDays > 365) {
-      newErrors.incidentHistoryDays = "Muss zwischen 1 und 365 Tagen liegen";
+      newErrors.incidentHistoryDays = t("display.incidentHistoryDaysError");
     }
 
     if (formData.passwordProtection && (!formData.password || formData.password.length < 4)) {
-      newErrors.password = "Passwort muss mindestens 4 Zeichen haben";
+      newErrors.password = t("access.passwordRequired");
     }
 
     if (formData.ipWhitelistEnabled && formData.ipWhitelist.length === 0) {
-      newErrors.ipWhitelist = "Mindestens eine IP-Adresse erforderlich";
+      newErrors.ipWhitelist = t("access.ipRequired");
     }
 
     if (formData.groups.length === 0) {
-      newErrors.groups = "Mindestens eine Gruppe ist erforderlich";
+      newErrors.groups = t("form.groupRequired");
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData, existingSlugs]);
+  }, [formData, existingSlugs, t]);
 
   const handleSave = async () => {
     if (!validate()) return;
@@ -250,17 +261,17 @@ export function StatusPageEditPanel({
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={onCancel} className="-ml-2">
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Zurück
+            {t("edit.back")}
           </Button>
           <div className="h-6 w-px bg-border" />
           <h2 className="text-lg font-semibold">
-            {isEditing ? "Statusseite bearbeiten" : "Neue Statusseite"}
+            {isEditing ? t("edit.editStatusPage") : t("edit.newStatusPage")}
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={onCancel}>
             <X className="h-4 w-4 mr-1" />
-            Abbrechen
+            {t("edit.cancel")}
           </Button>
           <Button size="sm" onClick={handleSave} disabled={saving}>
             {saving ? (
@@ -268,7 +279,7 @@ export function StatusPageEditPanel({
             ) : (
               <Save className="h-4 w-4 mr-1" />
             )}
-            {isEditing ? "Speichern" : "Erstellen"}
+            {isEditing ? t("edit.save") : t("edit.create")}
           </Button>
         </div>
       </div>
@@ -277,17 +288,17 @@ export function StatusPageEditPanel({
       <Tabs defaultValue="general" className="flex-1 overflow-hidden flex flex-col">
         <div className="border-b px-4 py-2 shrink-0">
           <TabsList className="grid w-full grid-cols-6 max-w-3xl">
-            <TabItem value="general" icon={<Settings className="h-4 w-4" />} label="Allgemein" />
+            <TabItem value="general" icon={<Settings className="h-4 w-4" />} label={t("tabs.general")} />
             <TabItem
               value="monitors"
               icon={<Layers className="h-4 w-4" />}
-              label="Monitors"
+              label={t("tabs.monitors")}
               hasError={!!errors.groups}
             />
-            <TabItem value="display" icon={<Eye className="h-4 w-4" />} label="Anzeige" />
-            <TabItem value="branding" icon={<Palette className="h-4 w-4" />} label="Branding" />
-            <TabItem value="access" icon={<Shield className="h-4 w-4" />} label="Zugriff" />
-            <TabItem value="announcements" icon={<Megaphone className="h-4 w-4" />} label="Meldungen" />
+            <TabItem value="display" icon={<Eye className="h-4 w-4" />} label={t("tabs.display")} />
+            <TabItem value="branding" icon={<Palette className="h-4 w-4" />} label={t("tabs.branding")} />
+            <TabItem value="access" icon={<Shield className="h-4 w-4" />} label={t("tabs.access")} />
+            <TabItem value="announcements" icon={<Megaphone className="h-4 w-4" />} label={t("tabs.announcements")} />
           </TabsList>
         </div>
 
@@ -296,29 +307,29 @@ export function StatusPageEditPanel({
           <TabsContent value="general" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Grundeinstellungen</CardTitle>
+                <CardTitle>{t("form.basicSettings")}</CardTitle>
                 <CardDescription>
-                  Titel, URL und Beschreibung der Statusseite
+                  {t("form.basicSettingsDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Title */}
                 <div className="space-y-2">
-                  <Label htmlFor="title">Titel *</Label>
+                  <Label htmlFor="title">{t("form.title")} *</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, title: e.target.value }))
                     }
-                    placeholder="z.B. System Status"
+                    placeholder={t("form.titlePlaceholder")}
                   />
                   <FieldError message={errors.title} />
                 </div>
 
                 {/* Slug */}
                 <div className="space-y-2">
-                  <Label htmlFor="slug">URL-Slug *</Label>
+                  <Label htmlFor="slug">{t("form.urlSlug")} *</Label>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground whitespace-nowrap">/status/</span>
                     <Input
@@ -328,26 +339,26 @@ export function StatusPageEditPanel({
                         setSlugManuallyEdited(true);
                         setFormData((prev) => ({ ...prev, slug: e.target.value }));
                       }}
-                      placeholder="system-status"
+                      placeholder={t("form.slugPlaceholder")}
                       className="font-mono"
                     />
                   </div>
                   <FieldError message={errors.slug} />
                   <p className="text-xs text-muted-foreground">
-                    Nur Kleinbuchstaben, Zahlen und Bindestriche erlaubt
+                    {t("form.slugHintChars")}
                   </p>
                 </div>
 
                 {/* Description */}
                 <div className="space-y-2">
-                  <Label htmlFor="description">Beschreibung</Label>
+                  <Label htmlFor="description">{t("form.description")}</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, description: e.target.value }))
                     }
-                    placeholder="Kurze Beschreibung der Statusseite..."
+                    placeholder={t("form.descriptionPlaceholder")}
                     rows={3}
                   />
                 </div>
@@ -359,9 +370,9 @@ export function StatusPageEditPanel({
           <TabsContent value="monitors" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Gruppen & Monitors</CardTitle>
+                <CardTitle>{t("form.groupsAndMonitors")}</CardTitle>
                 <CardDescription>
-                  Organisiere Monitors in Gruppen. Jeder Monitor kann nur einer Gruppe zugeordnet sein.
+                  {t("form.groupsDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -380,17 +391,17 @@ export function StatusPageEditPanel({
           <TabsContent value="display" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Uptime-Anzeige</CardTitle>
+                <CardTitle>{t("display.uptimeDisplay")}</CardTitle>
                 <CardDescription>
-                  Einstellungen für die Uptime-Historie
+                  {t("display.uptimeDisplayDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between py-2">
                   <div>
-                    <Label htmlFor="showUptimeHistory">Uptime-Historie anzeigen</Label>
+                    <Label htmlFor="showUptimeHistory">{t("display.showUptimeHistory")}</Label>
                     <p className="text-xs text-muted-foreground">
-                      Zeigt Uptime-Balken für jeden Monitor
+                      {t("display.showUptimeHistoryHint")}
                     </p>
                   </div>
                   <Switch
@@ -404,7 +415,7 @@ export function StatusPageEditPanel({
 
                 {formData.showUptimeHistory && (
                   <div className="space-y-2 pt-2 border-t">
-                    <Label htmlFor="uptimeHistoryDays">Uptime-Historie (Tage)</Label>
+                    <Label htmlFor="uptimeHistoryDays">{t("display.uptimeHistoryDays")}</Label>
                     <Input
                       id="uptimeHistoryDays"
                       type="number"
@@ -421,7 +432,7 @@ export function StatusPageEditPanel({
                     />
                     <FieldError message={errors.uptimeHistoryDays} />
                     <p className="text-xs text-muted-foreground">
-                      Wie viele Tage soll die Uptime-Historie angezeigt werden? (1-365)
+                      {t("display.uptimeHistoryDaysHint")}
                     </p>
                   </div>
                 )}
@@ -430,17 +441,17 @@ export function StatusPageEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Incidents</CardTitle>
+                <CardTitle>{t("display.incidents")}</CardTitle>
                 <CardDescription>
-                  Einstellungen für die Incident-Anzeige
+                  {t("display.incidentsDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between py-2">
                   <div>
-                    <Label htmlFor="showIncidents">Incidents anzeigen</Label>
+                    <Label htmlFor="showIncidents">{t("display.showIncidents")}</Label>
                     <p className="text-xs text-muted-foreground">
-                      Zeigt aktuelle und vergangene Vorfälle
+                      {t("display.showIncidentsHint")}
                     </p>
                   </div>
                   <Switch
@@ -454,7 +465,7 @@ export function StatusPageEditPanel({
 
                 {formData.showIncidents && (
                   <div className="space-y-2 pt-2 border-t">
-                    <Label htmlFor="incidentHistoryDays">Incident-Verlauf (Tage)</Label>
+                    <Label htmlFor="incidentHistoryDays">{t("display.incidentHistoryDays")}</Label>
                     <Input
                       id="incidentHistoryDays"
                       type="number"
@@ -471,7 +482,7 @@ export function StatusPageEditPanel({
                     />
                     <FieldError message={errors.incidentHistoryDays} />
                     <p className="text-xs text-muted-foreground">
-                      Wie viele Tage zurück sollen Incidents angezeigt werden?
+                      {t("display.incidentHistoryDaysHint")}
                     </p>
                   </div>
                 )}
@@ -483,31 +494,31 @@ export function StatusPageEditPanel({
           <TabsContent value="branding" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Logo & Farben</CardTitle>
+                <CardTitle>{t("branding.logoAndColors")}</CardTitle>
                 <CardDescription>
-                  Passe das Erscheinungsbild deiner Statusseite an
+                  {t("branding.logoAndColorsDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Logo URL */}
                 <div className="space-y-2">
-                  <Label htmlFor="logo">Logo URL</Label>
+                  <Label htmlFor="logo">{t("branding.logoUrl")}</Label>
                   <Input
                     id="logo"
                     value={formData.logo || ""}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, logo: e.target.value || undefined }))
                     }
-                    placeholder="https://example.com/logo.png"
+                    placeholder={t("branding.logoUrlPlaceholder")}
                   />
                   <p className="text-xs text-muted-foreground">
-                    URL zu deinem Logo (empfohlen: PNG oder SVG, max. 200px Höhe)
+                    {t("branding.logoUrlHint")}
                   </p>
                 </div>
 
                 {/* Primary Color */}
                 <div className="space-y-2">
-                  <Label htmlFor="primaryColor">Primärfarbe</Label>
+                  <Label htmlFor="primaryColor">{t("branding.primaryColor")}</Label>
                   <div className="flex items-center gap-3">
                     <Input
                       id="primaryColor"
@@ -540,7 +551,7 @@ export function StatusPageEditPanel({
                           setFormData((prev) => ({ ...prev, primaryColor: undefined }))
                         }
                       >
-                        Zurücksetzen
+                        {t("branding.resetColor")}
                       </Button>
                     )}
                   </div>
@@ -548,7 +559,7 @@ export function StatusPageEditPanel({
 
                 {/* Theme */}
                 <div className="space-y-2">
-                  <Label htmlFor="theme">Theme</Label>
+                  <Label htmlFor="theme">{t("branding.theme")}</Label>
                   <Select
                     value={formData.theme || "system"}
                     onValueChange={(value: StatusPageTheme) =>
@@ -580,9 +591,9 @@ export function StatusPageEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Custom CSS</CardTitle>
+                <CardTitle>{t("branding.customCss")}</CardTitle>
                 <CardDescription>
-                  Eigenes CSS für erweiterte Anpassungen
+                  {t("branding.customCssDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -607,7 +618,7 @@ export function StatusPageEditPanel({
                   className="font-mono text-sm"
                 />
                 <p className="text-xs text-muted-foreground mt-2">
-                  CSS wird auf der öffentlichen Statusseite angewendet
+                  {t("branding.customCssHint")}
                 </p>
               </CardContent>
             </Card>
@@ -617,9 +628,9 @@ export function StatusPageEditPanel({
           <TabsContent value="access" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Sichtbarkeit</CardTitle>
+                <CardTitle>{t("access.visibility")}</CardTitle>
                 <CardDescription>
-                  Wer kann diese Statusseite sehen?
+                  {t("access.visibilityDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -636,11 +647,11 @@ export function StatusPageEditPanel({
                       <Globe className="h-5 w-5" />
                     </div>
                     <div>
-                      <Label htmlFor="isPublic">Öffentlich zugänglich</Label>
+                      <Label htmlFor="isPublic">{t("access.publicAccess")}</Label>
                       <p className="text-xs text-muted-foreground">
                         {formData.isPublic
-                          ? "Jeder kann diese Statusseite ohne Anmeldung sehen"
-                          : "Nur angemeldete Benutzer können diese Seite sehen"}
+                          ? t("access.publicAccessYes")
+                          : t("access.publicAccessNo")}
                       </p>
                     </div>
                   </div>
@@ -657,9 +668,9 @@ export function StatusPageEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Passwortschutz</CardTitle>
+                <CardTitle>{t("access.passwordProtection")}</CardTitle>
                 <CardDescription>
-                  Besucher müssen ein Passwort eingeben, um die Statusseite zu sehen
+                  {t("access.passwordProtectionDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -676,11 +687,11 @@ export function StatusPageEditPanel({
                       <Lock className="h-5 w-5" />
                     </div>
                     <div>
-                      <Label htmlFor="passwordProtection">Passwortschutz aktivieren</Label>
+                      <Label htmlFor="passwordProtection">{t("access.enablePasswordProtection")}</Label>
                       <p className="text-xs text-muted-foreground">
                         {formData.passwordProtection
-                          ? "Besucher müssen das Passwort eingeben"
-                          : "Kein Passwort erforderlich"}
+                          ? t("access.passwordProtectionEnabled")
+                          : t("access.passwordProtectionDisabled")}
                       </p>
                     </div>
                   </div>
@@ -699,7 +710,7 @@ export function StatusPageEditPanel({
 
                 {formData.passwordProtection && (
                   <div className="space-y-2 pt-2 border-t">
-                    <Label htmlFor="password">Passwort</Label>
+                    <Label htmlFor="password">{t("access.password")}</Label>
                     <div className="flex gap-2 max-w-sm">
                       <div className="relative flex-1">
                         <Input
@@ -712,7 +723,7 @@ export function StatusPageEditPanel({
                               password: e.target.value || undefined,
                             }))
                           }
-                          placeholder="Passwort eingeben..."
+                          placeholder={t("access.passwordPlaceholder")}
                           className="pr-10"
                         />
                         <Button
@@ -732,7 +743,7 @@ export function StatusPageEditPanel({
                     </div>
                     <FieldError message={errors.password} />
                     <p className="text-xs text-muted-foreground">
-                      Mindestens 4 Zeichen. Besucher müssen dieses Passwort eingeben.
+                      {t("access.passwordHint")}
                     </p>
                   </div>
                 )}
@@ -741,9 +752,9 @@ export function StatusPageEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>IP-Whitelist</CardTitle>
+                <CardTitle>{t("access.ipWhitelist")}</CardTitle>
                 <CardDescription>
-                  Zugriff nur von bestimmten IP-Adressen oder IP-Bereichen erlauben
+                  {t("access.ipWhitelistDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -760,11 +771,11 @@ export function StatusPageEditPanel({
                       <Network className="h-5 w-5" />
                     </div>
                     <div>
-                      <Label htmlFor="ipWhitelistEnabled">IP-Whitelist aktivieren</Label>
+                      <Label htmlFor="ipWhitelistEnabled">{t("access.enableIpWhitelist")}</Label>
                       <p className="text-xs text-muted-foreground">
                         {formData.ipWhitelistEnabled
-                          ? "Nur IPs aus der Whitelist haben Zugriff"
-                          : "Keine IP-Einschränkung"}
+                          ? t("access.ipWhitelistEnabled")
+                          : t("access.ipWhitelistDisabled")}
                       </p>
                     </div>
                   </div>
@@ -782,7 +793,7 @@ export function StatusPageEditPanel({
 
                 {formData.ipWhitelistEnabled && (
                   <div className="space-y-3 pt-2 border-t">
-                    <Label>IP-Adressen / CIDR-Bereiche</Label>
+                    <Label>{t("access.ipAddresses")}</Label>
                     <FieldError message={errors.ipWhitelist} />
 
                     <div className="space-y-2">
@@ -795,7 +806,7 @@ export function StatusPageEditPanel({
                               newList[index] = e.target.value;
                               setFormData((prev) => ({ ...prev, ipWhitelist: newList }));
                             }}
-                            placeholder="z.B. 192.168.1.0/24 oder 10.0.0.1"
+                            placeholder={t("access.ipPlaceholder")}
                             className="font-mono max-w-sm"
                           />
                           <Button
@@ -826,11 +837,11 @@ export function StatusPageEditPanel({
                       }
                     >
                       <Plus className="h-4 w-4 mr-1" />
-                      IP hinzufügen
+                      {t("access.addIp")}
                     </Button>
 
                     <p className="text-xs text-muted-foreground">
-                      Unterstützt einzelne IPs (z.B. 192.168.1.1) und CIDR-Notation (z.B. 10.0.0.0/8)
+                      {t("access.ipHint")}
                     </p>
                   </div>
                 )}
@@ -845,9 +856,9 @@ export function StatusPageEditPanel({
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Ankündigungen</CardTitle>
+                    <CardTitle>{t("announcements.title")}</CardTitle>
                     <CardDescription>
-                      Banner und Hinweise für Besucher der Statusseite
+                      {t("announcements.description")}
                     </CardDescription>
                   </div>
                   <Button
@@ -871,7 +882,7 @@ export function StatusPageEditPanel({
                     }}
                   >
                     <Plus className="h-4 w-4 mr-1" />
-                    Ankündigung
+                    {t("announcements.addAnnouncement")}
                   </Button>
                 </div>
               </CardHeader>
@@ -879,8 +890,8 @@ export function StatusPageEditPanel({
                 {formData.announcements.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Megaphone className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Keine Ankündigungen vorhanden</p>
-                    <p className="text-xs">Füge eine Ankündigung hinzu, um Besucher zu informieren</p>
+                    <p className="text-sm">{t("announcements.noAnnouncements")}</p>
+                    <p className="text-xs">{t("announcements.noAnnouncementsHint")}</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -903,7 +914,7 @@ export function StatusPageEditPanel({
                                   newList[index] = { ...announcement, title: e.target.value };
                                   setFormData((prev) => ({ ...prev, announcements: newList }));
                                 }}
-                                placeholder="Titel der Ankündigung"
+                                placeholder={t("announcements.announcementTitle")}
                                 className="flex-1"
                               />
                               <Select
@@ -938,7 +949,7 @@ export function StatusPageEditPanel({
                                 newList[index] = { ...announcement, message: e.target.value };
                                 setFormData((prev) => ({ ...prev, announcements: newList }));
                               }}
-                              placeholder="Nachricht..."
+                              placeholder={t("announcements.message")}
                               rows={2}
                             />
 
@@ -954,7 +965,7 @@ export function StatusPageEditPanel({
                                     setFormData((prev) => ({ ...prev, announcements: newList }));
                                   }}
                                 />
-                                <Label htmlFor={`ann-enabled-${index}`} className="text-sm">Aktiv</Label>
+                                <Label htmlFor={`ann-enabled-${index}`} className="text-sm">{t("announcements.active")}</Label>
                               </div>
 
                               <div className="flex items-center gap-2">
@@ -967,11 +978,11 @@ export function StatusPageEditPanel({
                                     setFormData((prev) => ({ ...prev, announcements: newList }));
                                   }}
                                 />
-                                <Label htmlFor={`ann-pinned-${index}`} className="text-sm">Oben fixieren</Label>
+                                <Label htmlFor={`ann-pinned-${index}`} className="text-sm">{t("announcements.pinToTop")}</Label>
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm text-muted-foreground">Von:</Label>
+                                <Label className="text-sm text-muted-foreground">{t("announcements.from")}</Label>
                                 <Input
                                   type="datetime-local"
                                   value={announcement.startAt ? announcement.startAt.slice(0, 16) : ""}
@@ -988,7 +999,7 @@ export function StatusPageEditPanel({
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm text-muted-foreground">Bis:</Label>
+                                <Label className="text-sm text-muted-foreground">{t("announcements.until")}</Label>
                                 <Input
                                   type="datetime-local"
                                   value={announcement.endAt ? announcement.endAt.slice(0, 16) : ""}
@@ -1031,9 +1042,9 @@ export function StatusPageEditPanel({
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Geplante Wartungen</CardTitle>
+                    <CardTitle>{t("maintenance.title")}</CardTitle>
                     <CardDescription>
-                      Wartungsfenster vorab ankündigen und automatisch aktivieren
+                      {t("maintenance.description")}
                     </CardDescription>
                   </div>
                   <Button
@@ -1064,7 +1075,7 @@ export function StatusPageEditPanel({
                     }}
                   >
                     <Plus className="h-4 w-4 mr-1" />
-                    Wartung planen
+                    {t("maintenance.addMaintenance")}
                   </Button>
                 </div>
               </CardHeader>
@@ -1072,8 +1083,8 @@ export function StatusPageEditPanel({
                 {formData.scheduledMaintenances.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Keine geplanten Wartungen</p>
-                    <p className="text-xs">Plane Wartungsarbeiten im Voraus</p>
+                    <p className="text-sm">{t("maintenance.noMaintenances")}</p>
+                    <p className="text-xs">{t("maintenance.noMaintenancesHint")}</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -1093,7 +1104,7 @@ export function StatusPageEditPanel({
                                   newList[index] = { ...maintenance, title: e.target.value };
                                   setFormData((prev) => ({ ...prev, scheduledMaintenances: newList }));
                                 }}
-                                placeholder="Titel der Wartung"
+                                placeholder={t("maintenance.maintenanceTitle")}
                                 className="flex-1"
                               />
                               <Badge className={maintenanceStatusConfig[maintenance.status]?.className}>
@@ -1109,7 +1120,7 @@ export function StatusPageEditPanel({
                                 newList[index] = { ...maintenance, description: e.target.value };
                                 setFormData((prev) => ({ ...prev, scheduledMaintenances: newList }));
                               }}
-                              placeholder="Beschreibung der Wartungsarbeiten..."
+                              placeholder={t("maintenance.maintenanceDescription")}
                               rows={2}
                             />
 
@@ -1117,7 +1128,7 @@ export function StatusPageEditPanel({
                             <div className="flex flex-wrap items-center gap-4">
                               <div className="flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-muted-foreground" />
-                                <Label className="text-sm">Start:</Label>
+                                <Label className="text-sm">{t("maintenance.start")}</Label>
                                 <Input
                                   type="datetime-local"
                                   value={maintenance.scheduledStart.slice(0, 16)}
@@ -1134,7 +1145,7 @@ export function StatusPageEditPanel({
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm">Ende:</Label>
+                                <Label className="text-sm">{t("maintenance.end")}</Label>
                                 <Input
                                   type="datetime-local"
                                   value={maintenance.scheduledEnd.slice(0, 16)}
@@ -1153,7 +1164,7 @@ export function StatusPageEditPanel({
 
                             {/* Affected Groups */}
                             <div className="space-y-2">
-                              <Label className="text-sm">Betroffene Gruppen:</Label>
+                              <Label className="text-sm">{t("maintenance.affectedGroups")}</Label>
                               <div className="flex flex-wrap gap-2">
                                 {formData.groups.map((group) => (
                                   <Badge
@@ -1174,7 +1185,7 @@ export function StatusPageEditPanel({
                                 ))}
                                 {formData.groups.length === 0 && (
                                   <span className="text-xs text-muted-foreground">
-                                    Keine Gruppen vorhanden - erstelle zuerst Gruppen im Monitors-Tab
+                                    {t("maintenance.noGroupsHint")}
                                   </span>
                                 )}
                               </div>
@@ -1183,7 +1194,7 @@ export function StatusPageEditPanel({
                             {/* Options Row */}
                             <div className="flex flex-wrap items-center gap-4 pt-2 border-t">
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm text-muted-foreground">Benachrichtigung:</Label>
+                                <Label className="text-sm text-muted-foreground">{t("maintenance.notification")}</Label>
                                 <Select
                                   value={maintenance.notifyBefore.toString()}
                                   onValueChange={(value) => {
@@ -1196,13 +1207,13 @@ export function StatusPageEditPanel({
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="0">Keine</SelectItem>
-                                    <SelectItem value="60">1 Stunde vorher</SelectItem>
-                                    <SelectItem value="360">6 Stunden vorher</SelectItem>
-                                    <SelectItem value="720">12 Stunden vorher</SelectItem>
-                                    <SelectItem value="1440">24 Stunden vorher</SelectItem>
-                                    <SelectItem value="2880">48 Stunden vorher</SelectItem>
-                                    <SelectItem value="10080">1 Woche vorher</SelectItem>
+                                    <SelectItem value="0">{t("maintenance.notifyNone")}</SelectItem>
+                                    <SelectItem value="60">{t("maintenance.notify1h")}</SelectItem>
+                                    <SelectItem value="360">{t("maintenance.notify6h")}</SelectItem>
+                                    <SelectItem value="720">{t("maintenance.notify12h")}</SelectItem>
+                                    <SelectItem value="1440">{t("maintenance.notify24h")}</SelectItem>
+                                    <SelectItem value="2880">{t("maintenance.notify48h")}</SelectItem>
+                                    <SelectItem value="10080">{t("maintenance.notify1w")}</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
@@ -1218,7 +1229,7 @@ export function StatusPageEditPanel({
                                   }}
                                 />
                                 <Label htmlFor={`maint-autostart-${index}`} className="text-sm">
-                                  Automatisch starten
+                                  {t("maintenance.autoStart")}
                                 </Label>
                               </div>
 
@@ -1235,10 +1246,10 @@ export function StatusPageEditPanel({
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="scheduled">Geplant</SelectItem>
-                                    <SelectItem value="in_progress">Läuft</SelectItem>
-                                    <SelectItem value="completed">Abgeschlossen</SelectItem>
-                                    <SelectItem value="cancelled">Abgebrochen</SelectItem>
+                                    <SelectItem value="scheduled">{t("maintenance.statusScheduled")}</SelectItem>
+                                    <SelectItem value="in_progress">{t("maintenance.statusInProgress")}</SelectItem>
+                                    <SelectItem value="completed">{t("maintenance.statusCompleted")}</SelectItem>
+                                    <SelectItem value="cancelled">{t("maintenance.statusCancelled")}</SelectItem>
                                   </SelectContent>
                                 </Select>
                               )}
@@ -1268,9 +1279,9 @@ export function StatusPageEditPanel({
             {/* Maintenance Calendar Toggle */}
             <Card>
               <CardHeader>
-                <CardTitle>Wartungskalender</CardTitle>
+                <CardTitle>{t("maintenanceCalendar.title")}</CardTitle>
                 <CardDescription>
-                  Zeige einen Kalender mit geplanten Wartungen auf der Statusseite
+                  {t("maintenanceCalendar.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1287,11 +1298,11 @@ export function StatusPageEditPanel({
                       <Calendar className="h-5 w-5" />
                     </div>
                     <div>
-                      <Label htmlFor="showMaintenanceCalendar">Wartungskalender anzeigen</Label>
+                      <Label htmlFor="showMaintenanceCalendar">{t("maintenanceCalendar.showCalendar")}</Label>
                       <p className="text-xs text-muted-foreground">
                         {formData.showMaintenanceCalendar
-                          ? "Besucher sehen geplante Wartungen in einem Kalender"
-                          : "Wartungskalender ist ausgeblendet"}
+                          ? t("maintenanceCalendar.calendarVisible")
+                          : t("maintenanceCalendar.calendarHidden")}
                       </p>
                     </div>
                   </div>

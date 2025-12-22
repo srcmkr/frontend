@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import {
 import { defaultStatusPageSettings } from "@/mocks/settings";
 
 export function StatusPageSettings() {
+  const t = useTranslations("settings");
   const {
     register,
     handleSubmit,
@@ -31,7 +33,7 @@ export function StatusPageSettings() {
   const onSubmit = (data: StatusPageSettingsFormData) => {
     // TODO: API call
     console.log("Saving status page settings:", data);
-    toast.success("Status-Seiten-Einstellungen gespeichert");
+    toast.success(t("statusPageSettings.saved"));
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +42,7 @@ export function StatusPageSettings() {
       // TODO: Upload file and get URL
       const mockUrl = URL.createObjectURL(file);
       setValue("defaultLogo", mockUrl, { shouldDirty: true });
-      toast.success("Logo hochgeladen");
+      toast.success(t("statusPageSettings.logoUploaded"));
     }
   };
 
@@ -51,16 +53,16 @@ export function StatusPageSettings() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-1">Status-Seiten Defaults</h3>
+        <h3 className="text-lg font-semibold mb-1">{t("statusPageSettings.title")}</h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Standardwerte für neu erstellte Status-Seiten
+          {t("statusPageSettings.description")}
         </p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         {/* Default Logo */}
         <div className="sm:col-span-2 space-y-2">
-          <Label>Standard-Logo</Label>
+          <Label>{t("statusPageSettings.defaultLogo")}</Label>
           <div className="flex items-start gap-4">
             {currentLogo ? (
               <div className="relative">
@@ -81,7 +83,7 @@ export function StatusPageSettings() {
               </div>
             ) : (
               <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center text-muted-foreground">
-                Kein Logo
+                {t("statusPageSettings.noLogo")}
               </div>
             )}
             <div>
@@ -99,10 +101,10 @@ export function StatusPageSettings() {
                 onClick={() => document.getElementById("logo-upload")?.click()}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Logo hochladen
+                {t("statusPageSettings.uploadLogo")}
               </Button>
               <p className="text-xs text-muted-foreground mt-1">
-                PNG, JPG oder SVG, max. 2MB
+                {t("statusPageSettings.logoHint")}
               </p>
             </div>
           </div>
@@ -110,7 +112,7 @@ export function StatusPageSettings() {
 
         {/* Default Primary Color */}
         <div className="space-y-2">
-          <Label htmlFor="defaultPrimaryColor">Standard-Primärfarbe</Label>
+          <Label htmlFor="defaultPrimaryColor">{t("statusPageSettings.defaultPrimaryColor")}</Label>
           <div className="flex items-center gap-3">
             <input
               type="color"
@@ -130,24 +132,24 @@ export function StatusPageSettings() {
             <p className="text-sm text-destructive">{errors.defaultPrimaryColor.message}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Wird für Buttons und Akzente verwendet
+            {t("statusPageSettings.colorHint")}
           </p>
         </div>
 
         {/* Color Preview */}
         <div className="space-y-2">
-          <Label>Vorschau</Label>
+          <Label>{t("statusPageSettings.preview")}</Label>
           <div
             className="h-10 rounded flex items-center justify-center text-white font-medium"
             style={{ backgroundColor: currentColor || "#10b981" }}
           >
-            Beispiel-Button
+            {t("statusPageSettings.exampleButton")}
           </div>
         </div>
 
         {/* Default Uptime History Days */}
         <div className="space-y-2">
-          <Label htmlFor="defaultUptimeHistoryDays">Uptime-Historie (Tage)</Label>
+          <Label htmlFor="defaultUptimeHistoryDays">{t("statusPageSettings.uptimeHistoryDays")}</Label>
           <Input
             id="defaultUptimeHistoryDays"
             type="number"
@@ -157,13 +159,13 @@ export function StatusPageSettings() {
             <p className="text-sm text-destructive">{errors.defaultUptimeHistoryDays.message}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Anzahl der Tage für die Uptime-Balkendarstellung
+            {t("statusPageSettings.uptimeHistoryHint")}
           </p>
         </div>
 
         {/* Default Incident History Days */}
         <div className="space-y-2">
-          <Label htmlFor="defaultIncidentHistoryDays">Incident-Historie (Tage)</Label>
+          <Label htmlFor="defaultIncidentHistoryDays">{t("statusPageSettings.incidentHistoryDays")}</Label>
           <Input
             id="defaultIncidentHistoryDays"
             type="number"
@@ -173,14 +175,14 @@ export function StatusPageSettings() {
             <p className="text-sm text-destructive">{errors.defaultIncidentHistoryDays.message}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Anzahl der Tage für die Incident-Übersicht
+            {t("statusPageSettings.incidentHistoryHint")}
           </p>
         </div>
       </div>
 
       <div className="flex justify-end pt-4 border-t">
         <Button type="submit" disabled={!isDirty}>
-          Speichern
+          {t("statusPageSettings.save")}
         </Button>
       </div>
     </form>

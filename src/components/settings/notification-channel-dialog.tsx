@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Plus, X, Mail, Webhook, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export function NotificationChannelDialog({
   channel,
   onSave,
 }: NotificationChannelDialogProps) {
+  const t = useTranslations("settings");
   const isEditing = !!channel;
   const [channelType, setChannelType] = useState<ChannelType>(channel?.type ?? "email");
   const [toEmails, setToEmails] = useState<string[]>(
@@ -209,36 +211,36 @@ export function NotificationChannelDialog({
     const currentValues = watch();
 
     if (!currentValues.name) {
-      toast.error("Bitte gib einen Namen ein");
+      toast.error(t("channelDialog.errorName"));
       return;
     }
 
     if (channelType === "email") {
       const config = currentValues.config as { apiKey?: string; fromEmail?: string };
       if (!config.apiKey) {
-        toast.error("Bitte gib einen API-Key ein");
+        toast.error(t("channelDialog.errorApiKey"));
         return;
       }
       if (!config.fromEmail) {
-        toast.error("Bitte gib eine Absender-Adresse ein");
+        toast.error(t("channelDialog.errorFromEmail"));
         return;
       }
       if (toEmails.length === 0) {
-        toast.error("Bitte füge mindestens einen Empfänger hinzu");
+        toast.error(t("channelDialog.errorNoRecipients"));
         return;
       }
     } else {
       const config = currentValues.config as { url?: string };
       if (!config.url) {
-        toast.error("Bitte gib eine Webhook-URL ein");
+        toast.error(t("channelDialog.errorWebhookUrl"));
         return;
       }
     }
 
-    toast.info("Test-Benachrichtigung wird gesendet...");
+    toast.info(t("channelDialog.testSending"));
     // TODO: Implement actual test notification
     setTimeout(() => {
-      toast.success("Test-Benachrichtigung erfolgreich gesendet");
+      toast.success(t("channelDialog.testSuccess"));
     }, 1500);
   };
 
@@ -261,19 +263,19 @@ export function NotificationChannelDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Kanal bearbeiten" : "Kanal hinzufügen"}
+            {isEditing ? t("channelDialog.editTitle") : t("channelDialog.createTitle")}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Bearbeite die Einstellungen des Benachrichtigungskanals."
-              : "Erstelle einen neuen Benachrichtigungskanal."}
+              ? t("channelDialog.editDescription")
+              : t("channelDialog.createDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Channel Type Selection */}
           <div className="space-y-2">
-            <Label>Kanal-Typ</Label>
+            <Label>{t("channelDialog.channelType")}</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -282,7 +284,7 @@ export function NotificationChannelDialog({
                 onClick={() => handleTypeChange("email")}
               >
                 <Mail className="h-4 w-4 mr-2" />
-                E-Mail
+                {t("channelDialog.email")}
               </Button>
               <Button
                 type="button"
@@ -291,17 +293,17 @@ export function NotificationChannelDialog({
                 onClick={() => handleTypeChange("webhook")}
               >
                 <Webhook className="h-4 w-4 mr-2" />
-                Webhook
+                {t("channelDialog.webhook")}
               </Button>
             </div>
           </div>
 
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("channelDialog.name")}</Label>
             <Input
               id="name"
-              placeholder="z.B. Admin E-Mail oder Discord Alerts"
+              placeholder={t("channelDialog.namePlaceholder")}
               {...register("name")}
             />
             {errors.name && (
@@ -313,7 +315,7 @@ export function NotificationChannelDialog({
           {channelType === "email" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="apiKey">Resend API-Key</Label>
+                <Label htmlFor="apiKey">{t("channelDialog.resendApiKey")}</Label>
                 <Input
                   id="apiKey"
                   type="password"
@@ -328,11 +330,11 @@ export function NotificationChannelDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fromEmail">Absender-Adresse</Label>
+                <Label htmlFor="fromEmail">{t("channelDialog.fromEmail")}</Label>
                 <Input
                   id="fromEmail"
                   type="email"
-                  placeholder="alerts@example.com"
+                  placeholder={t("channelDialog.fromEmailPlaceholder")}
                   {...register("config.fromEmail" as keyof NotificationChannelFormData)}
                 />
                 {errors.config && "fromEmail" in (errors.config as object) && (
@@ -343,7 +345,7 @@ export function NotificationChannelDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>Empfänger</Label>
+                <Label>{t("channelDialog.recipients")}</Label>
                 <div className="space-y-2">
                   {toEmails.map((email, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -361,7 +363,7 @@ export function NotificationChannelDialog({
                   <div className="flex items-center gap-2">
                     <Input
                       type="email"
-                      placeholder="empfaenger@example.com"
+                      placeholder={t("channelDialog.recipientPlaceholder")}
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       onKeyDown={(e) => {
@@ -395,11 +397,11 @@ export function NotificationChannelDialog({
           {channelType === "webhook" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="url">Webhook-URL</Label>
+                <Label htmlFor="url">{t("channelDialog.webhookUrl")}</Label>
                 <Input
                   id="url"
                   type="url"
-                  placeholder="https://discord.com/api/webhooks/..."
+                  placeholder={t("channelDialog.webhookUrlPlaceholder")}
                   {...register("config.url" as keyof NotificationChannelFormData)}
                 />
                 {errors.config && "url" in (errors.config as object) && (
@@ -410,7 +412,7 @@ export function NotificationChannelDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>HTTP-Headers (optional)</Label>
+                <Label>{t("channelDialog.httpHeaders")}</Label>
                 <div className="space-y-2">
                   {headers.map((header, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -428,13 +430,13 @@ export function NotificationChannelDialog({
                   ))}
                   <div className="flex items-center gap-2">
                     <Input
-                      placeholder="Header-Name"
+                      placeholder={t("channelDialog.headerName")}
                       value={newHeaderKey}
                       onChange={(e) => setNewHeaderKey(e.target.value)}
                       className="flex-1"
                     />
                     <Input
-                      placeholder="Wert"
+                      placeholder={t("channelDialog.headerValue")}
                       value={newHeaderValue}
                       onChange={(e) => setNewHeaderValue(e.target.value)}
                       onKeyDown={(e) => {
@@ -465,14 +467,14 @@ export function NotificationChannelDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Abbrechen
+              {t("channelDialog.cancel")}
             </Button>
             <Button type="button" variant="secondary" onClick={handleTest}>
               <Send className="h-4 w-4 mr-2" />
-              Test
+              {t("channelDialog.test")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isEditing ? "Speichern" : "Erstellen"}
+              {isEditing ? t("channelDialog.save") : t("channelDialog.create")}
             </Button>
           </DialogFooter>
         </form>

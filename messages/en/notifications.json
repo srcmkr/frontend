@@ -1,0 +1,59 @@
+{
+  "title": "Notifications",
+  "subtitle": "System events and status updates",
+  "unreadCount": "({count} unread)",
+  "markAllAsRead": "Mark all as read",
+
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {current} of {total}"
+  },
+
+  "filters": {
+    "statusPlaceholder": "Status",
+    "typePlaceholder": "Type",
+    "searchPlaceholder": "Search notifications...",
+    "statusAll": "All",
+    "statusUnread": "Unread",
+    "statusRead": "Read",
+    "typeAll": "All types",
+    "typeMonitor": "Monitor",
+    "typeIncident": "Incidents",
+    "typeMaintenance": "Maintenance"
+  },
+
+  "emptyState": {
+    "noMatchesTitle": "No matches",
+    "noMatchesDescription": "No notifications were found that match your filter criteria.",
+    "noNotificationsTitle": "No notifications",
+    "noNotificationsDescription": "There are no new system events. Notifications will appear here when monitors change status or incidents are created."
+  },
+
+  "item": {
+    "duration": "Duration: {duration}",
+    "viewMonitor": "View monitor",
+    "viewIncident": "View incident",
+    "markAsRead": "Mark as read",
+    "delete": "Delete"
+  },
+
+  "typeLabels": {
+    "monitor_down": "Monitor",
+    "monitor_up": "Monitor",
+    "incident_created": "Incident",
+    "incident_updated": "Incident",
+    "incident_resolved": "Incident",
+    "maintenance_scheduled": "Maintenance",
+    "maintenance_started": "Maintenance",
+    "maintenance_completed": "Maintenance"
+  },
+
+  "duration": {
+    "seconds": "{count}s",
+    "minutes": "{count} min",
+    "hours": "{hours}h",
+    "hoursMinutes": "{hours}h {minutes}m",
+    "days": "{count, plural, one {# day} other {# days}}"
+  }
+}

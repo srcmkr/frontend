@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertTriangle, CheckCircle, Clock, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { IncidentStats } from "@/types";
@@ -10,6 +11,8 @@ interface IncidentStatsBarProps {
 }
 
 export function IncidentStatsBar({ stats, className }: IncidentStatsBarProps) {
+  const t = useTranslations("incidents");
+
   return (
     <div
       className={cn(
@@ -31,7 +34,7 @@ export function IncidentStatsBar({ stats, className }: IncidentStatsBarProps) {
             stats.totalOngoing > 0 ? "text-red-600 dark:text-red-400" : ""
           )}
         >
-          {stats.totalOngoing} Aktiv
+          {stats.totalOngoing} {t("stats.active")}
         </span>
       </div>
 
@@ -40,7 +43,7 @@ export function IncidentStatsBar({ stats, className }: IncidentStatsBarProps) {
       {/* Resolved incidents */}
       <div className="flex items-center gap-1.5 text-muted-foreground">
         <CheckCircle className="h-4 w-4 text-green-500" />
-        <span>{stats.totalResolved} Behoben</span>
+        <span>{stats.totalResolved} {t("stats.resolved")}</span>
       </div>
 
       <span className="text-border">|</span>
@@ -49,7 +52,7 @@ export function IncidentStatsBar({ stats, className }: IncidentStatsBarProps) {
       <div className="flex items-center gap-1.5 text-muted-foreground">
         <Clock className="h-4 w-4" />
         <span>
-          MTTR:{" "}
+          {t("metrics.mttr")}:{" "}
           <span className="font-medium text-foreground">
             {stats.mttrMinutes > 0 ? `${stats.mttrMinutes}min` : "-"}
           </span>

@@ -3,20 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "./user-menu";
-import { useTranslation } from "@/lib/stores";
 
 export function Header() {
   const pathname = usePathname();
-  const t = useTranslation();
+  const t = useTranslations("common");
 
   const navigation = [
-    { name: t.dashboard, href: "/" },
-    { name: t.monitors, href: "/monitors" },
-    { name: t.incidents, href: "/incidents" },
-    { name: t.statusPages, href: "/status-pages" },
+    { name: t("navigation.dashboard"), href: "/" },
+    { name: t("navigation.monitors"), href: "/monitors" },
+    { name: t("navigation.incidents"), href: "/incidents" },
+    { name: t("navigation.statusPages"), href: "/status-pages" },
   ];
 
   return (

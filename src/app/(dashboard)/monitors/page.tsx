@@ -1,29 +1,44 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MonitorSplitView } from "@/components/monitors/monitor-split-view";
-import { getMockMonitors, updateMockMonitor, createMockMonitor, deleteMockMonitor, mockServiceGroups, generateMockUptimeHistory } from "@/mocks/monitors";
-import type { Monitor } from "@/types";
+import {
+  useMonitors,
+  useServiceGroups,
+  useCreateMonitor,
+  useUpdateMonitor,
+  useDeleteMonitor,
+  useUpdateServiceGroups,
+} from "@/features/monitors";
+import type { Monitor, ServiceGroup } from "@/types";
 
 export default function MonitorsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("monitors");
 
   const selectedMonitorId = searchParams.get("id");
 
-  // Service groups state (TODO: Replace with React Query mutation)
-  const [serviceGroups, setServiceGroups] = useState(mockServiceGroups);
+  // Fetch monitors using React Query
+  const {
+    data: monitors = [],
+    isLoading: monitorsLoading,
+    error: monitorsError,
+  } = useMonitors();
 
-  // Monitors state with uptime history (TODO: Replace with React Query)
-  const [monitors, setMonitors] = useState<Monitor[]>(() =>
-    getMockMonitors().map((m) => ({
-      ...m,
-      uptimeHistory: generateMockUptimeHistory(m.uptime24h),
-    }))
-  );
+  // Fetch service groups using React Query
+  const { data: serviceGroups = [] } = useServiceGroups();
+
+  // Mutations
+  const createMonitor = useCreateMonitor();
+  const updateMonitor = useUpdateMonitor();
+  const deleteMonitor = useDeleteMonitor();
+  const updateServiceGroups = useUpdateServiceGroups();
 
   // Handle creating new monitor
   const handleCreateClick = useCallback(() => {
@@ -33,43 +48,43 @@ export default function MonitorsPage() {
   // Handle monitor creation
   const handleMonitorCreate = useCallback(
     (data: Partial<Monitor>) => {
-      const newMonitor = createMockMonitor(data);
-      setMonitors((prev) => [
-        ...prev,
-        { ...newMonitor, uptimeHistory: generateMockUptimeHistory(100) },
-      ]);
-      router.push(`/monitors?id=${newMonitor.id}`, { scroll: false });
+      createMonitor.mutate(data as Parameters<typeof createMonitor.mutate>[0], {
+        onSuccess: (newMonitor) => {
+          router.push(`/monitors?id=${newMonitor.id}`, { scroll: false });
+        },
+      });
     },
-    [router]
+    [createMonitor, router]
   );
 
   // Handle monitor updates
   const handleMonitorUpdate = useCallback(
     (monitorId: string, updates: Partial<Monitor>) => {
-      const updated = updateMockMonitor(monitorId, updates);
-      if (updated) {
-        setMonitors((prev) =>
-          prev.map((m) =>
-            m.id === monitorId
-              ? { ...m, ...updates, updatedAt: new Date().toISOString() }
-              : m
-          )
-        );
-      }
+      updateMonitor.mutate({ id: monitorId, data: updates });
     },
-    []
+    [updateMonitor]
   );
 
   // Handle monitor deletion
   const handleMonitorDelete = useCallback(
     (monitorId: string) => {
-      deleteMockMonitor(monitorId);
-      setMonitors((prev) => prev.filter((m) => m.id !== monitorId));
-      if (selectedMonitorId === monitorId) {
-        router.push("/monitors", { scroll: false });
-      }
+      deleteMonitor.mutate(monitorId, {
+        onSuccess: () => {
+          if (selectedMonitorId === monitorId) {
+            router.push("/monitors", { scroll: false });
+          }
+        },
+      });
     },
-    [selectedMonitorId, router]
+    [deleteMonitor, selectedMonitorId, router]
+  );
+
+  // Handle service groups change (persisted via mutation)
+  const handleServiceGroupsChange = useCallback(
+    (groups: ServiceGroup[]) => {
+      updateServiceGroups.mutate(groups);
+    },
+    [updateServiceGroups]
   );
 
   const handleSelectMonitor = useCallback(
@@ -83,19 +98,45 @@ export default function MonitorsPage() {
     [router]
   );
 
+  // Loading state
+  if (monitorsLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{t("title")}</h1>
+            <p className="text-muted-foreground">{t("subtitle")}</p>
+          </div>
+          <Skeleton className="h-10 w-40" />
+        </div>
+        <div className="flex h-[calc(100vh-220px)] min-h-[400px] gap-4">
+          <Skeleton className="w-full lg:w-[400px] lg:shrink-0 rounded-2xl" />
+          <Skeleton className="flex-1 rounded-2xl hidden lg:block" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error handling is done by error.tsx - throw to trigger error boundary
+  if (monitorsError) {
+    throw monitorsError;
+  }
+
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Monitors</h1>
-          <p className="text-muted-foreground">
-            Überwachung aller Services
-          </p>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <Button onClick={handleCreateClick} className="uppercase tracking-wide">
+        <Button
+          onClick={handleCreateClick}
+          className="uppercase tracking-wide"
+          disabled={createMonitor.isPending}
+        >
           <Plus className="h-4 w-4 mr-1" />
-          Monitor hinzufügen
+          {t("addMonitor")}
         </Button>
       </div>
 
@@ -105,7 +146,7 @@ export default function MonitorsPage() {
         serviceGroups={serviceGroups}
         selectedMonitorId={selectedMonitorId}
         onSelectMonitor={handleSelectMonitor}
-        onServiceGroupsChange={setServiceGroups}
+        onServiceGroupsChange={handleServiceGroupsChange}
         onMonitorUpdate={handleMonitorUpdate}
         onMonitorCreate={handleMonitorCreate}
         onMonitorDelete={handleMonitorDelete}

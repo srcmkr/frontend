@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Plus, Mail, Webhook, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ import { NotificationChannelDialog } from "./notification-channel-dialog";
 import type { NotificationChannelFormData } from "@/lib/validations/notification-channel";
 
 export function NotificationSettings() {
+  const t = useTranslations("settings");
   const [channels, setChannels] = useState<NotificationChannel[]>(mockNotificationChannels);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingChannel, setEditingChannel] = useState<NotificationChannel | undefined>(undefined);
@@ -64,7 +66,7 @@ export function NotificationSettings() {
   const onSubmit = (data: NotificationSettingsFormData) => {
     // TODO: API call
     console.log("Saving notification settings:", data);
-    toast.success("Benachrichtigungs-Einstellungen gespeichert");
+    toast.success(t("notificationSettings.saved"));
   };
 
   const handleOpenDeleteDialog = (channel: NotificationChannel) => {
@@ -75,7 +77,7 @@ export function NotificationSettings() {
   const handleConfirmDelete = () => {
     if (channelToDelete) {
       setChannels((prev) => prev.filter((ch) => ch.id !== channelToDelete.id));
-      toast.success("Kanal gelöscht");
+      toast.success(t("notificationSettings.channelDeleted"));
       setChannelToDelete(null);
     }
     setDeleteDialogOpen(false);
@@ -120,7 +122,7 @@ export function NotificationSettings() {
             : ch
         )
       );
-      toast.success("Kanal aktualisiert");
+      toast.success(t("notificationSettings.channelUpdated"));
     } else {
       // Create new channel
       const newChannel: NotificationChannel = {
@@ -132,7 +134,7 @@ export function NotificationSettings() {
         createdAt: new Date().toISOString(),
       };
       setChannels((prev) => [...prev, newChannel]);
-      toast.success("Kanal erstellt");
+      toast.success(t("notificationSettings.channelCreated"));
     }
   };
 
@@ -142,14 +144,14 @@ export function NotificationSettings() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-semibold">Benachrichtigungskanäle</h3>
+            <h3 className="text-lg font-semibold">{t("notificationSettings.channelsTitle")}</h3>
             <p className="text-sm text-muted-foreground">
-              Kanäle für Incident-Benachrichtigungen
+              {t("notificationSettings.channelsDescription")}
             </p>
           </div>
           <Button size="sm" onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1" />
-            Kanal hinzufügen
+            {t("notificationSettings.addChannel")}
           </Button>
         </div>
 
@@ -157,17 +159,17 @@ export function NotificationSettings() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Typ</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Aktionen</TableHead>
+                <TableHead>{t("notificationSettings.tableColumns.name")}</TableHead>
+                <TableHead>{t("notificationSettings.tableColumns.type")}</TableHead>
+                <TableHead>{t("notificationSettings.tableColumns.status")}</TableHead>
+                <TableHead className="text-right">{t("notificationSettings.tableColumns.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {channels.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                    Keine Kanäle konfiguriert
+                    {t("notificationSettings.noChannels")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -186,7 +188,7 @@ export function NotificationSettings() {
                     </TableCell>
                     <TableCell>
                       <Badge variant={channel.enabled ? "default" : "secondary"}>
-                        {channel.enabled ? "Aktiv" : "Inaktiv"}
+                        {channel.enabled ? t("notificationSettings.statusActive") : t("notificationSettings.statusInactive")}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -199,14 +201,14 @@ export function NotificationSettings() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleOpenEdit(channel)}>
                             <Pencil className="h-4 w-4 mr-2" />
-                            Bearbeiten
+                            {t("notificationSettings.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
                             onClick={() => handleOpenDeleteDialog(channel)}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Löschen
+                            {t("notificationSettings.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -222,16 +224,16 @@ export function NotificationSettings() {
       {/* Global Settings Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold mb-1">Globale Einstellungen</h3>
+          <h3 className="text-lg font-semibold mb-1">{t("notificationSettings.globalTitle")}</h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Einstellungen für alle Benachrichtigungen
+            {t("notificationSettings.globalDescription")}
           </p>
         </div>
 
         <div className="space-y-6">
           {/* Failure Threshold */}
           <div className="space-y-2">
-            <Label htmlFor="failureThreshold">Benachrichtigung nach X Fehlschlägen</Label>
+            <Label htmlFor="failureThreshold">{t("notificationSettings.failureThreshold")}</Label>
             <Input
               id="failureThreshold"
               type="number"
@@ -242,14 +244,14 @@ export function NotificationSettings() {
               <p className="text-sm text-destructive">{errors.failureThreshold.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Anzahl aufeinanderfolgender Fehlschläge bevor eine Benachrichtigung gesendet wird
+              {t("notificationSettings.failureThresholdHint")}
             </p>
           </div>
         </div>
 
         <div className="flex justify-end pt-4 border-t">
           <Button type="submit" disabled={!isDirty}>
-            Speichern
+            {t("notificationSettings.save")}
           </Button>
         </div>
       </form>
@@ -266,16 +268,15 @@ export function NotificationSettings() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Kanal löschen</AlertDialogTitle>
+            <AlertDialogTitle>{t("notificationSettings.deleteChannelTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Möchtest du den Kanal &quot;{channelToDelete?.name}&quot; wirklich löschen?
-              Diese Aktion kann nicht rückgängig gemacht werden.
+              {t("notificationSettings.deleteChannelDescription", { name: channelToDelete?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t("notificationSettings.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDelete}>
-              Löschen
+              {t("notificationSettings.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

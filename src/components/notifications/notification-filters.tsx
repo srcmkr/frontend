@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +21,8 @@ export function NotificationFilters({
   filters,
   onFiltersChange,
 }: NotificationFiltersProps) {
+  const t = useTranslations("notifications");
+
   return (
     <div className="flex flex-col sm:flex-row gap-3">
       {/* Read status filter */}
@@ -33,12 +36,12 @@ export function NotificationFilters({
         }
       >
         <SelectTrigger className="w-full sm:w-[140px]">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder={t("filters.statusPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Alle</SelectItem>
-          <SelectItem value="unread">Ungelesen</SelectItem>
-          <SelectItem value="read">Gelesen</SelectItem>
+          <SelectItem value="all">{t("filters.statusAll")}</SelectItem>
+          <SelectItem value="unread">{t("filters.statusUnread")}</SelectItem>
+          <SelectItem value="read">{t("filters.statusRead")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -53,13 +56,13 @@ export function NotificationFilters({
         }
       >
         <SelectTrigger className="w-full sm:w-[160px]">
-          <SelectValue placeholder="Typ" />
+          <SelectValue placeholder={t("filters.typePlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Alle Typen</SelectItem>
-          <SelectItem value="monitor">Monitor</SelectItem>
-          <SelectItem value="incident">Incidents</SelectItem>
-          <SelectItem value="maintenance">Wartung</SelectItem>
+          <SelectItem value="all">{t("filters.typeAll")}</SelectItem>
+          <SelectItem value="monitor">{t("filters.typeMonitor")}</SelectItem>
+          <SelectItem value="incident">{t("filters.typeIncident")}</SelectItem>
+          <SelectItem value="maintenance">{t("filters.typeMaintenance")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -67,7 +70,7 @@ export function NotificationFilters({
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Benachrichtigungen suchen..."
+          placeholder={t("filters.searchPlaceholder")}
           value={filters.search}
           onChange={(e) =>
             onFiltersChange({ ...filters, search: e.target.value })

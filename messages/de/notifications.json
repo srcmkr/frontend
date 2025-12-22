@@ -1,0 +1,59 @@
+{
+  "title": "Benachrichtigungen",
+  "subtitle": "Systemereignisse und Status-Updates",
+  "unreadCount": "({count} ungelesen)",
+  "markAllAsRead": "Alle als gelesen",
+
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageOf": "Seite {current} von {total}"
+  },
+
+  "filters": {
+    "statusPlaceholder": "Status",
+    "typePlaceholder": "Typ",
+    "searchPlaceholder": "Benachrichtigungen suchen...",
+    "statusAll": "Alle",
+    "statusUnread": "Ungelesen",
+    "statusRead": "Gelesen",
+    "typeAll": "Alle Typen",
+    "typeMonitor": "Monitor",
+    "typeIncident": "Incidents",
+    "typeMaintenance": "Wartung"
+  },
+
+  "emptyState": {
+    "noMatchesTitle": "Keine Treffer",
+    "noMatchesDescription": "Es wurden keine Benachrichtigungen gefunden, die deinen Filterkriterien entsprechen.",
+    "noNotificationsTitle": "Keine Benachrichtigungen",
+    "noNotificationsDescription": "Es gibt keine neuen Systemereignisse. Benachrichtigungen erscheinen hier, wenn Monitore ihren Status ändern oder Incidents erstellt werden."
+  },
+
+  "item": {
+    "duration": "Dauer: {duration}",
+    "viewMonitor": "Monitor ansehen",
+    "viewIncident": "Incident ansehen",
+    "markAsRead": "Als gelesen",
+    "delete": "Löschen"
+  },
+
+  "typeLabels": {
+    "monitor_down": "Monitor",
+    "monitor_up": "Monitor",
+    "incident_created": "Incident",
+    "incident_updated": "Incident",
+    "incident_resolved": "Incident",
+    "maintenance_scheduled": "Wartung",
+    "maintenance_started": "Wartung",
+    "maintenance_completed": "Wartung"
+  },
+
+  "duration": {
+    "seconds": "{count}s",
+    "minutes": "{count} Min.",
+    "hours": "{hours}h",
+    "hoursMinutes": "{hours}h {minutes}m",
+    "days": "{count, plural, one {# Tag} other {# Tage}}"
+  }
+}

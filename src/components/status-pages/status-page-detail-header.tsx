@@ -18,6 +18,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,8 +58,8 @@ function StatItem({ label, value, icon, className }: StatItemProps) {
   );
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("de-DE", {
+function formatDate(dateString: string, locale: string): string {
+  return new Date(dateString).toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -74,6 +75,8 @@ export function StatusPageDetailHeader({
   onDelete,
   onPreview,
 }: StatusPageDetailHeaderProps) {
+  const t = useTranslations("statusPages");
+  const locale = useLocale();
   const [copied, setCopied] = useState(false);
 
   const relativePath = `/status/${statusPage.slug}`;
@@ -103,7 +106,7 @@ export function StatusPageDetailHeader({
           className="lg:hidden -ml-2 mb-2"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Zurück
+          {t("header.back")}
         </Button>
       )}
 
@@ -115,18 +118,18 @@ export function StatusPageDetailHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="shrink-0">
-              Aktionen
+              {t("header.actions")}
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onEdit}>
               <Pencil className="h-4 w-4 mr-2" />
-              Bearbeiten
+              {t("header.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onPreview}>
               <ExternalLink className="h-4 w-4 mr-2" />
-              Vorschau öffnen
+              {t("header.openPreview")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -134,7 +137,7 @@ export function StatusPageDetailHeader({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Löschen
+              {t("header.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -172,47 +175,47 @@ export function StatusPageDetailHeader({
           {statusPage.isPublic ? (
             <>
               <Globe className="h-3 w-3 mr-1" />
-              Öffentlich
+              {t("header.public")}
             </>
           ) : (
             <>
               <Lock className="h-3 w-3 mr-1" />
-              Privat
+              {t("header.private")}
             </>
           )}
         </Badge>
         {statusPage.passwordProtection && (
           <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800">
             <Lock className="h-3 w-3 mr-1" />
-            Passwortgeschützt
+            {t("header.passwordProtected")}
           </Badge>
         )}
         {statusPage.ipWhitelistEnabled && (
           <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
             <Network className="h-3 w-3 mr-1" />
-            IP-Whitelist ({statusPage.ipWhitelist.length})
+            {t("header.ipWhitelist")} ({statusPage.ipWhitelist.length})
           </Badge>
         )}
         {statusPage.showUptimeHistory && (
           <Badge variant="outline" className="text-xs">
-            Uptime ({statusPage.uptimeHistoryDays} Tage)
+            {t("header.uptime")} ({t("header.uptimeDays", { days: statusPage.uptimeHistoryDays })})
           </Badge>
         )}
         {statusPage.showIncidents && (
           <Badge variant="outline" className="text-xs">
-            Incidents ({statusPage.incidentHistoryDays} Tage)
+            {t("header.incidents")} ({t("header.incidentsDays", { days: statusPage.incidentHistoryDays })})
           </Badge>
         )}
         {statusPage.announcements.filter(a => a.enabled).length > 0 && (
           <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800">
             <Megaphone className="h-3 w-3 mr-1" />
-            {statusPage.announcements.filter(a => a.enabled).length} Ankündigung{statusPage.announcements.filter(a => a.enabled).length !== 1 ? "en" : ""}
+            {t("header.announcements", { count: statusPage.announcements.filter(a => a.enabled).length })}
           </Badge>
         )}
         {statusPage.scheduledMaintenances.filter(m => m.status === "scheduled" || m.status === "in_progress").length > 0 && (
           <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800">
             <Wrench className="h-3 w-3 mr-1" />
-            {statusPage.scheduledMaintenances.filter(m => m.status === "scheduled" || m.status === "in_progress").length} Wartung{statusPage.scheduledMaintenances.filter(m => m.status === "scheduled" || m.status === "in_progress").length !== 1 ? "en" : ""}
+            {t("header.maintenances", { count: statusPage.scheduledMaintenances.filter(m => m.status === "scheduled" || m.status === "in_progress").length })}
           </Badge>
         )}
       </div>
@@ -225,23 +228,23 @@ export function StatusPageDetailHeader({
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 mt-2 border-t">
         <StatItem
-          label="Monitors"
+          label={t("header.monitors")}
           value={statusPage.monitors.length.toString()}
           icon={<Activity className="h-4 w-4" />}
         />
         <StatItem
-          label="Gruppen"
+          label={t("header.groups")}
           value={statusPage.groups.length.toString()}
           icon={<Layers className="h-4 w-4" />}
         />
         <StatItem
-          label="Erstellt"
-          value={formatDate(statusPage.createdAt)}
+          label={t("header.created")}
+          value={formatDate(statusPage.createdAt, locale)}
           icon={<Calendar className="h-4 w-4" />}
         />
         <StatItem
-          label="Aktualisiert"
-          value={formatDate(statusPage.updatedAt)}
+          label={t("header.updated")}
+          value={formatDate(statusPage.updatedAt, locale)}
           icon={<Calendar className="h-4 w-4" />}
         />
       </div>

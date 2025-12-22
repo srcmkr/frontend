@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -47,17 +48,17 @@ interface IncidentEditPanelProps {
   className?: string;
 }
 
-const INCIDENT_TYPES: { value: IncidentType; label: string; icon: React.ElementType; description: string }[] = [
-  { value: "incident", label: "Vorfall", icon: AlertTriangle, description: "Unerwartetes Problem oder Ausfall" },
-  { value: "maintenance", label: "Wartung", icon: Wrench, description: "Geplante Wartungsarbeiten" },
-  { value: "announcement", label: "Ankündigung", icon: Megaphone, description: "Allgemeine Information" },
+const INCIDENT_TYPE_CONFIG: { value: IncidentType; icon: React.ElementType }[] = [
+  { value: "incident", icon: AlertTriangle },
+  { value: "maintenance", icon: Wrench },
+  { value: "announcement", icon: Megaphone },
 ];
 
-const SEVERITY_LEVELS: { value: IncidentSeverity; label: string; color: string; bgColor: string; icon: React.ElementType; description: string }[] = [
-  { value: "info", label: "Info", color: "text-blue-600", bgColor: "bg-blue-500", icon: Info, description: "Informativ, kein Ausfall" },
-  { value: "minor", label: "Gering", color: "text-yellow-600", bgColor: "bg-yellow-500", icon: AlertCircle, description: "Geringfügige Einschränkung" },
-  { value: "major", label: "Mittel", color: "text-orange-600", bgColor: "bg-orange-500", icon: AlertTriangle, description: "Teilweiser Ausfall" },
-  { value: "critical", label: "Kritisch", color: "text-red-600", bgColor: "bg-red-500", icon: Flame, description: "Vollständiger Ausfall" },
+const SEVERITY_CONFIG: { value: IncidentSeverity; color: string; bgColor: string; icon: React.ElementType }[] = [
+  { value: "info", color: "text-blue-600", bgColor: "bg-blue-500", icon: Info },
+  { value: "minor", color: "text-yellow-600", bgColor: "bg-yellow-500", icon: AlertCircle },
+  { value: "major", color: "text-orange-600", bgColor: "bg-orange-500", icon: AlertTriangle },
+  { value: "critical", color: "text-red-600", bgColor: "bg-red-500", icon: Flame },
 ];
 
 function FieldError({ message }: { message?: string }) {
@@ -94,6 +95,7 @@ export function IncidentEditPanel({
   isHistorical = false,
   className,
 }: IncidentEditPanelProps) {
+  const t = useTranslations("incidents");
   const isEditMode = !!incident;
 
   const {
@@ -182,11 +184,11 @@ export function IncidentEditPanel({
 
   // Get title based on mode
   const getTitle = () => {
-    if (isEditMode) return "Vorfall bearbeiten";
-    if (isHistorical) return "Historischen Eintrag erstellen";
-    if (initialType === "maintenance") return "Geplante Wartung erstellen";
-    if (initialType === "announcement") return "Ankündigung erstellen";
-    return "Neuen Vorfall erstellen";
+    if (isEditMode) return t("headings.editIncident");
+    if (isHistorical) return t("headings.createHistorical");
+    if (initialType === "maintenance") return t("headings.createMaintenance");
+    if (initialType === "announcement") return t("headings.createAnnouncement");
+    return t("headings.createIncident");
   };
 
   const hasGeneralErrors = !!(errors.type || errors.severity);
@@ -201,7 +203,7 @@ export function IncidentEditPanel({
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={onCancel} className="-ml-2">
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Zurück
+            {t("detail.back")}
           </Button>
           <div className="h-6 w-px bg-border" />
           <h2 className="text-lg font-semibold">{getTitle()}</h2>
@@ -209,7 +211,7 @@ export function IncidentEditPanel({
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={onCancel}>
             <X className="h-4 w-4 mr-1" />
-            Abbrechen
+            {t("dialogs.cancel")}
           </Button>
           <Button size="sm" onClick={handleSubmit(onSubmit)} disabled={isSubmitting || !isDirty}>
             {isSubmitting ? (
@@ -217,7 +219,7 @@ export function IncidentEditPanel({
             ) : (
               <Save className="h-4 w-4 mr-1" />
             )}
-            {isEditMode ? "Speichern" : "Erstellen"}
+            {isEditMode ? t("form.save") : t("form.create")}
           </Button>
         </div>
       </div>
@@ -229,25 +231,25 @@ export function IncidentEditPanel({
             <TabItem
               value="general"
               icon={<Settings className="h-4 w-4" />}
-              label="Typ & Schwere"
+              label={t("form.tabGeneral")}
               hasError={hasGeneralErrors}
             />
             <TabItem
               value="monitors"
               icon={<Server className="h-4 w-4" />}
-              label="Services"
+              label={t("form.tabMonitors")}
               hasError={hasMonitorErrors}
             />
             <TabItem
               value="details"
               icon={<FileText className="h-4 w-4" />}
-              label="Details"
+              label={t("form.tabDetails")}
               hasError={hasDetailsErrors}
             />
             <TabItem
               value="time"
               icon={<Clock className="h-4 w-4" />}
-              label="Zeitraum"
+              label={t("form.tabTime")}
               hasError={hasTimeErrors}
             />
           </TabsList>
@@ -258,14 +260,14 @@ export function IncidentEditPanel({
           <TabsContent value="general" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Vorfallstyp</CardTitle>
+                <CardTitle>{t("form.incidentType")}</CardTitle>
                 <CardDescription>
-                  Wähle den passenden Typ für diesen Eintrag
+                  {t("form.incidentTypeDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {INCIDENT_TYPES.map((type) => {
+                  {INCIDENT_TYPE_CONFIG.map((type) => {
                     const Icon = type.icon;
                     const isSelected = watchedType === type.value;
                     return (
@@ -287,8 +289,8 @@ export function IncidentEditPanel({
                           )}
                         />
                         <div className="text-center">
-                          <span className="text-sm font-medium block">{type.label}</span>
-                          <span className="text-xs text-muted-foreground">{type.description}</span>
+                          <span className="text-sm font-medium block">{t(`types.${type.value}`)}</span>
+                          <span className="text-xs text-muted-foreground">{t(`typeDescriptions.${type.value}`)}</span>
                         </div>
                       </button>
                     );
@@ -300,14 +302,14 @@ export function IncidentEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Schweregrad</CardTitle>
+                <CardTitle>{t("form.severity")}</CardTitle>
                 <CardDescription>
-                  Wie schwerwiegend ist das Problem?
+                  {t("form.severityQuestion")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {SEVERITY_LEVELS.map((level) => {
+                  {SEVERITY_CONFIG.map((level) => {
                     const Icon = level.icon;
                     const isSelected = watchedSeverity === level.value;
                     return (
@@ -328,9 +330,9 @@ export function IncidentEditPanel({
                         <div className="text-center">
                           <div className="flex items-center justify-center gap-1.5 mb-0.5">
                             <span className={cn("h-2 w-2 rounded-full", level.bgColor)} />
-                            <span className="text-sm font-medium">{level.label}</span>
+                            <span className="text-sm font-medium">{t(`severity.${level.value}`)}</span>
                           </div>
-                          <span className="text-xs text-muted-foreground">{level.description}</span>
+                          <span className="text-xs text-muted-foreground">{t(`severity.${level.value}Description`)}</span>
                         </div>
                       </button>
                     );
@@ -345,9 +347,9 @@ export function IncidentEditPanel({
           <TabsContent value="monitors" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Betroffene Services</CardTitle>
+                <CardTitle>{t("form.affectedMonitors")}</CardTitle>
                 <CardDescription>
-                  Wähle alle Services aus, die von diesem Vorfall betroffen sind
+                  {t("form.affectedMonitorsHint")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -356,7 +358,7 @@ export function IncidentEditPanel({
                   <div className="relative flex-1">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Monitore suchen..."
+                      placeholder={t("form.searchMonitors")}
                       value={monitorSearch}
                       onChange={(e) => setMonitorSearch(e.target.value)}
                       className="pl-8 pr-8"
@@ -372,21 +374,21 @@ export function IncidentEditPanel({
                     )}
                   </div>
                   <Button variant="outline" size="sm" onClick={selectAllMonitors}>
-                    Alle
+                    {t("form.selectAll")}
                   </Button>
                   <Button variant="outline" size="sm" onClick={deselectAllMonitors}>
-                    Keine
+                    {t("form.selectNone")}
                   </Button>
                 </div>
 
                 {/* Selected count */}
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {selectedCount} von {monitors.length} ausgewählt
+                    {t("form.selectedCount", { selected: selectedCount, total: monitors.length })}
                   </span>
                   {selectedCount > 0 && (
                     <span className="text-primary font-medium">
-                      {selectedCount} Service{selectedCount !== 1 ? "s" : ""} betroffen
+                      {t("form.servicesAffected", { count: selectedCount })}
                     </span>
                   )}
                 </div>
@@ -395,7 +397,7 @@ export function IncidentEditPanel({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[400px] overflow-y-auto">
                   {filteredMonitors.length === 0 ? (
                     <p className="text-sm text-muted-foreground col-span-full text-center py-8">
-                      Keine Monitore gefunden
+                      {t("form.noMonitorsFound")}
                     </p>
                   ) : (
                     filteredMonitors.map((monitor) => {
@@ -441,18 +443,18 @@ export function IncidentEditPanel({
           <TabsContent value="details" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Titel & Beschreibung</CardTitle>
+                <CardTitle>{t("form.titleAndDescription")}</CardTitle>
                 <CardDescription>
-                  Beschreibe den Vorfall für Nutzer und Administratoren
+                  {t("form.titleAndDescriptionHint")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Title */}
                 <div className="space-y-2">
-                  <Label htmlFor="title">Titel *</Label>
+                  <Label htmlFor="title">{t("form.title")} *</Label>
                   <Input
                     id="title"
-                    placeholder="z.B. API-Server nicht erreichbar"
+                    placeholder={t("form.titlePlaceholder")}
                     {...register("title")}
                     aria-invalid={!!errors.title}
                   />
@@ -461,16 +463,16 @@ export function IncidentEditPanel({
 
                 {/* Cause */}
                 <div className="space-y-2">
-                  <Label htmlFor="cause">Ursache *</Label>
+                  <Label htmlFor="cause">{t("form.cause")} *</Label>
                   <Textarea
                     id="cause"
-                    placeholder="Kurze Beschreibung der Ursache..."
+                    placeholder={t("form.causePlaceholder")}
                     className="min-h-[100px]"
                     {...register("cause")}
                     aria-invalid={!!errors.cause}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Diese Information wird öffentlich angezeigt
+                    {t("form.causeHint")}
                   </p>
                   <FieldError message={errors.cause?.message} />
                 </div>
@@ -478,12 +480,11 @@ export function IncidentEditPanel({
                 {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description">
-                    Detaillierte Beschreibung{" "}
-                    <span className="text-muted-foreground font-normal">(optional)</span>
+                    {t("form.descriptionOptional")}
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Weitere Details, Auswirkungen, geplante Maßnahmen..."
+                    placeholder={t("form.descriptionPlaceholder")}
                     className="min-h-[150px]"
                     {...register("description")}
                   />
@@ -497,16 +498,16 @@ export function IncidentEditPanel({
           <TabsContent value="time" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Zeitraum</CardTitle>
+                <CardTitle>{t("form.timePeriod")}</CardTitle>
                 <CardDescription>
-                  Wann hat der Vorfall begonnen und wann wurde er behoben?
+                  {t("form.timePeriodDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Status (only for edit mode or historical) */}
                 {(isEditMode || isHistorical) && (
                   <div className="space-y-2">
-                    <Label>Status</Label>
+                    <Label>{t("form.statusLabel")}</Label>
                     <div className="flex gap-3">
                       <button
                         type="button"
@@ -519,7 +520,7 @@ export function IncidentEditPanel({
                         )}
                       >
                         <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
-                        <span className="font-medium">Aktiv</span>
+                        <span className="font-medium">{t("status.ongoing")}</span>
                       </button>
                       <button
                         type="button"
@@ -532,7 +533,7 @@ export function IncidentEditPanel({
                         )}
                       >
                         <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-                        <span className="font-medium">Behoben</span>
+                        <span className="font-medium">{t("status.resolved")}</span>
                       </button>
                     </div>
                     <FieldError message={errors.status?.message} />
@@ -542,7 +543,7 @@ export function IncidentEditPanel({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Start Time */}
                   <div className="space-y-2">
-                    <Label htmlFor="startedAt">Startzeit *</Label>
+                    <Label htmlFor="startedAt">{t("form.startTime")} *</Label>
                     <Input
                       id="startedAt"
                       type="datetime-local"
@@ -555,7 +556,7 @@ export function IncidentEditPanel({
                   {/* End Time - only for historical or resolved */}
                   {(isHistorical || watchedStatus === "resolved") && (
                     <div className="space-y-2">
-                      <Label htmlFor="resolvedAt">Endzeit</Label>
+                      <Label htmlFor="resolvedAt">{t("form.endTime")}</Label>
                       <Input
                         id="resolvedAt"
                         type="datetime-local"
@@ -569,7 +570,7 @@ export function IncidentEditPanel({
 
                 {!isHistorical && watchedStatus === "ongoing" && (
                   <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                    Der Vorfall wird als "aktiv" markiert. Du kannst ihn später über die Detail-Ansicht als behoben markieren.
+                    {t("form.ongoingNote")}
                   </p>
                 )}
               </CardContent>

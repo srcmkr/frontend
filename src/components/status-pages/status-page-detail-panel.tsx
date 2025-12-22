@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusIndicator } from "@/components/monitors/status-indicator";
@@ -22,9 +23,17 @@ interface GroupSectionProps {
   group: StatusPageGroup;
   monitors: Monitor[];
   defaultExpanded?: boolean;
+  translations: {
+    monitorsCount: (count: number) => string;
+    statusDown: string;
+    statusUp: string;
+    statusMixed: string;
+    noMonitorsInGroup: string;
+    uptime24h: string;
+  };
 }
 
-function GroupSection({ group, monitors, defaultExpanded = true }: GroupSectionProps) {
+function GroupSection({ group, monitors, defaultExpanded = true, translations }: GroupSectionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   const groupMonitors = monitors.filter((m) => group.monitors.includes(m.id));
@@ -46,16 +55,16 @@ function GroupSection({ group, monitors, defaultExpanded = true }: GroupSectionP
           )}
           <span className="font-medium text-sm">{group.name}</span>
           <span className="text-xs text-muted-foreground">
-            ({groupMonitors.length} {groupMonitors.length === 1 ? "Monitor" : "Monitors"})
+            ({translations.monitorsCount(groupMonitors.length)})
           </span>
         </div>
         <div className="flex items-center gap-1">
           {anyDown ? (
-            <span className="text-xs text-red-600 font-medium">Probleme</span>
+            <span className="text-xs text-red-600 font-medium">{translations.statusDown}</span>
           ) : allUp ? (
-            <span className="text-xs text-green-600 font-medium">Alle aktiv</span>
+            <span className="text-xs text-green-600 font-medium">{translations.statusUp}</span>
           ) : (
-            <span className="text-xs text-muted-foreground">Gemischt</span>
+            <span className="text-xs text-muted-foreground">{translations.statusMixed}</span>
           )}
         </div>
       </button>
@@ -64,7 +73,7 @@ function GroupSection({ group, monitors, defaultExpanded = true }: GroupSectionP
         <div className="divide-y">
           {groupMonitors.length === 0 ? (
             <p className="p-3 text-sm text-muted-foreground italic">
-              Keine Monitors in dieser Gruppe
+              {translations.noMonitorsInGroup}
             </p>
           ) : (
             groupMonitors.map((monitor) => (
@@ -85,7 +94,7 @@ function GroupSection({ group, monitors, defaultExpanded = true }: GroupSectionP
                   <p className="text-sm font-mono">
                     {monitor.uptime24h.toFixed(2)}%
                   </p>
-                  <p className="text-xs text-muted-foreground">24h Uptime</p>
+                  <p className="text-xs text-muted-foreground">{translations.uptime24h}</p>
                 </div>
               </div>
             ))
@@ -104,6 +113,17 @@ export function StatusPageDetailPanel({
   onDelete,
   className,
 }: StatusPageDetailPanelProps) {
+  const t = useTranslations("statusPages");
+
+  const groupTranslations = {
+    monitorsCount: (count: number) => t("list.monitors", { count }),
+    statusDown: t("detail.statusDown"),
+    statusUp: t("detail.statusUp"),
+    statusMixed: t("detail.statusMixed"),
+    noMonitorsInGroup: t("detail.noMonitorsInGroup"),
+    uptime24h: t("detail.uptime24h"),
+  };
+
   if (!statusPage) {
     return (
       <div
@@ -113,10 +133,10 @@ export function StatusPageDetailPanel({
         )}
       >
         <p className="text-muted-foreground mb-2">
-          Wähle eine Statusseite aus der Liste
+          {t("detail.selectStatusPage")}
         </p>
         <p className="text-xs text-muted-foreground">
-          oder erstelle eine neue Statusseite
+          {t("detail.orCreateNew")}
         </p>
       </div>
     );
@@ -153,17 +173,17 @@ export function StatusPageDetailPanel({
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Gruppen & Monitors</CardTitle>
+              <CardTitle className="text-base">{t("detail.groupsAndMonitors")}</CardTitle>
               <Button variant="ghost" size="sm" onClick={handlePreview}>
                 <ExternalLink className="h-4 w-4 mr-1" />
-                Vorschau
+                {t("detail.preview")}
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {statusPage.groups.length === 0 && unassignedMonitors.length === 0 ? (
               <p className="text-sm text-muted-foreground italic py-4 text-center">
-                Keine Gruppen oder Monitors konfiguriert
+                {t("detail.noGroupsOrMonitorsConfigured")}
               </p>
             ) : (
               <>
@@ -175,6 +195,7 @@ export function StatusPageDetailPanel({
                       key={group.id}
                       group={group}
                       monitors={monitors}
+                      translations={groupTranslations}
                     />
                   ))}
 
@@ -183,7 +204,7 @@ export function StatusPageDetailPanel({
                   <div className="border rounded-lg overflow-hidden border-dashed">
                     <div className="p-3 bg-muted/30">
                       <span className="text-sm text-muted-foreground italic">
-                        Nicht zugewiesene Monitors ({unassignedMonitors.length})
+                        {t("detail.unassignedMonitors")} ({unassignedMonitors.length})
                       </span>
                     </div>
                     <div className="divide-y">
@@ -220,18 +241,18 @@ export function StatusPageDetailPanel({
         {(statusPage.customCss || statusPage.primaryColor || statusPage.logo) && (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Anpassungen</CardTitle>
+              <CardTitle className="text-base">{t("detail.customizations")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {statusPage.logo && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Logo:</span>
+                  <span className="text-muted-foreground">{t("detail.logo")}:</span>
                   <span className="truncate max-w-[250px]">{statusPage.logo}</span>
                 </div>
               )}
               {statusPage.primaryColor && (
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Primärfarbe:</span>
+                  <span className="text-muted-foreground">{t("detail.primaryColor")}:</span>
                   <div
                     className="h-5 w-5 rounded border"
                     style={{ backgroundColor: statusPage.primaryColor }}
@@ -241,7 +262,7 @@ export function StatusPageDetailPanel({
               )}
               {statusPage.customCss && (
                 <div className="text-sm">
-                  <span className="text-muted-foreground">Custom CSS:</span>
+                  <span className="text-muted-foreground">{t("detail.customCss")}:</span>
                   <pre className="mt-1 p-2 bg-muted rounded text-xs overflow-x-auto max-h-32">
                     {statusPage.customCss}
                   </pre>

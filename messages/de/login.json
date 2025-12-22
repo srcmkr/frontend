@@ -1,0 +1,23 @@
+{
+  "title": "Willkommen zurück",
+  "description": "Melden Sie sich an, um fortzufahren",
+  "email": "E-Mail",
+  "emailPlaceholder": "du@beispiel.de",
+  "password": "Passwort",
+  "passwordPlaceholder": "Passwort eingeben",
+  "forgotPassword": "Passwort vergessen?",
+  "signIn": "Anmelden",
+  "signingIn": "Anmelden...",
+  "noAccount": "Noch kein Konto?",
+  "signUp": "Registrieren",
+  "invalidCredentials": "Ungültige E-Mail oder Passwort",
+  "resetPassword": {
+    "title": "Passwort zurücksetzen",
+    "description": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen",
+    "sendLink": "Link senden",
+    "sendingLink": "Senden...",
+    "backToLogin": "Zurück zur Anmeldung",
+    "successTitle": "E-Mail überprüfen",
+    "successDescription": "Wir haben Ihnen einen Link zum Zurücksetzen Ihres Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang."
+  }
+}

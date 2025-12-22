@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -182,6 +183,8 @@ export function MonitorEditPanel({
   onCancel,
   className,
 }: MonitorEditPanelProps) {
+  const t = useTranslations("monitors");
+  const tCommon = useTranslations("common.actions");
   const isEditMode = !!monitor;
   const [showPassword, setShowPassword] = useState(false);
   const [headers, setHeaders] = useState<{ key: string; value: string }[]>([]);
@@ -289,17 +292,17 @@ export function MonitorEditPanel({
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={onCancel} className="-ml-2">
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Zurück
+            {tCommon("back")}
           </Button>
           <div className="h-6 w-px bg-border" />
           <h2 className="text-lg font-semibold">
-            {isEditMode ? "Monitor bearbeiten" : "Neuer Monitor"}
+            {isEditMode ? t("editMonitor") : t("createMonitor")}
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={onCancel}>
             <X className="h-4 w-4 mr-1" />
-            Abbrechen
+            {tCommon("cancel")}
           </Button>
           <Button size="sm" onClick={handleSubmit(onSubmit)} disabled={isSubmitting || !isDirty}>
             {isSubmitting ? (
@@ -307,7 +310,7 @@ export function MonitorEditPanel({
             ) : (
               <Save className="h-4 w-4 mr-1" />
             )}
-            {isEditMode ? "Speichern" : "Erstellen"}
+            {isEditMode ? tCommon("save") : tCommon("create")}
           </Button>
         </div>
       </div>
@@ -316,10 +319,10 @@ export function MonitorEditPanel({
       <Tabs defaultValue="basic" className="flex-1 overflow-hidden flex flex-col">
         <div className="border-b px-4 py-2 shrink-0">
           <TabsList className="grid w-full grid-cols-4 max-w-2xl">
-            <TabItem value="basic" icon={<Settings className="h-4 w-4" />} label="Grundlagen" hasError={hasBasicErrors} />
-            <TabItem value="check" icon={<Zap className="h-4 w-4" />} label="Check" hasError={hasCheckErrors} />
-            <TabItem value="advanced" icon={<Shield className="h-4 w-4" />} label="Erweitert" />
-            <TabItem value="sla" icon={<Activity className="h-4 w-4" />} label="SLA" hasError={hasSlaErrors} />
+            <TabItem value="basic" icon={<Settings className="h-4 w-4" />} label={t("form.tabBasic")} hasError={hasBasicErrors} />
+            <TabItem value="check" icon={<Zap className="h-4 w-4" />} label={t("form.tabCheck")} hasError={hasCheckErrors} />
+            <TabItem value="advanced" icon={<Shield className="h-4 w-4" />} label={t("form.tabAdvanced")} />
+            <TabItem value="sla" icon={<Activity className="h-4 w-4" />} label={t("form.tabSla")} hasError={hasSlaErrors} />
           </TabsList>
         </div>
 
@@ -328,8 +331,8 @@ export function MonitorEditPanel({
           <TabsContent value="basic" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Monitor-Typ</CardTitle>
-                <CardDescription>Wähle die Art der Überwachung</CardDescription>
+                <CardTitle>{t("form.monitorType")}</CardTitle>
+                <CardDescription>{t("form.selectMonitorType")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -349,8 +352,8 @@ export function MonitorEditPanel({
                         {type.icon}
                       </span>
                       <div className="text-center">
-                        <span className="text-sm font-medium block">{type.label}</span>
-                        <span className="text-xs text-muted-foreground">{type.description}</span>
+                        <span className="text-sm font-medium block">{t(`types.${type.value}`)}</span>
+                        <span className="text-xs text-muted-foreground">{t(`types.${type.value}Description`)}</span>
                       </div>
                     </button>
                   ))}
@@ -361,16 +364,16 @@ export function MonitorEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Ziel</CardTitle>
-                <CardDescription>Name und Adresse des zu überwachenden Services</CardDescription>
+                <CardTitle>{t("form.target")}</CardTitle>
+                <CardDescription>{t("form.targetDescription")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
+                  <Label htmlFor="name">{t("form.name")} *</Label>
                   <Input
                     id="name"
-                    placeholder="z.B. Production API"
+                    placeholder={t("form.namePlaceholder")}
                     {...register("name")}
                     aria-invalid={!!errors.name}
                   />
@@ -380,14 +383,14 @@ export function MonitorEditPanel({
                 {/* Type-specific fields */}
                 {watchedType === "http" && (
                   <div className="space-y-2">
-                    <Label htmlFor="url">URL *</Label>
+                    <Label htmlFor="url">{t("form.url")} *</Label>
                     <Input
                       id="url"
-                      placeholder="https://example.com/health"
+                      placeholder={t("form.urlPlaceholder")}
                       {...register("url")}
                       aria-invalid={!!errors.url}
                     />
-                    <FieldHint>Vollständige URL inkl. Protokoll (https://)</FieldHint>
+                    <FieldHint>{t("form.urlHint")}</FieldHint>
                     <FieldError message={errors.url?.message} />
                   </div>
                 )}
@@ -395,17 +398,17 @@ export function MonitorEditPanel({
                 {watchedType === "tcp" && (
                   <div className="grid grid-cols-3 gap-3">
                     <div className="col-span-2 space-y-2">
-                      <Label htmlFor="tcp-host">Host *</Label>
+                      <Label htmlFor="tcp-host">{t("form.host")} *</Label>
                       <Input
                         id="tcp-host"
-                        placeholder="db.example.com"
+                        placeholder={t("form.hostPlaceholder")}
                         {...register("config.tcp.host")}
                         aria-invalid={!!errors.config?.tcp?.host}
                       />
                       <FieldError message={errors.config?.tcp?.host?.message} />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="tcp-port">Port *</Label>
+                      <Label htmlFor="tcp-port">{t("form.port")} *</Label>
                       <Input
                         id="tcp-port"
                         type="number"
@@ -423,10 +426,10 @@ export function MonitorEditPanel({
                 {watchedType === "dns" && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="dns-domain">Domain *</Label>
+                      <Label htmlFor="dns-domain">{t("form.host")} *</Label>
                       <Input
                         id="dns-domain"
-                        placeholder="example.com"
+                        placeholder={t("form.hostPlaceholder")}
                         {...register("config.dns.domain")}
                         aria-invalid={!!errors.config?.dns?.domain}
                       />
@@ -434,7 +437,7 @@ export function MonitorEditPanel({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label>Record-Typ</Label>
+                        <Label>{t("dns.recordType")}</Label>
                         <Select
                           value={watchedDnsRecordType || "A"}
                           onValueChange={(v) => setValue("config.dns.recordType", v as DnsRecordType, { shouldDirty: true })}
@@ -453,9 +456,9 @@ export function MonitorEditPanel({
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="dns-expected">Erwartetes Ergebnis</Label>
+                        <Label htmlFor="dns-expected">{t("dns.expectedValue")}</Label>
                         <Input id="dns-expected" placeholder="Optional" {...register("config.dns.expectedResult")} />
-                        <FieldHint>Leer = nur Existenz prüfen</FieldHint>
+                        <FieldHint>{t("dns.expectedValueHint")}</FieldHint>
                       </div>
                     </div>
                   </div>
@@ -463,10 +466,10 @@ export function MonitorEditPanel({
 
                 {watchedType === "ping" && (
                   <div className="space-y-2">
-                    <Label htmlFor="ping-host">Host *</Label>
+                    <Label htmlFor="ping-host">{t("form.host")} *</Label>
                     <Input
                       id="ping-host"
-                      placeholder="192.168.1.1 oder server.example.com"
+                      placeholder={t("form.hostPlaceholder")}
                       {...register("config.ping.host")}
                       aria-invalid={!!errors.config?.ping?.host}
                     />
@@ -481,13 +484,13 @@ export function MonitorEditPanel({
           <TabsContent value="check" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Check-Intervall</CardTitle>
-                <CardDescription>Wie oft soll der Monitor geprüft werden?</CardDescription>
+                <CardTitle>{t("form.checkInterval")}</CardTitle>
+                <CardDescription>{t("form.checkIntervalDescription")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="interval">Intervall (Sekunden) *</Label>
+                    <Label htmlFor="interval">{t("form.interval")} *</Label>
                     <Input
                       id="interval"
                       type="number"
@@ -505,7 +508,7 @@ export function MonitorEditPanel({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="timeout">Timeout (Sekunden) *</Label>
+                    <Label htmlFor="timeout">{t("form.timeout")} *</Label>
                     <Input
                       id="timeout"
                       type="number"
@@ -514,7 +517,7 @@ export function MonitorEditPanel({
                       {...register("timeout", { valueAsNumber: true })}
                       aria-invalid={!!errors.timeout}
                     />
-                    <FieldHint>Muss kleiner als Intervall sein</FieldHint>
+                    <FieldHint>{t("form.timeoutHint")}</FieldHint>
                     <FieldError message={errors.timeout?.message} />
                   </div>
                 </div>
@@ -523,12 +526,12 @@ export function MonitorEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Fehlerbehandlung</CardTitle>
-                <CardDescription>Verhalten bei fehlgeschlagenen Checks</CardDescription>
+                <CardTitle>{t("form.errorHandling")}</CardTitle>
+                <CardDescription>{t("form.errorHandlingDescription")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Wiederholungen bei Fehler</Label>
+                  <Label>{t("form.retries")}</Label>
                   <div className="flex items-center gap-3">
                     <Button
                       type="button"
@@ -558,7 +561,7 @@ export function MonitorEditPanel({
                       +
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                      {watchedRetries === 0 ? "Keine Wiederholungen" : `${watchedRetries}x wiederholen vor Alarm`}
+                      {watchedRetries === 0 ? t("form.noRetries") : t("form.retriesBeforeAlert", { count: watchedRetries })}
                     </span>
                   </div>
                   <FieldError message={errors.retries?.message} />
@@ -567,8 +570,8 @@ export function MonitorEditPanel({
                 {watchedType === "http" && (
                   <div className="flex items-center justify-between py-2 border-t pt-4">
                     <div>
-                      <Label>SSL-Zertifikat prüfen</Label>
-                      <FieldHint>Gültigkeit und Ablauf überwachen</FieldHint>
+                      <Label>{t("http.verifySSL")}</Label>
+                      <FieldHint>{t("http.verifySSLHint")}</FieldHint>
                     </div>
                     <input
                       type="checkbox"
@@ -587,13 +590,13 @@ export function MonitorEditPanel({
               <>
                 <Card>
                   <CardHeader>
-                    <CardTitle>HTTP-Konfiguration</CardTitle>
-                    <CardDescription>Methode, Status-Codes und Body</CardDescription>
+                    <CardTitle>{t("http.config")}</CardTitle>
+                    <CardDescription>{t("http.configDescription")}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>HTTP-Methode</Label>
+                        <Label>{t("http.method")}</Label>
                         <Select
                           value={watchedMethod || "GET"}
                           onValueChange={(v) => setValue("config.http.method", v as HttpMethod, { shouldDirty: true })}
@@ -611,10 +614,10 @@ export function MonitorEditPanel({
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="status-codes">Erwartete Status-Codes</Label>
+                        <Label htmlFor="status-codes">{t("http.expectedStatusCodes")}</Label>
                         <Input
                           id="status-codes"
-                          placeholder="200 oder 200,201 oder 200-299"
+                          placeholder={t("http.expectedStatusCodesPlaceholder")}
                           {...register("config.http.expectedStatusCodes")}
                         />
                       </div>
@@ -622,7 +625,7 @@ export function MonitorEditPanel({
 
                     {(watchedMethod === "POST" || watchedMethod === "PUT" || watchedMethod === "PATCH") && (
                       <div className="space-y-2">
-                        <Label htmlFor="body">Request Body</Label>
+                        <Label htmlFor="body">{t("http.body")}</Label>
                         <textarea
                           id="body"
                           className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
@@ -633,19 +636,19 @@ export function MonitorEditPanel({
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="keyword">Keyword-Check</Label>
+                      <Label htmlFor="keyword">{t("http.contentMatch")}</Label>
                       <Input
                         id="keyword"
-                        placeholder="Response muss diesen Text enthalten"
+                        placeholder={t("http.contentMatchPlaceholder")}
                         {...register("config.http.checkKeyword")}
                       />
-                      <FieldHint>Optional: Prüft ob die Antwort diesen Text enthält</FieldHint>
+                      <FieldHint>{t("http.contentMatchHint")}</FieldHint>
                     </div>
 
                     <div className="flex items-center justify-between py-2 border-t pt-4">
                       <div>
-                        <Label>Redirects folgen</Label>
-                        <FieldHint>HTTP 3xx Weiterleitungen automatisch folgen</FieldHint>
+                        <Label>{t("http.followRedirects")}</Label>
+                        <FieldHint>{t("http.followRedirectsHint")}</FieldHint>
                       </div>
                       <input
                         type="checkbox"
@@ -658,20 +661,20 @@ export function MonitorEditPanel({
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Request Headers</CardTitle>
-                    <CardDescription>Zusätzliche HTTP-Header für den Request</CardDescription>
+                    <CardTitle>{t("http.headers")}</CardTitle>
+                    <CardDescription>{t("http.headersDescription")}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {headers.map((header, index) => (
                       <div key={index} className="flex gap-2">
                         <Input
-                          placeholder="Header-Name"
+                          placeholder={t("http.headerKeyPlaceholder")}
                           value={header.key}
                           onChange={(e) => updateHeader(index, "key", e.target.value)}
                           className="flex-1"
                         />
                         <Input
-                          placeholder="Wert"
+                          placeholder={t("http.headerValue")}
                           value={header.value}
                           onChange={(e) => updateHeader(index, "value", e.target.value)}
                           className="flex-1"
@@ -683,15 +686,15 @@ export function MonitorEditPanel({
                     ))}
                     <Button type="button" variant="outline" size="sm" onClick={addHeader}>
                       <Plus className="h-4 w-4 mr-1" />
-                      Header hinzufügen
+                      {t("http.addHeader")}
                     </Button>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Authentifizierung</CardTitle>
-                    <CardDescription>Zugangsdaten für geschützte Endpoints</CardDescription>
+                    <CardTitle>{t("auth.title")}</CardTitle>
+                    <CardDescription>{t("auth.description")}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <Select
@@ -703,7 +706,7 @@ export function MonitorEditPanel({
                       </SelectTrigger>
                       <SelectContent>
                         {AUTH_TYPES.map((a) => (
-                          <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                          <SelectItem key={a.value} value={a.value}>{t(`auth.${a.value}`)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -711,11 +714,11 @@ export function MonitorEditPanel({
                     {watchedAuthType === "basic" && (
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="auth-user">Benutzername</Label>
+                          <Label htmlFor="auth-user">{t("auth.username")}</Label>
                           <Input id="auth-user" {...register("config.http.authUsername")} />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="auth-pass">Passwort</Label>
+                          <Label htmlFor="auth-pass">{t("auth.password")}</Label>
                           <div className="relative">
                             <Input
                               id="auth-pass"
@@ -738,12 +741,12 @@ export function MonitorEditPanel({
 
                     {watchedAuthType === "bearer" && (
                       <div className="space-y-2">
-                        <Label htmlFor="auth-token">Bearer Token</Label>
+                        <Label htmlFor="auth-token">{t("auth.token")}</Label>
                         <div className="relative">
                           <Input
                             id="auth-token"
                             type={showPassword ? "text" : "password"}
-                            placeholder="Token ohne 'Bearer ' Prefix"
+                            placeholder={t("auth.tokenPlaceholder")}
                             {...register("config.http.authToken")}
                           />
                           <Button
@@ -766,18 +769,18 @@ export function MonitorEditPanel({
             {watchedType === "dns" && (
               <Card>
                 <CardHeader>
-                  <CardTitle>DNS-Konfiguration</CardTitle>
-                  <CardDescription>Erweiterte DNS-Einstellungen</CardDescription>
+                  <CardTitle>{t("dns.config")}</CardTitle>
+                  <CardDescription>{t("dns.configDescription")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <Label htmlFor="dns-server">Benutzerdefinierter DNS-Server</Label>
+                    <Label htmlFor="dns-server">{t("dns.server")}</Label>
                     <Input
                       id="dns-server"
-                      placeholder="8.8.8.8 oder leer für System-DNS"
+                      placeholder={t("dns.serverPlaceholder")}
                       {...register("config.dns.dnsServer")}
                     />
-                    <FieldHint>Optional: Spezifischen DNS-Server verwenden</FieldHint>
+                    <FieldHint>{t("dns.serverOptionalHint")}</FieldHint>
                   </div>
                 </CardContent>
               </Card>
@@ -786,9 +789,9 @@ export function MonitorEditPanel({
             {(watchedType === "tcp" || watchedType === "ping") && (
               <Card className="border-dashed">
                 <CardHeader>
-                  <CardTitle className="text-muted-foreground">Keine erweiterten Optionen</CardTitle>
+                  <CardTitle className="text-muted-foreground">{t("form.noAdvancedOptions")}</CardTitle>
                   <CardDescription>
-                    Für {watchedType === "tcp" ? "TCP" : "Ping"}-Monitore sind keine zusätzlichen Einstellungen verfügbar.
+                    {t("form.noAdvancedOptionsDescription", { type: watchedType.toUpperCase() })}
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -799,12 +802,12 @@ export function MonitorEditPanel({
           <TabsContent value="sla" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Uptime-Ziel</CardTitle>
-                <CardDescription>Definiere dein Service Level Agreement</CardDescription>
+                <CardTitle>{t("sla.uptimeGoal")}</CardTitle>
+                <CardDescription>{t("sla.uptimeGoalDescription")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="slaTarget">Uptime-Ziel (%)</Label>
+                  <Label htmlFor="slaTarget">{t("sla.uptimeTarget")}</Label>
                   <Input
                     id="slaTarget"
                     type="number"
@@ -827,12 +830,12 @@ export function MonitorEditPanel({
 
             <Card>
               <CardHeader>
-                <CardTitle>Performance</CardTitle>
-                <CardDescription>Schwellenwerte für Antwortzeiten</CardDescription>
+                <CardTitle>{t("sla.performance")}</CardTitle>
+                <CardDescription>{t("sla.performanceDescription")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Label htmlFor="maxResponseTime">Max. Antwortzeit (ms)</Label>
+                  <Label htmlFor="maxResponseTime">{t("sla.maxResponseTime")}</Label>
                   <Input
                     id="maxResponseTime"
                     type="number"
@@ -843,7 +846,7 @@ export function MonitorEditPanel({
                     {...register("maxResponseTime", { valueAsNumber: true })}
                     aria-invalid={!!errors.maxResponseTime}
                   />
-                  <FieldHint>Langsamere Antworten gelten als degradiert</FieldHint>
+                  <FieldHint>{t("sla.degradedHint")}</FieldHint>
                   <FieldError message={errors.maxResponseTime?.message} />
                 </div>
               </CardContent>
