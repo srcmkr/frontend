@@ -22,6 +22,9 @@ export {
   useUpdateServiceGroups,
 } from "./api/mutations";
 
+// Action hooks (for components to call mutations directly)
+export { useMonitorActions } from "./hooks/use-monitor-actions";
+
 // Query keys (for manual cache operations)
 export { monitorKeys, serviceGroupKeys } from "./api/keys";
 

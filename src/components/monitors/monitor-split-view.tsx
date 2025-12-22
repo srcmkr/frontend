@@ -18,19 +18,21 @@ import {
 import { MonitorListPanel } from "./monitor-list-panel";
 import { MonitorDetailPanel } from "./monitor-detail-panel";
 import { MonitorEditPanel } from "./monitor-edit-panel";
+import { useMonitorActions } from "@/features/monitors/hooks/use-monitor-actions";
 import type { Monitor, ServiceGroup } from "@/types";
+import type { CreateMonitorInput } from "@/features/monitors";
 
 type ViewMode = "view" | "edit" | "create";
 
 interface MonitorSplitViewProps {
+  /** List of monitors to display */
   monitors: Monitor[];
+  /** Service groups for tree organization */
   serviceGroups: ServiceGroup[];
+  /** Currently selected monitor ID */
   selectedMonitorId: string | null;
+  /** Callback when monitor selection changes */
   onSelectMonitor: (id: string | null) => void;
-  onServiceGroupsChange?: (groups: ServiceGroup[]) => void;
-  onMonitorUpdate?: (monitorId: string, updates: Partial<Monitor>) => void;
-  onMonitorCreate?: (data: Partial<Monitor>) => void;
-  onMonitorDelete?: (monitorId: string) => void;
   className?: string;
 }
 
@@ -39,15 +41,15 @@ export function MonitorSplitView({
   serviceGroups,
   selectedMonitorId,
   onSelectMonitor,
-  onServiceGroupsChange,
-  onMonitorUpdate,
-  onMonitorCreate,
-  onMonitorDelete,
   className,
 }: MonitorSplitViewProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const t = useTranslations("monitors.dialogs");
+
+  // Action hook - handles mutations directly, no callbacks needed
+  const { createMonitor, updateMonitor, deleteMonitor, togglePause, updateServiceGroups, isPending } =
+    useMonitorActions();
 
   // View mode state
   const [viewMode, setViewMode] = useState<ViewMode>("view");
@@ -93,25 +95,23 @@ export function MonitorSplitView({
   }, [router, selectedMonitorId]);
 
   const handleSaveMonitor = useCallback(
-    async (monitorId: string | null, data: Partial<Monitor>) => {
-      if (viewMode === "edit" && monitorId && onMonitorUpdate) {
-        onMonitorUpdate(monitorId, data);
+    (monitorId: string | null, data: Partial<Monitor>) => {
+      if (viewMode === "edit" && monitorId) {
+        updateMonitor(monitorId, data);
         router.push(`/monitors?id=${monitorId}`, { scroll: false });
-      } else if (viewMode === "create" && onMonitorCreate) {
-        onMonitorCreate(data);
-        // Parent will navigate to the new monitor
+      } else if (viewMode === "create") {
+        createMonitor(data as CreateMonitorInput);
       }
     },
-    [viewMode, onMonitorUpdate, onMonitorCreate, router]
+    [viewMode, updateMonitor, createMonitor, router]
   );
 
-  const handleTogglePause = (monitor: Monitor) => {
-    if (onMonitorUpdate) {
-      onMonitorUpdate(monitor.id, {
-        status: monitor.status === "paused" ? "up" : "paused",
-      });
-    }
-  };
+  const handleTogglePause = useCallback(
+    (monitor: Monitor) => {
+      togglePause(monitor.id, monitor.status !== "paused");
+    },
+    [togglePause]
+  );
 
   const handleDeleteClick = useCallback((monitor: Monitor) => {
     setMonitorToDelete(monitor);
@@ -120,14 +120,14 @@ export function MonitorSplitView({
 
   const handleConfirmDelete = useCallback(() => {
     if (monitorToDelete) {
-      onMonitorDelete?.(monitorToDelete.id);
+      deleteMonitor(monitorToDelete.id, { currentId: selectedMonitorId });
       if (selectedMonitorId === monitorToDelete.id) {
         onSelectMonitor(null);
       }
     }
     setDeleteDialogOpen(false);
     setMonitorToDelete(null);
-  }, [monitorToDelete, selectedMonitorId, onSelectMonitor, onMonitorDelete]);
+  }, [monitorToDelete, selectedMonitorId, onSelectMonitor, deleteMonitor]);
 
   // Determine what to show in the right panel
   const showEditPanel = viewMode === "edit" || viewMode === "create";
@@ -139,7 +139,6 @@ export function MonitorSplitView({
         className={cn(
           "overflow-hidden",
           "w-full lg:w-[400px] lg:shrink-0",
-          // Floating card style
           "rounded-2xl",
           "bg-card/80 backdrop-blur-sm",
           "border border-border/50",
@@ -152,7 +151,7 @@ export function MonitorSplitView({
           serviceGroups={serviceGroups}
           selectedMonitorId={selectedMonitorId}
           onSelectMonitor={onSelectMonitor}
-          onServiceGroupsChange={onServiceGroupsChange}
+          onServiceGroupsChange={updateServiceGroups}
           className="h-full"
         />
       </div>
@@ -161,7 +160,6 @@ export function MonitorSplitView({
       <div
         className={cn(
           "flex-1",
-          // Matching floating style
           "rounded-2xl",
           "bg-card/80 backdrop-blur-sm",
           "border border-border/50",
@@ -210,6 +208,7 @@ export function MonitorSplitView({
             <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
+              disabled={isPending.delete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
               {t("delete")}

@@ -7,14 +7,8 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusPageSplitView } from "@/components/status-pages/status-page-split-view";
-import {
-  useStatusPages,
-  useCreateStatusPage,
-  useUpdateStatusPage,
-  useDeleteStatusPage,
-} from "@/features/status-pages";
+import { useStatusPages } from "@/features/status-pages";
 import { useMonitors } from "@/features/monitors";
-import type { StatusPage, StatusPageFormData } from "@/types";
 
 export default function StatusPagesPage() {
   const t = useTranslations("statusPages");
@@ -33,11 +27,6 @@ export default function StatusPagesPage() {
   // Fetch monitors (read-only, for display in detail panel)
   const { data: monitors = [] } = useMonitors();
 
-  // Mutations
-  const createStatusPage = useCreateStatusPage();
-  const updateStatusPage = useUpdateStatusPage();
-  const deleteStatusPage = useDeleteStatusPage();
-
   // Handle status page selection
   const handleSelectPage = useCallback(
     (id: string | null) => {
@@ -48,40 +37,6 @@ export default function StatusPagesPage() {
       }
     },
     [router]
-  );
-
-  // Handle create
-  const handleCreate = useCallback(
-    (data: StatusPageFormData) => {
-      createStatusPage.mutate(data, {
-        onSuccess: (newPage) => {
-          router.push(`/status-pages?id=${newPage.id}`, { scroll: false });
-        },
-      });
-    },
-    [createStatusPage, router]
-  );
-
-  // Handle update
-  const handleUpdate = useCallback(
-    (id: string, data: Partial<StatusPage>) => {
-      updateStatusPage.mutate({ id, data });
-    },
-    [updateStatusPage]
-  );
-
-  // Handle delete
-  const handleDelete = useCallback(
-    (id: string) => {
-      deleteStatusPage.mutate(id, {
-        onSuccess: () => {
-          if (selectedPageId === id) {
-            router.push("/status-pages", { scroll: false });
-          }
-        },
-      });
-    },
-    [deleteStatusPage, selectedPageId, router]
   );
 
   // Trigger create mode from header button
@@ -128,22 +83,18 @@ export default function StatusPagesPage() {
         <Button
           onClick={handleCreateClick}
           className="uppercase tracking-wide"
-          disabled={createStatusPage.isPending}
         >
           <Plus className="h-4 w-4 mr-1" />
           {t("createStatusPage")}
         </Button>
       </div>
 
-      {/* Split View */}
+      {/* Split View - mutations handled internally via hooks */}
       <StatusPageSplitView
         statusPages={statusPages}
         monitors={monitors}
         selectedPageId={selectedPageId}
         onSelectPage={handleSelectPage}
-        onCreate={handleCreate}
-        onUpdate={handleUpdate}
-        onDelete={handleDelete}
       />
     </div>
   );

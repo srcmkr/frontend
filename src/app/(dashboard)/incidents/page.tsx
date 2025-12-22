@@ -13,18 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IncidentSplitView } from "@/components/incidents/incident-split-view";
-import {
-  useIncidents,
-  useCreateIncident,
-  useUpdateIncident,
-  useDeleteIncident,
-  useResolveIncident,
-  useAddIncidentUpdate,
-  useEditIncidentUpdate,
-  useDeleteIncidentUpdate,
-} from "@/features/incidents";
+import { useIncidents } from "@/features/incidents";
 import { useMonitors } from "@/features/monitors";
-import type { ExtendedIncident, IncidentFormData } from "@/types";
 
 export default function IncidentsPage() {
   const t = useTranslations("incidents");
@@ -42,15 +32,6 @@ export default function IncidentsPage() {
 
   // Fetch monitors (read-only, for monitor selector in forms)
   const { data: monitors = [] } = useMonitors();
-
-  // Mutations
-  const createIncident = useCreateIncident();
-  const updateIncident = useUpdateIncident();
-  const deleteIncident = useDeleteIncident();
-  const resolveIncident = useResolveIncident();
-  const addUpdate = useAddIncidentUpdate();
-  const editUpdate = useEditIncidentUpdate();
-  const deleteUpdate = useDeleteIncidentUpdate();
 
   // Handlers for creating different incident types from dropdown (via URL)
   const handleCreateIncident = useCallback(() => {
@@ -79,79 +60,6 @@ export default function IncidentsPage() {
       }
     },
     [router]
-  );
-
-  // Handle saving a new incident (from dialog)
-  const handleSaveNewIncident = useCallback(
-    (data: IncidentFormData) => {
-      createIncident.mutate(data, {
-        onSuccess: (newIncident) => {
-          router.push(`/incidents?id=${newIncident.id}`, { scroll: false });
-        },
-      });
-    },
-    [createIncident, router]
-  );
-
-  // Handle updating an incident
-  const handleUpdateIncident = useCallback(
-    (incidentId: string, updates: Partial<ExtendedIncident>) => {
-      updateIncident.mutate({ id: incidentId, data: updates });
-    },
-    [updateIncident]
-  );
-
-  // Handle deleting an incident
-  const handleDeleteIncident = useCallback(
-    (incidentId: string) => {
-      deleteIncident.mutate(incidentId, {
-        onSuccess: () => {
-          if (selectedIncidentId === incidentId) {
-            router.push("/incidents", { scroll: false });
-          }
-        },
-      });
-    },
-    [deleteIncident, selectedIncidentId, router]
-  );
-
-  // Handle resolving an incident
-  const handleResolveIncident = useCallback(
-    (incidentId: string, message: string) => {
-      resolveIncident.mutate({ id: incidentId, message });
-    },
-    [resolveIncident]
-  );
-
-  // Handle adding an update to an incident
-  const handleAddUpdate = useCallback(
-    (incidentId: string, message: string) => {
-      addUpdate.mutate({
-        incidentId,
-        data: { message, createdBy: "Benutzer" },
-      });
-    },
-    [addUpdate]
-  );
-
-  // Handle editing an update
-  const handleEditUpdate = useCallback(
-    (incidentId: string, updateId: string, newMessage: string) => {
-      editUpdate.mutate({
-        incidentId,
-        updateId,
-        data: { message: newMessage },
-      });
-    },
-    [editUpdate]
-  );
-
-  // Handle deleting an update
-  const handleDeleteUpdate = useCallback(
-    (incidentId: string, updateId: string) => {
-      deleteUpdate.mutate({ incidentId, updateId });
-    },
-    [deleteUpdate]
   );
 
   // Loading state
@@ -192,10 +100,7 @@ export default function IncidentsPage() {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              className="uppercase tracking-wide"
-              disabled={createIncident.isPending}
-            >
+            <Button className="uppercase tracking-wide">
               <Plus className="h-4 w-4 mr-1" />
               {t("createIncident")}
             </Button>
@@ -221,19 +126,12 @@ export default function IncidentsPage() {
         </DropdownMenu>
       </div>
 
-      {/* Split View */}
+      {/* Split View - mutations handled internally via hooks */}
       <IncidentSplitView
         incidents={incidents}
         monitors={monitors}
         selectedIncidentId={selectedIncidentId}
         onSelectIncident={handleSelectIncident}
-        onIncidentCreate={handleSaveNewIncident}
-        onIncidentUpdate={handleUpdateIncident}
-        onIncidentDelete={handleDeleteIncident}
-        onIncidentResolve={handleResolveIncident}
-        onAddUpdate={handleAddUpdate}
-        onEditUpdate={handleEditUpdate}
-        onDeleteUpdate={handleDeleteUpdate}
       />
     </div>
   );

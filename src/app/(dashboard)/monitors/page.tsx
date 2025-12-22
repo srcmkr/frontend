@@ -7,15 +7,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MonitorSplitView } from "@/components/monitors/monitor-split-view";
-import {
-  useMonitors,
-  useServiceGroups,
-  useCreateMonitor,
-  useUpdateMonitor,
-  useDeleteMonitor,
-  useUpdateServiceGroups,
-} from "@/features/monitors";
-import type { Monitor, ServiceGroup } from "@/types";
+import { useMonitors, useServiceGroups } from "@/features/monitors";
 
 export default function MonitorsPage() {
   const searchParams = useSearchParams();
@@ -34,58 +26,10 @@ export default function MonitorsPage() {
   // Fetch service groups using React Query
   const { data: serviceGroups = [] } = useServiceGroups();
 
-  // Mutations
-  const createMonitor = useCreateMonitor();
-  const updateMonitor = useUpdateMonitor();
-  const deleteMonitor = useDeleteMonitor();
-  const updateServiceGroups = useUpdateServiceGroups();
-
   // Handle creating new monitor
   const handleCreateClick = useCallback(() => {
     router.push("/monitors?mode=create", { scroll: false });
   }, [router]);
-
-  // Handle monitor creation
-  const handleMonitorCreate = useCallback(
-    (data: Partial<Monitor>) => {
-      createMonitor.mutate(data as Parameters<typeof createMonitor.mutate>[0], {
-        onSuccess: (newMonitor) => {
-          router.push(`/monitors?id=${newMonitor.id}`, { scroll: false });
-        },
-      });
-    },
-    [createMonitor, router]
-  );
-
-  // Handle monitor updates
-  const handleMonitorUpdate = useCallback(
-    (monitorId: string, updates: Partial<Monitor>) => {
-      updateMonitor.mutate({ id: monitorId, data: updates });
-    },
-    [updateMonitor]
-  );
-
-  // Handle monitor deletion
-  const handleMonitorDelete = useCallback(
-    (monitorId: string) => {
-      deleteMonitor.mutate(monitorId, {
-        onSuccess: () => {
-          if (selectedMonitorId === monitorId) {
-            router.push("/monitors", { scroll: false });
-          }
-        },
-      });
-    },
-    [deleteMonitor, selectedMonitorId, router]
-  );
-
-  // Handle service groups change (persisted via mutation)
-  const handleServiceGroupsChange = useCallback(
-    (groups: ServiceGroup[]) => {
-      updateServiceGroups.mutate(groups);
-    },
-    [updateServiceGroups]
-  );
 
   const handleSelectMonitor = useCallback(
     (id: string | null) => {
@@ -133,23 +77,18 @@ export default function MonitorsPage() {
         <Button
           onClick={handleCreateClick}
           className="uppercase tracking-wide"
-          disabled={createMonitor.isPending}
         >
           <Plus className="h-4 w-4 mr-1" />
           {t("addMonitor")}
         </Button>
       </div>
 
-      {/* Split View */}
+      {/* Split View - mutations handled internally via hooks */}
       <MonitorSplitView
         monitors={monitors}
         serviceGroups={serviceGroups}
         selectedMonitorId={selectedMonitorId}
         onSelectMonitor={handleSelectMonitor}
-        onServiceGroupsChange={handleServiceGroupsChange}
-        onMonitorUpdate={handleMonitorUpdate}
-        onMonitorCreate={handleMonitorCreate}
-        onMonitorDelete={handleMonitorDelete}
       />
     </div>
   );

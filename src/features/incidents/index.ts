@@ -22,6 +22,10 @@ export {
   useDeleteIncidentUpdate,
 } from "./api/mutations";
 
+// Action hooks (for components to call mutations directly)
+export { useIncidentActions } from "./hooks/use-incident-actions";
+export { useIncidentUpdateActions } from "./hooks/use-incident-update-actions";
+
 // Query keys (for manual cache operations)
 export { incidentKeys } from "./api/keys";
 

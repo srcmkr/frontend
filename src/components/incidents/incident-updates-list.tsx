@@ -16,14 +16,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useIncidentUpdateActions } from "@/features/incidents/hooks/use-incident-update-actions";
 import type { IncidentUpdate } from "@/types";
 
 interface IncidentUpdatesListProps {
+  /** Incident ID for the updates */
+  incidentId: string;
+  /** List of updates to display */
   updates: IncidentUpdate[];
-  onAddUpdate?: (message: string) => void;
-  onEditUpdate?: (updateId: string, newMessage: string) => void;
-  onDeleteUpdate?: (updateId: string) => void;
-  canAddUpdate: boolean;
+  /** If true, disables all editing capabilities */
+  readonly?: boolean;
   className?: string;
 }
 
@@ -38,11 +40,9 @@ function formatDateTime(dateString: string, locale: string): string {
 }
 
 export function IncidentUpdatesList({
+  incidentId,
   updates,
-  onAddUpdate,
-  onEditUpdate,
-  onDeleteUpdate,
-  canAddUpdate,
+  readonly = false,
   className,
 }: IncidentUpdatesListProps) {
   const t = useTranslations("incidents");
@@ -51,22 +51,25 @@ export function IncidentUpdatesList({
   const locale = useLocale();
   const [isAdding, setIsAdding] = useState(false);
   const [newMessage, setNewMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingUpdateId, setEditingUpdateId] = useState<string | null>(null);
   const [editMessage, setEditMessage] = useState("");
   const [deleteUpdateId, setDeleteUpdateId] = useState<string | null>(null);
 
-  const handleSubmit = async () => {
-    if (!newMessage.trim() || !onAddUpdate) return;
+  // Use action hook directly - no props needed
+  const { addUpdate, editUpdate, deleteUpdate, isPending } = useIncidentUpdateActions({
+    incidentId,
+  });
 
-    setIsSubmitting(true);
-    try {
-      onAddUpdate(newMessage.trim());
-      setNewMessage("");
-      setIsAdding(false);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const canAddUpdate = !readonly;
+  const canEditUpdates = !readonly;
+  const canDeleteUpdates = !readonly;
+
+  const handleSubmit = () => {
+    if (!newMessage.trim() || readonly) return;
+
+    addUpdate(newMessage.trim());
+    setNewMessage("");
+    setIsAdding(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -86,8 +89,8 @@ export function IncidentUpdatesList({
   };
 
   const handleSaveEdit = () => {
-    if (!editingUpdateId || !editMessage.trim() || !onEditUpdate) return;
-    onEditUpdate(editingUpdateId, editMessage.trim());
+    if (!editingUpdateId || !editMessage.trim() || readonly) return;
+    editUpdate(editingUpdateId, editMessage.trim());
     setEditingUpdateId(null);
     setEditMessage("");
   };
@@ -101,8 +104,8 @@ export function IncidentUpdatesList({
   };
 
   const handleConfirmDelete = () => {
-    if (deleteUpdateId && onDeleteUpdate) {
-      onDeleteUpdate(deleteUpdateId);
+    if (deleteUpdateId && !readonly) {
+      deleteUpdate(deleteUpdateId);
     }
     setDeleteUpdateId(null);
   };
@@ -111,9 +114,6 @@ export function IncidentUpdatesList({
   const sortedUpdates = [...updates].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
-
-  const canEditUpdates = !!onEditUpdate;
-  const canDeleteUpdates = !!onDeleteUpdate;
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -158,14 +158,14 @@ export function IncidentUpdatesList({
                   setIsAdding(false);
                   setNewMessage("");
                 }}
-                disabled={isSubmitting}
+                disabled={isPending.add}
               >
                 {t("dialogs.cancel")}
               </Button>
               <Button
                 size="sm"
                 onClick={handleSubmit}
-                disabled={!newMessage.trim() || isSubmitting}
+                disabled={!newMessage.trim() || isPending.add}
               >
                 <Send className="h-3.5 w-3.5 mr-1.5" />
                 {tTimeline("send")}

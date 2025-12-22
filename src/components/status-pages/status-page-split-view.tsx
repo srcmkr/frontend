@@ -18,18 +18,20 @@ import {
 import { StatusPageListPanel } from "./status-page-list-panel";
 import { StatusPageDetailPanel } from "./status-page-detail-panel";
 import { StatusPageEditPanel } from "./status-page-edit-panel";
+import { useStatusPageActions } from "@/features/status-pages/hooks/use-status-page-actions";
 import type { StatusPage, Monitor, StatusPageFormData } from "@/types";
 
 type ViewMode = "view" | "edit" | "create";
 
 interface StatusPageSplitViewProps {
+  /** List of status pages to display */
   statusPages: StatusPage[];
+  /** Available monitors for status page forms */
   monitors: Monitor[];
+  /** Currently selected status page ID */
   selectedPageId: string | null;
+  /** Callback when status page selection changes */
   onSelectPage: (id: string | null) => void;
-  onCreate?: (data: StatusPageFormData) => void;
-  onUpdate?: (id: string, data: Partial<StatusPage>) => void;
-  onDelete?: (id: string) => void;
   className?: string;
 }
 
@@ -38,14 +40,15 @@ export function StatusPageSplitView({
   monitors,
   selectedPageId,
   onSelectPage,
-  onCreate,
-  onUpdate,
-  onDelete,
   className,
 }: StatusPageSplitViewProps) {
   const t = useTranslations("statusPages");
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Action hook - handles mutations directly, no callbacks needed
+  const { createStatusPage, updateStatusPage, deleteStatusPage, isPending } =
+    useStatusPageActions();
 
   // View mode state
   const [viewMode, setViewMode] = useState<ViewMode>("view");
@@ -87,10 +90,6 @@ export function StatusPageSplitView({
     [router]
   );
 
-  const handleCreate = useCallback(() => {
-    router.push("/status-pages?mode=create", { scroll: false });
-  }, [router]);
-
   const handleCancelEdit = useCallback(() => {
     if (selectedPageId) {
       router.push(`/status-pages?id=${selectedPageId}`, { scroll: false });
@@ -100,18 +99,17 @@ export function StatusPageSplitView({
   }, [router, selectedPageId]);
 
   const handleSave = useCallback(
-    async (data: StatusPageFormData) => {
+    (data: StatusPageFormData) => {
       if (viewMode === "edit" && selectedPage) {
-        // Update existing
-        onUpdate?.(selectedPage.id, data);
+        // Update existing - hook handles the mutation
+        updateStatusPage(selectedPage.id, data);
         router.push(`/status-pages?id=${selectedPage.id}`, { scroll: false });
       } else if (viewMode === "create") {
-        // Create new
-        onCreate?.(data);
-        // The parent will navigate to the new page after creation
+        // Create new - hook handles mutation and navigation
+        createStatusPage(data);
       }
     },
-    [viewMode, selectedPage, onCreate, onUpdate, router]
+    [viewMode, selectedPage, createStatusPage, updateStatusPage, router]
   );
 
   const handleDeleteClick = useCallback((statusPage: StatusPage) => {
@@ -121,19 +119,17 @@ export function StatusPageSplitView({
 
   const handleConfirmDelete = useCallback(() => {
     if (pageToDelete) {
-      onDelete?.(pageToDelete.id);
+      deleteStatusPage(pageToDelete.id, { currentId: selectedPageId });
       if (selectedPageId === pageToDelete.id) {
         onSelectPage(null);
       }
     }
     setDeleteDialogOpen(false);
     setPageToDelete(null);
-  }, [pageToDelete, selectedPageId, onSelectPage, onDelete]);
+  }, [pageToDelete, selectedPageId, onSelectPage, deleteStatusPage]);
 
   // Determine what to show in the right panel
   const showEditPanel = viewMode === "edit" || viewMode === "create";
-  const showDetailPanel = viewMode === "view" && selectedPageId;
-  const showEmptyState = viewMode === "view" && !selectedPageId;
 
   return (
     <div className={cn("flex h-[calc(100vh-220px)] min-h-[400px] gap-4", className)}>
@@ -142,7 +138,6 @@ export function StatusPageSplitView({
         className={cn(
           "overflow-hidden",
           "w-full lg:w-[400px] lg:shrink-0",
-          // Floating card style
           "rounded-2xl",
           "bg-card/80 backdrop-blur-sm",
           "border border-border/50",
@@ -162,7 +157,6 @@ export function StatusPageSplitView({
       <div
         className={cn(
           "flex-1",
-          // Matching floating style
           "rounded-2xl",
           "bg-card/80 backdrop-blur-sm",
           "border border-border/50",
@@ -216,6 +210,7 @@ export function StatusPageSplitView({
             <AlertDialogCancel>{t("dialogs.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
+              disabled={isPending.delete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
               {t("dialogs.delete")}

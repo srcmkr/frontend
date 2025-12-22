@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   ArrowLeft,
@@ -9,9 +9,7 @@ import {
   Trash2,
   Clock,
   Calendar,
-  Server,
   MoreVertical,
-  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,22 +20,43 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { IncidentSeverityBadge } from "./incident-severity-badge";
 import { IncidentStatusBadge } from "./incident-status-badge";
 import { IncidentTypeBadge } from "./incident-type-badge";
 import { IncidentUpdatesList } from "./incident-updates-list";
+import { useIncidentActions } from "@/features/incidents/hooks/use-incident-actions";
 import type { ExtendedIncident, Monitor } from "@/types";
 
 interface IncidentDetailPanelProps {
+  /** The incident to display */
   incident: ExtendedIncident | null;
+  /** Available monitors for displaying affected services */
   monitors: Monitor[];
+  /** Callback when back button is clicked (mobile) */
   onBack?: () => void;
+  /** Callback when edit is requested - opens edit form */
   onEdit?: (incident: ExtendedIncident) => void;
-  onResolve?: (incident: ExtendedIncident) => void;
-  onDelete?: (incident: ExtendedIncident) => void;
-  onAddUpdate?: (incidentId: string, message: string) => void;
-  onEditUpdate?: (incidentId: string, updateId: string, newMessage: string) => void;
-  onDeleteUpdate?: (incidentId: string, updateId: string) => void;
+  /** If true, disables all editing capabilities */
+  readonly?: boolean;
   className?: string;
 }
 
@@ -90,15 +109,19 @@ export function IncidentDetailPanel({
   monitors,
   onBack,
   onEdit,
-  onResolve,
-  onDelete,
-  onAddUpdate,
-  onEditUpdate,
-  onDeleteUpdate,
+  readonly = false,
   className,
 }: IncidentDetailPanelProps) {
   const t = useTranslations("incidents");
   const locale = useLocale();
+
+  // Action hook for delete and resolve - no callback props needed
+  const { deleteIncident, resolveIncident, isPending } = useIncidentActions();
+
+  // Local state for dialogs
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showResolveDialog, setShowResolveDialog] = useState(false);
+  const [resolveMessage, setResolveMessage] = useState("");
 
   // Create duration translations object for type-safe translation calls
   const durationTranslations: DurationTranslations = useMemo(() => ({
@@ -114,6 +137,19 @@ export function IncidentDetailPanel({
     if (!incident) return [];
     return monitors.filter((m) => incident.affectedMonitors.includes(m.id));
   }, [incident, monitors]);
+
+  const handleDelete = () => {
+    if (!incident) return;
+    deleteIncident(incident.id, { currentId: incident.id });
+    setShowDeleteDialog(false);
+  };
+
+  const handleResolve = () => {
+    if (!incident || !resolveMessage.trim()) return;
+    resolveIncident(incident.id, resolveMessage.trim());
+    setShowResolveDialog(false);
+    setResolveMessage("");
+  };
 
   // Empty state
   if (!incident) {
@@ -154,49 +190,50 @@ export function IncidentDetailPanel({
           </Button>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 ml-auto">
-            {isOngoing && onResolve && (
-              <Button
-                size="sm"
-                onClick={() => onResolve(incident)}
-              >
-                <CheckCircle className="h-4 w-4 mr-1.5" />
-                {t("actions.resolve")}
-              </Button>
-            )}
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <MoreVertical className="h-4 w-4" />
+          {!readonly && (
+            <div className="flex items-center gap-2 ml-auto">
+              {isOngoing && (
+                <Button
+                  size="sm"
+                  onClick={() => setShowResolveDialog(true)}
+                  disabled={isPending.resolve}
+                >
+                  <CheckCircle className="h-4 w-4 mr-1.5" />
+                  {t("actions.resolve")}
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {onEdit && (
-                  <DropdownMenuItem onClick={() => onEdit(incident)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    {t("actions.edit")}
-                  </DropdownMenuItem>
-                )}
-                {!isOngoing && onResolve && (
-                  <DropdownMenuItem onClick={() => onResolve(incident)}>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {t("actions.markResolved")}
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                {onDelete && (
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {onEdit && (
+                    <DropdownMenuItem onClick={() => onEdit(incident)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      {t("actions.edit")}
+                    </DropdownMenuItem>
+                  )}
+                  {!isOngoing && (
+                    <DropdownMenuItem onClick={() => setShowResolveDialog(true)}>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      {t("actions.markResolved")}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
-                    onClick={() => onDelete(incident)}
+                    onClick={() => setShowDeleteDialog(true)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     {t("actions.delete")}
                   </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
 
         {/* Title and badges */}
@@ -298,26 +335,76 @@ export function IncidentDetailPanel({
         {/* Timeline */}
         <section>
           <IncidentUpdatesList
+            incidentId={incident.id}
             updates={incident.updates}
-            onAddUpdate={
-              onAddUpdate
-                ? (message) => onAddUpdate(incident.id, message)
-                : undefined
-            }
-            onEditUpdate={
-              onEditUpdate
-                ? (updateId, newMessage) => onEditUpdate(incident.id, updateId, newMessage)
-                : undefined
-            }
-            onDeleteUpdate={
-              onDeleteUpdate
-                ? (updateId) => onDeleteUpdate(incident.id, updateId)
-                : undefined
-            }
-            canAddUpdate={!!onAddUpdate}
+            readonly={readonly}
           />
         </section>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              {t("dialogs.deleteTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dialogs.deleteDescription", { title: incident.title })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("dialogs.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isPending.delete}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {t("dialogs.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Resolve Dialog */}
+      <Dialog open={showResolveDialog} onOpenChange={setShowResolveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              {t("resolveDialog.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("resolveDialog.description", { title: incident.title })}
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder={t("resolveDialog.messagePlaceholder")}
+            value={resolveMessage}
+            onChange={(e) => setResolveMessage(e.target.value)}
+            className="min-h-[100px]"
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowResolveDialog(false);
+                setResolveMessage("");
+              }}
+            >
+              {t("resolveDialog.cancel")}
+            </Button>
+            <Button
+              onClick={handleResolve}
+              disabled={!resolveMessage.trim() || isPending.resolve}
+            >
+              <CheckCircle className="h-4 w-4 mr-1.5" />
+              {t("resolveDialog.markResolved")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

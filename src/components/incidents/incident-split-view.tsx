@@ -2,40 +2,25 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { IncidentListPanel } from "./incident-list-panel";
 import { IncidentDetailPanel } from "./incident-detail-panel";
 import { IncidentEditPanel } from "./incident-edit-panel";
-import { IncidentResolveDialog } from "./incident-resolve-dialog";
-import type { ExtendedIncident, Monitor, IncidentFormData, IncidentType } from "@/types";
+import { useIncidentActions } from "@/features/incidents/hooks/use-incident-actions";
+import type { ExtendedIncident, Monitor, IncidentType, IncidentFormData } from "@/types";
 import type { IncidentFormValues } from "@/lib/validations/incident";
 
 type ViewMode = "view" | "edit" | "create";
 
 interface IncidentSplitViewProps {
+  /** List of incidents to display */
   incidents: ExtendedIncident[];
+  /** Available monitors for incident forms */
   monitors: Monitor[];
+  /** Currently selected incident ID */
   selectedIncidentId: string | null;
+  /** Callback when incident selection changes */
   onSelectIncident: (id: string | null) => void;
-  onIncidentCreate?: (data: IncidentFormData) => void;
-  onIncidentUpdate?: (incidentId: string, updates: Partial<ExtendedIncident>) => void;
-  onIncidentDelete?: (incidentId: string) => void;
-  onIncidentResolve?: (incidentId: string, message: string) => void;
-  onAddUpdate?: (incidentId: string, message: string) => void;
-  onEditUpdate?: (incidentId: string, updateId: string, newMessage: string) => void;
-  onDeleteUpdate?: (incidentId: string, updateId: string) => void;
   className?: string;
 }
 
@@ -44,18 +29,13 @@ export function IncidentSplitView({
   monitors,
   selectedIncidentId,
   onSelectIncident,
-  onIncidentCreate,
-  onIncidentUpdate,
-  onIncidentDelete,
-  onIncidentResolve,
-  onAddUpdate,
-  onEditUpdate,
-  onDeleteUpdate,
   className,
 }: IncidentSplitViewProps) {
-  const t = useTranslations("incidents");
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Action hook - handles mutations directly, no callbacks needed
+  const { createIncident, updateIncident } = useIncidentActions();
 
   // View mode state
   const [viewMode, setViewMode] = useState<ViewMode>("view");
@@ -63,12 +43,6 @@ export function IncidentSplitView({
     type?: IncidentType;
     isHistorical?: boolean;
   }>({});
-
-  // Dialog states
-  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [incidentToResolve, setIncidentToResolve] = useState<ExtendedIncident | null>(null);
-  const [incidentToDelete, setIncidentToDelete] = useState<ExtendedIncident | null>(null);
 
   // Handle URL params for create/edit mode
   useEffect(() => {
@@ -113,49 +87,35 @@ export function IncidentSplitView({
     }
   }, [router, selectedIncidentId]);
 
-  const handleResolveClick = useCallback((incident: ExtendedIncident) => {
-    setIncidentToResolve(incident);
-    setResolveDialogOpen(true);
-  }, []);
-
-  const handleDeleteClick = useCallback((incident: ExtendedIncident) => {
-    setIncidentToDelete(incident);
-    setDeleteDialogOpen(true);
-  }, []);
-
-  const handleConfirmDelete = useCallback(() => {
-    if (onIncidentDelete && incidentToDelete) {
-      onIncidentDelete(incidentToDelete.id);
-      if (selectedIncidentId === incidentToDelete.id) {
-        onSelectIncident(null);
-      }
-    }
-    setDeleteDialogOpen(false);
-    setIncidentToDelete(null);
-  }, [onIncidentDelete, incidentToDelete, selectedIncidentId, onSelectIncident]);
-
   const handleSave = useCallback(
-    async (data: IncidentFormValues) => {
+    async (data: IncidentFormValues): Promise<void> => {
+      // Convert form values to the correct type
+      // resolvedAt needs conversion: undefined -> undefined (for IncidentFormData)
+      const formData: IncidentFormData = {
+        title: data.title,
+        type: data.type,
+        severity: data.severity,
+        cause: data.cause,
+        description: data.description,
+        affectedMonitors: data.affectedMonitors,
+        status: data.status,
+        startedAt: data.startedAt,
+        resolvedAt: data.resolvedAt,
+      };
+
       if (viewMode === "edit" && selectedIncident) {
-        // Update existing
-        onIncidentUpdate?.(selectedIncident.id, data as Partial<ExtendedIncident>);
+        // Update existing - convert resolvedAt: undefined -> null for ExtendedIncident
+        updateIncident(selectedIncident.id, {
+          ...formData,
+          resolvedAt: formData.resolvedAt ?? null,
+        });
         router.push(`/incidents?id=${selectedIncident.id}`, { scroll: false });
       } else if (viewMode === "create") {
-        // Create new
-        onIncidentCreate?.(data as IncidentFormData);
-        // Parent will navigate to the new incident
+        // Create new - hook handles mutation and navigation
+        createIncident(formData);
       }
     },
-    [viewMode, selectedIncident, onIncidentCreate, onIncidentUpdate, router]
-  );
-
-  const handleResolve = useCallback(
-    async (incidentId: string, message: string) => {
-      if (onIncidentResolve) {
-        onIncidentResolve(incidentId, message);
-      }
-    },
-    [onIncidentResolve]
+    [viewMode, selectedIncident, createIncident, updateIncident, router]
   );
 
   // Determine what to show in the right panel
@@ -210,59 +170,11 @@ export function IncidentSplitView({
             incident={selectedIncident}
             monitors={monitors}
             onBack={handleBack}
-            onEdit={onIncidentUpdate ? handleEditClick : undefined}
-            onResolve={onIncidentResolve ? handleResolveClick : undefined}
-            onDelete={onIncidentDelete ? handleDeleteClick : undefined}
-            onAddUpdate={onAddUpdate}
-            onEditUpdate={onEditUpdate}
-            onDeleteUpdate={onDeleteUpdate}
+            onEdit={handleEditClick}
             className="w-full"
           />
         )}
       </div>
-
-      {/* Resolve Dialog */}
-      {incidentToResolve && (
-        <IncidentResolveDialog
-          incident={incidentToResolve}
-          open={resolveDialogOpen}
-          onOpenChange={(open) => {
-            setResolveDialogOpen(open);
-            if (!open) setIncidentToResolve(null);
-          }}
-          onResolve={handleResolve}
-        />
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={deleteDialogOpen}
-        onOpenChange={(open) => {
-          setDeleteDialogOpen(open);
-          if (!open) setIncidentToDelete(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-destructive" />
-              {t("dialogs.deleteTitle")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("dialogs.deleteDescription", { name: incidentToDelete?.title ?? "" })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("dialogs.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              {t("dialogs.delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
