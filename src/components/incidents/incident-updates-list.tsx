@@ -46,6 +46,8 @@ export function IncidentUpdatesList({
   className,
 }: IncidentUpdatesListProps) {
   const t = useTranslations("incidents");
+  // Using type assertion for nested namespace - next-intl types don't fully support dot notation
+  const tTimeline = useTranslations("incidents.timeline") as unknown as (key: string) => string;
   const locale = useLocale();
   const [isAdding, setIsAdding] = useState(false);
   const [newMessage, setNewMessage] = useState("");
@@ -118,7 +120,7 @@ export function IncidentUpdatesList({
       {/* Header with Title and Add Button */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          {t("timeline.title")}
+          {tTimeline("title")}
         </h3>
         {canAddUpdate && !isAdding && (
           <Button
@@ -128,7 +130,7 @@ export function IncidentUpdatesList({
             onClick={() => setIsAdding(true)}
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
-            {t("timeline.addUpdate")}
+            {tTimeline("addUpdate")}
           </Button>
         )}
       </div>
@@ -137,7 +139,7 @@ export function IncidentUpdatesList({
       {canAddUpdate && isAdding && (
         <div className="space-y-2 mb-4">
           <Textarea
-            placeholder={t("timeline.updatePlaceholder")}
+            placeholder={tTimeline("updatePlaceholder")}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -146,7 +148,7 @@ export function IncidentUpdatesList({
           />
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
-              {t("timeline.cmdEnterToSend")}
+              {tTimeline("cmdEnterToSend")}
             </span>
             <div className="flex gap-2">
               <Button
@@ -166,7 +168,7 @@ export function IncidentUpdatesList({
                 disabled={!newMessage.trim() || isSubmitting}
               >
                 <Send className="h-3.5 w-3.5 mr-1.5" />
-                {t("timeline.send")}
+                {tTimeline("send")}
               </Button>
             </div>
           </div>
@@ -242,7 +244,7 @@ export function IncidentUpdatesList({
                   )}
                   {update.isAutomatic && (
                     <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70 bg-muted px-1.5 py-0.5 rounded">
-                      {t("timeline.system")}
+                      {tTimeline("system")}
                     </span>
                   )}
                   {update.status === "resolved" && (
@@ -267,7 +269,7 @@ export function IncidentUpdatesList({
                     />
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        {t("timeline.cmdEnterToSave")}
+                        {tTimeline("cmdEnterToSave")}
                       </span>
                       <div className="flex gap-1">
                         <Button
@@ -305,7 +307,7 @@ export function IncidentUpdatesList({
       {/* Empty state */}
       {sortedUpdates.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4">
-          {t("timeline.noUpdates")}
+          {tTimeline("noUpdates")}
         </p>
       )}
 

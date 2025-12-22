@@ -15,13 +15,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  monitoringSettingsSchema,
+  createMonitoringSettingsSchema,
   type MonitoringSettingsFormData,
 } from "@/lib/validations/settings";
 import { defaultMonitoringSettings, intervalOptions } from "@/mocks/settings";
 
 export function MonitoringSettings() {
   const t = useTranslations("settings");
+  const tValidation = useTranslations();
+
+  const monitoringSettingsSchema = createMonitoringSettingsSchema(tValidation as unknown as (key: string) => string);
+
   const {
     register,
     handleSubmit,

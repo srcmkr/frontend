@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import type { ExtendedIncident, Monitor } from "@/types";
 import { groupIncidentsByDate } from "@/lib/public-status-utils";
 import { IncidentSeverityBadge } from "@/components/incidents/incident-severity-badge";
@@ -16,14 +18,17 @@ export function PublicStatusIncidents({
   incidents,
   monitors,
 }: PublicStatusIncidentsProps) {
+  const t = useTranslations("publicStatus");
+  const locale = useLocale();
+
   // Group incidents by date
   const groupedIncidents = useMemo(
-    () => groupIncidentsByDate(incidents),
-    [incidents]
+    () => groupIncidentsByDate(incidents, locale),
+    [incidents, locale]
   );
 
   const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString("de-DE", {
+    return new Date(dateStr).toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -47,11 +52,11 @@ export function PublicStatusIncidents({
   if (incidents.length === 0) {
     return (
       <div className="space-y-2">
-        <h2 className="text-base font-semibold">Vorfallshistorie</h2>
+        <h2 className="text-base font-semibold">{t("incidentHistory")}</h2>
         <div className="rounded-lg border bg-card p-5 text-center">
           <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">
-            Keine Vorfälle in den letzten Tagen
+            {t("noIncidentsMessage")}
           </p>
         </div>
       </div>
@@ -60,7 +65,7 @@ export function PublicStatusIncidents({
 
   return (
     <div className="space-y-3">
-      <h2 className="text-base font-semibold">Vorfallshistorie</h2>
+      <h2 className="text-base font-semibold">{t("incidentHistory")}</h2>
 
       <div className="space-y-4">
         {Array.from(groupedIncidents.entries()).map(([date, dateIncidents]) => (
@@ -102,7 +107,7 @@ export function PublicStatusIncidents({
 
                       {/* Affected monitors */}
                       <p className="text-xs text-muted-foreground mt-1.5">
-                        Betroffene Services: {getMonitorNames(incident.affectedMonitors)}
+                        {t("affectedServices")}: {getMonitorNames(incident.affectedMonitors)}
                       </p>
 
                       {/* Time and duration */}
@@ -130,7 +135,7 @@ export function PublicStatusIncidents({
                       {incident.updates.length > 0 && (
                         <div className="mt-2 pt-2 border-t">
                           <p className="text-xs text-muted-foreground mb-0.5">
-                            Letztes Update:
+                            {t("lastUpdate")}:
                           </p>
                           <p className="text-xs">
                             {incident.updates[0].message}

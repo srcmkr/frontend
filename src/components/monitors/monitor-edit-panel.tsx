@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
-  monitorFormSchema,
+  createMonitorFormSchema,
   monitorToFormValues,
   formValuesToMonitorUpdate,
   defaultsByType,
@@ -67,12 +67,7 @@ interface TypeOption {
   icon: React.ReactNode;
 }
 
-const MONITOR_TYPES: TypeOption[] = [
-  { value: "http", label: "HTTP(S)", description: "Websites und APIs überwachen", icon: <Globe className="h-6 w-6" /> },
-  { value: "tcp", label: "TCP", description: "Port-Verfügbarkeit prüfen", icon: <Server className="h-6 w-6" /> },
-  { value: "ping", label: "Ping", description: "ICMP-Erreichbarkeit testen", icon: <Radio className="h-6 w-6" /> },
-  { value: "dns", label: "DNS", description: "DNS-Auflösung prüfen", icon: <Search className="h-6 w-6" /> },
-];
+// MONITOR_TYPES will be built dynamically using translations inside the component
 
 const HTTP_METHODS: { value: HttpMethod; label: string }[] = [
   { value: "GET", label: "GET" },
@@ -83,20 +78,9 @@ const HTTP_METHODS: { value: HttpMethod; label: string }[] = [
   { value: "DELETE", label: "DELETE" },
 ];
 
-const DNS_RECORD_TYPES: { value: DnsRecordType; label: string; description: string }[] = [
-  { value: "A", label: "A", description: "IPv4-Adresse" },
-  { value: "AAAA", label: "AAAA", description: "IPv6-Adresse" },
-  { value: "MX", label: "MX", description: "Mail-Server" },
-  { value: "CNAME", label: "CNAME", description: "Alias" },
-  { value: "TXT", label: "TXT", description: "Text-Record" },
-  { value: "NS", label: "NS", description: "Nameserver" },
-];
+const DNS_RECORD_TYPES: DnsRecordType[] = ["A", "AAAA", "MX", "CNAME", "TXT", "NS"];
 
-const AUTH_TYPES: { value: AuthType; label: string }[] = [
-  { value: "none", label: "Keine" },
-  { value: "basic", label: "Basic Auth" },
-  { value: "bearer", label: "Bearer Token" },
-];
+const AUTH_TYPES: AuthType[] = ["none", "basic", "bearer"];
 
 const INTERVAL_PRESETS = [
   { value: 10, label: "10s" },
@@ -185,6 +169,7 @@ export function MonitorEditPanel({
 }: MonitorEditPanelProps) {
   const t = useTranslations("monitors");
   const tCommon = useTranslations("common.actions");
+  const tValidation = useTranslations();
   const isEditMode = !!monitor;
   const [showPassword, setShowPassword] = useState(false);
   const [headers, setHeaders] = useState<{ key: string; value: string }[]>([]);
@@ -201,6 +186,8 @@ export function MonitorEditPanel({
     enabled: true,
     config: { http: { ...defaultHttpConfig } },
   };
+
+  const monitorFormSchema = createMonitorFormSchema(tValidation as unknown as (key: string) => string);
 
   const {
     register,
@@ -285,6 +272,14 @@ export function MonitorEditPanel({
   const hasCheckErrors = !!(errors.interval || errors.timeout || errors.retries);
   const hasSlaErrors = !!(errors.slaTarget || errors.maxResponseTime);
 
+  // Build monitor types with translations
+  const MONITOR_TYPES: TypeOption[] = [
+    { value: "http", label: t("types.http"), description: t("types.httpDescription"), icon: <Globe className="h-6 w-6" /> },
+    { value: "tcp", label: t("types.tcp"), description: t("types.tcpDescription"), icon: <Server className="h-6 w-6" /> },
+    { value: "ping", label: t("types.ping"), description: t("types.pingDescription"), icon: <Radio className="h-6 w-6" /> },
+    { value: "dns", label: t("types.dns"), description: t("types.dnsDescription"), icon: <Search className="h-6 w-6" /> },
+  ];
+
   return (
     <div className={cn("flex flex-col h-full overflow-hidden", className)}>
       {/* Header */}
@@ -352,8 +347,8 @@ export function MonitorEditPanel({
                         {type.icon}
                       </span>
                       <div className="text-center">
-                        <span className="text-sm font-medium block">{t(`types.${type.value}`)}</span>
-                        <span className="text-xs text-muted-foreground">{t(`types.${type.value}Description`)}</span>
+                        <span className="text-sm font-medium block">{type.label}</span>
+                        <span className="text-xs text-muted-foreground">{type.description}</span>
                       </div>
                     </button>
                   ))}
@@ -447,9 +442,9 @@ export function MonitorEditPanel({
                           </SelectTrigger>
                           <SelectContent>
                             {DNS_RECORD_TYPES.map((rt) => (
-                              <SelectItem key={rt.value} value={rt.value}>
-                                <span className="font-mono">{rt.label}</span>
-                                <span className="text-muted-foreground ml-2">- {rt.description}</span>
+                              <SelectItem key={rt} value={rt}>
+                                <span className="font-mono">{rt}</span>
+                                <span className="text-muted-foreground ml-2">- {t(`editDialog.dnsRecordTypes.${rt}`)}</span>
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -457,7 +452,7 @@ export function MonitorEditPanel({
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="dns-expected">{t("dns.expectedValue")}</Label>
-                        <Input id="dns-expected" placeholder="Optional" {...register("config.dns.expectedResult")} />
+                        <Input id="dns-expected" placeholder={t("editDialog.fields.dnsExpectedPlaceholder")} {...register("config.dns.expectedResult")} />
                         <FieldHint>{t("dns.expectedValueHint")}</FieldHint>
                       </div>
                     </div>
@@ -706,7 +701,7 @@ export function MonitorEditPanel({
                       </SelectTrigger>
                       <SelectContent>
                         {AUTH_TYPES.map((a) => (
-                          <SelectItem key={a.value} value={a.value}>{t(`auth.${a.value}`)}</SelectItem>
+                          <SelectItem key={a} value={a}>{t(`auth.${a}`)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

@@ -5,105 +5,111 @@ import type { Monitor, MonitorType, HttpMethod, DnsRecordType, AuthType } from "
 // Sub-schemas for type-specific configurations
 // ============================================
 
-const httpConfigSchema = z.object({
-  method: z.enum(["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"] as const),
-  expectedStatusCodes: z.string(),
-  headers: z.record(z.string(), z.string()),
-  body: z.string(),
-  checkKeyword: z.string(),
-  verifyCertificate: z.boolean(),
-  certExpiryWarningDays: z.number().min(1).max(365),
-  authType: z.enum(["none", "basic", "bearer"] as const),
-  authUsername: z.string(),
-  authPassword: z.string(),
-  authToken: z.string(),
-  followRedirects: z.boolean(),
-});
+const createHttpConfigSchema = () =>
+  z.object({
+    method: z.enum(["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"] as const),
+    expectedStatusCodes: z.string(),
+    headers: z.record(z.string(), z.string()),
+    body: z.string(),
+    checkKeyword: z.string(),
+    verifyCertificate: z.boolean(),
+    certExpiryWarningDays: z.number().min(1).max(365),
+    authType: z.enum(["none", "basic", "bearer"] as const),
+    authUsername: z.string(),
+    authPassword: z.string(),
+    authToken: z.string(),
+    followRedirects: z.boolean(),
+  });
 
-const tcpConfigSchema = z.object({
-  host: z.string().min(1, "Host ist erforderlich"),
-  port: z
-    .number({ message: "Port muss eine Zahl sein" })
-    .int("Port muss eine ganze Zahl sein")
-    .min(1, "Port muss zwischen 1 und 65535 liegen")
-    .max(65535, "Port muss zwischen 1 und 65535 liegen"),
-});
+const createTcpConfigSchema = (t: (key: string) => string) =>
+  z.object({
+    host: z.string().min(1, t("validations.monitor.hostRequired")),
+    port: z
+      .number({ message: t("validations.monitor.portNumber") })
+      .int(t("validations.monitor.portInteger"))
+      .min(1, t("validations.monitor.portRange"))
+      .max(65535, t("validations.monitor.portRange")),
+  });
 
-const dnsConfigSchema = z.object({
-  domain: z.string().min(1, "Domain ist erforderlich"),
-  recordType: z.enum(["A", "AAAA", "MX", "CNAME", "TXT", "NS"] as const),
-  expectedResult: z.string(),
-  dnsServer: z.string(),
-});
+const createDnsConfigSchema = (t: (key: string) => string) =>
+  z.object({
+    domain: z.string().min(1, t("validations.monitor.domainRequired")),
+    recordType: z.enum(["A", "AAAA", "MX", "CNAME", "TXT", "NS"] as const),
+    expectedResult: z.string(),
+    dnsServer: z.string(),
+  });
 
-const pingConfigSchema = z.object({
-  host: z.string().min(1, "Host ist erforderlich"),
-  packetCount: z.number().int().min(1).max(10),
-});
+const createPingConfigSchema = (t: (key: string) => string) =>
+  z.object({
+    host: z.string().min(1, t("validations.monitor.hostRequired")),
+    packetCount: z.number().int().min(1).max(10),
+  });
 
-const monitorConfigSchema = z.object({
-  http: httpConfigSchema.optional(),
-  tcp: tcpConfigSchema.optional(),
-  dns: dnsConfigSchema.optional(),
-  ping: pingConfigSchema.optional(),
-});
+const createMonitorConfigSchema = (t: (key: string) => string) =>
+  z.object({
+    http: createHttpConfigSchema().optional(),
+    tcp: createTcpConfigSchema(t).optional(),
+    dns: createDnsConfigSchema(t).optional(),
+    ping: createPingConfigSchema(t).optional(),
+  });
 
 // ============================================
 // Main Monitor Form Schema
 // ============================================
 
-export const monitorFormSchema = z
-  .object({
-    name: z
-      .string()
-      .min(1, "Name ist erforderlich")
-      .max(100, "Name darf maximal 100 Zeichen lang sein"),
+export const createMonitorFormSchema = (t: (key: string) => string) =>
+  z
+    .object({
+      name: z
+        .string()
+        .min(1, t("validations.monitor.nameRequired"))
+        .max(100, t("validations.monitor.nameMaxLength")),
 
-    type: z.enum(["http", "tcp", "ping", "dns"] as const, {
-      message: "Bitte wähle einen Monitor-Typ",
-    }),
+      type: z.enum(["http", "tcp", "ping", "dns"] as const, {
+        message: t("validations.monitor.selectType"),
+      }),
 
-    url: z.string(),
+      url: z.string(),
 
-    interval: z
-      .number({ message: "Intervall muss eine Zahl sein" })
-      .int("Intervall muss eine ganze Zahl sein")
-      .min(10, "Mindestintervall ist 10 Sekunden")
-      .max(3600, "Maximales Intervall ist 3600 Sekunden"),
+      interval: z
+        .number({ message: t("validations.monitor.intervalNumber") })
+        .int(t("validations.monitor.intervalInteger"))
+        .min(10, t("validations.monitor.intervalMin"))
+        .max(3600, t("validations.monitor.intervalMax")),
 
-    timeout: z
-      .number({ message: "Timeout muss eine Zahl sein" })
-      .int("Timeout muss eine ganze Zahl sein")
-      .min(1, "Mindest-Timeout ist 1 Sekunde")
-      .max(120, "Maximaler Timeout ist 120 Sekunden"),
+      timeout: z
+        .number({ message: t("validations.monitor.timeoutNumber") })
+        .int(t("validations.monitor.timeoutInteger"))
+        .min(1, t("validations.monitor.timeoutMin"))
+        .max(120, t("validations.monitor.timeoutMax")),
 
-    retries: z
-      .number({ message: "Wiederholungen muss eine Zahl sein" })
-      .int("Wiederholungen muss eine ganze Zahl sein")
-      .min(0, "Mindestens 0 Wiederholungen")
-      .max(10, "Maximal 10 Wiederholungen"),
+      retries: z
+        .number({ message: t("validations.monitor.retriesNumber") })
+        .int(t("validations.monitor.retriesInteger"))
+        .min(0, t("validations.monitor.retriesMin"))
+        .max(10, t("validations.monitor.retriesMax")),
 
-    slaTarget: z
-      .number({ message: "SLA-Ziel muss eine Zahl sein" })
-      .min(0, "SLA-Ziel muss mindestens 0% sein")
-      .max(100, "SLA-Ziel darf maximal 100% sein"),
+      slaTarget: z
+        .number({ message: t("validations.monitor.slaTargetNumber") })
+        .min(0, t("validations.monitor.slaTargetMin"))
+        .max(100, t("validations.monitor.slaTargetMax")),
 
-    maxResponseTime: z
-      .number({ message: "Antwortzeit muss eine Zahl sein" })
-      .int("Antwortzeit muss eine ganze Zahl sein")
-      .min(50, "Minimale Antwortzeit ist 50ms")
-      .max(60000, "Maximale Antwortzeit ist 60000ms"),
+      maxResponseTime: z
+        .number({ message: t("validations.monitor.maxResponseTimeNumber") })
+        .int(t("validations.monitor.maxResponseTimeInteger"))
+        .min(50, t("validations.monitor.maxResponseTimeMin"))
+        .max(60000, t("validations.monitor.maxResponseTimeMax")),
 
-    enabled: z.boolean(),
+      enabled: z.boolean(),
 
-    config: monitorConfigSchema.optional(),
-  })
-  .refine((data) => data.timeout < data.interval, {
-    message: "Timeout muss kleiner als das Intervall sein",
-    path: ["timeout"],
-  });
+      config: createMonitorConfigSchema(t).optional(),
+    })
+    .refine((data) => data.timeout < data.interval, {
+      message: t("validations.monitor.timeoutLessThanInterval"),
+      path: ["timeout"],
+    });
 
-export type MonitorFormValues = z.infer<typeof monitorFormSchema>;
+export type MonitorFormValues = z.infer<ReturnType<typeof createMonitorFormSchema>>;
 
 // ============================================
 // Default values per monitor type

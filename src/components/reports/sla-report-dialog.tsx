@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Download, Loader2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +36,68 @@ export function SLAReportDialog({
   open,
   onOpenChange,
 }: SLAReportDialogProps) {
+  const t = useTranslations("reports.dialog");
+  const tPdf = useTranslations("reports.pdf");
+  const locale = useLocale();
+
+  // Build PDF translations object
+  const pdfTranslations = {
+    title: tPdf("title"),
+    summary: tPdf("summary"),
+    slaTargetAvailability: tPdf("slaTargetAvailability"),
+    maxResponseTime: tPdf("maxResponseTime"),
+    availability: tPdf("availability"),
+    met: tPdf("met"),
+    violated: tPdf("violated"),
+    responseTime: tPdf("responseTime"),
+    uptime: tPdf("uptime"),
+    downtime: tPdf("downtime"),
+    trendVsPrevious: tPdf("trendVsPrevious"),
+    available: tPdf("available"),
+    slaBreaches: tPdf("slaBreaches"),
+    table: {
+      week: tPdf("table.week"),
+      uptime: tPdf("table.uptime"),
+      checks: tPdf("table.checks"),
+      failed: tPdf("table.failed"),
+    },
+    weekPrefix: tPdf("weekPrefix"),
+    generatedAt: tPdf("generatedAt"),
+    performance: {
+      title: tPdf("performance.title"),
+      maxResponseTimeSla: tPdf("performance.maxResponseTimeSla"),
+      average: tPdf("performance.average"),
+      median: tPdf("performance.median"),
+      minMax: tPdf("performance.minMax"),
+    },
+    incidents: {
+      title: tPdf("incidents.title"),
+      totalIncidents: tPdf("incidents.totalIncidents"),
+      mtbf: tPdf("incidents.mtbf"),
+      mttr: tPdf("incidents.mttr"),
+      longestOutage: tPdf("incidents.longestOutage"),
+      severity: {
+        critical: tPdf("incidents.severity.critical"),
+        major: tPdf("incidents.severity.major"),
+        minor: tPdf("incidents.severity.minor"),
+      },
+    },
+    checkStatistics: {
+      title: tPdf("checkStatistics.title"),
+      totalChecks: tPdf("checkStatistics.totalChecks"),
+      successful: tPdf("checkStatistics.successful"),
+      failed: tPdf("checkStatistics.failed"),
+      successRate: tPdf("checkStatistics.successRate"),
+    },
+    technicalDetails: {
+      title: tPdf("technicalDetails.title"),
+      dnsAvg: tPdf("technicalDetails.dnsAvg"),
+      dnsP95: tPdf("technicalDetails.dnsP95"),
+      ipChanges: tPdf("technicalDetails.ipChanges"),
+      tlsVersion: tPdf("technicalDetails.tlsVersion"),
+    },
+  };
+
   // Period selection state
   const [periodType, setPeriodType] = useState<ReportPeriodType>("month");
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod | null>(null);
@@ -86,7 +150,7 @@ export function SLAReportDialog({
       const { pdf } = await import("@react-pdf/renderer");
       const { SLAReportPDF } = await import("./pdf/sla-report-pdf");
 
-      const blob = await pdf(<SLAReportPDF report={report} />).toBlob();
+      const blob = await pdf(<SLAReportPDF report={report} locale={locale} translations={pdfTranslations} />).toBlob();
       const url = URL.createObjectURL(blob);
 
       // Create download link
@@ -101,17 +165,17 @@ export function SLAReportDialog({
     } catch (error) {
       console.error("PDF export failed:", error);
       // Fallback: show error message
-      alert("PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.");
+      alert(t("exportFailed"));
     } finally {
       setIsExporting(false);
     }
-  }, [report, monitor.name, selectedPeriod?.label]);
+  }, [report, monitor.name, selectedPeriod?.label, t]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!max-w-[90vw] w-full max-h-[90vh] flex flex-col">
         <DialogHeader className="shrink-0 pr-8">
-          <DialogTitle className="text-xl">SLA Report</DialogTitle>
+          <DialogTitle className="text-xl">{t("title")}</DialogTitle>
           <p className="text-sm text-muted-foreground">
             {monitor.name}
           </p>
@@ -135,14 +199,14 @@ export function SLAReportDialog({
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
-                SLA: {slaTarget}% / {maxResponseTime}ms
+                {t("slaSettings", { target: slaTarget, maxResponse: maxResponseTime })}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-72" align="end">
               <div className="space-y-4">
                 {/* Availability Target */}
                 <div className="space-y-2">
-                  <Label htmlFor="sla-target">SLA-Ziel Verfügbarkeit (%)</Label>
+                  <Label htmlFor="sla-target">{t("slaTargetLabel")}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="sla-target"
@@ -175,7 +239,7 @@ export function SLAReportDialog({
 
                 {/* Max Response Time Target */}
                 <div className="space-y-2">
-                  <Label htmlFor="max-response">Max. Antwortzeit (ms)</Label>
+                  <Label htmlFor="max-response">{t("maxResponseLabel")}</Label>
                   <div className="flex gap-2">
                     <Input
                       id="max-response"
@@ -219,12 +283,12 @@ export function SLAReportDialog({
             {isExporting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Exportiere...
+                {t("exporting")}
               </>
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                PDF
+                {t("exportPdf")}
               </>
             )}
           </Button>
@@ -240,21 +304,21 @@ export function SLAReportDialog({
             </div>
           ) : reportError ? (
             <div className="flex items-center justify-center h-40 text-destructive">
-              Fehler beim Laden des Reports: {reportError.message}
+              {t("errorLoading", { message: reportError.message })}
             </div>
           ) : report ? (
             <SLAReportContent report={report} />
           ) : (
             <div className="flex items-center justify-center h-40 text-muted-foreground">
-              Wählen Sie einen Zeitraum aus
+              {t("noPeriodSelected")}
             </div>
           )}
         </div>
 
         {/* Footer */}
         <div className="shrink-0 pt-3 border-t text-xs text-muted-foreground text-center">
-          Report generiert am{" "}
-          {new Date().toLocaleString("de-DE", {
+          {t("generatedAt")}{" "}
+          {new Date().toLocaleString(locale, {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",

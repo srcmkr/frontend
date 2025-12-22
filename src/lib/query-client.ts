@@ -14,9 +14,9 @@ export function makeQueryClient() {
         // (background refetch failures)
         if (query.state.data !== undefined) {
           if (error instanceof ApiError) {
-            toast.error(`Fehler beim Aktualisieren: ${error.message}`);
+            toast.error(error.message);
           } else if (error instanceof Error) {
-            toast.error(`Fehler beim Aktualisieren: ${error.message}`);
+            toast.error(error.message);
           }
         }
       },

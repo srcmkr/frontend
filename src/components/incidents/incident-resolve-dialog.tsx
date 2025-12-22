@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, CheckCircle } from "lucide-react";
 import {
   Dialog,
@@ -28,6 +29,7 @@ export function IncidentResolveDialog({
   onOpenChange,
   onResolve,
 }: IncidentResolveDialogProps) {
+  const t = useTranslations("incidents.resolveDialog");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,28 +57,26 @@ export function IncidentResolveDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
-            Vorfall beheben
+            {t("title")}
           </DialogTitle>
           <DialogDescription>
-            Markiere &quot;{incident.title}&quot; als behoben und füge eine
-            Abschlussnachricht hinzu.
+            {t("description", { title: incident.title })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="resolve-message">Abschlussnachricht</Label>
+            <Label htmlFor="resolve-message">{t("messageLabel")}</Label>
             <Textarea
               id="resolve-message"
-              placeholder="z.B. Problem wurde durch Neustart des Servers behoben..."
+              placeholder={t("messagePlaceholder")}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="min-h-[100px]"
               autoFocus
             />
             <p className="text-xs text-muted-foreground">
-              Diese Nachricht wird der Timeline hinzugefügt und der Status auf
-              &quot;Behoben&quot; gesetzt.
+              {t("messageHint")}
             </p>
           </div>
         </div>
@@ -88,7 +88,7 @@ export function IncidentResolveDialog({
             onClick={handleCancel}
             disabled={isSubmitting}
           >
-            Abbrechen
+            {t("cancel")}
           </Button>
           <Button
             onClick={handleResolve}
@@ -97,12 +97,12 @@ export function IncidentResolveDialog({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Beheben...
+                {t("resolving")}
               </>
             ) : (
               <>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Als behoben markieren
+                {t("markResolved")}
               </>
             )}
           </Button>

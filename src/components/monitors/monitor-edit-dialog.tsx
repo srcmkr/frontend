@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import {
   Loader2,
   Globe,
@@ -37,7 +38,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  monitorFormSchema,
+  createMonitorFormSchema,
   monitorToFormValues,
   formValuesToMonitorUpdate,
   defaultsByType,
@@ -71,32 +72,13 @@ interface TypeOption {
 // Constants
 // ============================================
 
-const MONITOR_TYPES: TypeOption[] = [
-  {
-    value: "http",
-    label: "HTTP(S)",
-    description: "Websites und APIs überwachen",
-    icon: <Globe className="h-4 w-4" />,
-  },
-  {
-    value: "tcp",
-    label: "TCP",
-    description: "Port-Verfügbarkeit prüfen",
-    icon: <Server className="h-4 w-4" />,
-  },
-  {
-    value: "ping",
-    label: "Ping",
-    description: "ICMP-Erreichbarkeit testen",
-    icon: <Radio className="h-4 w-4" />,
-  },
-  {
-    value: "dns",
-    label: "DNS",
-    description: "DNS-Auflösung prüfen",
-    icon: <Search className="h-4 w-4" />,
-  },
-];
+// Icon map for monitor types
+const MONITOR_TYPE_ICONS: Record<MonitorType, React.ReactNode> = {
+  http: <Globe className="h-4 w-4" />,
+  tcp: <Server className="h-4 w-4" />,
+  ping: <Radio className="h-4 w-4" />,
+  dns: <Search className="h-4 w-4" />,
+};
 
 const HTTP_METHODS: { value: HttpMethod; label: string }[] = [
   { value: "GET", label: "GET" },
@@ -107,20 +89,9 @@ const HTTP_METHODS: { value: HttpMethod; label: string }[] = [
   { value: "DELETE", label: "DELETE" },
 ];
 
-const DNS_RECORD_TYPES: { value: DnsRecordType; label: string; description: string }[] = [
-  { value: "A", label: "A", description: "IPv4-Adresse" },
-  { value: "AAAA", label: "AAAA", description: "IPv6-Adresse" },
-  { value: "MX", label: "MX", description: "Mail-Server" },
-  { value: "CNAME", label: "CNAME", description: "Alias" },
-  { value: "TXT", label: "TXT", description: "Text-Record" },
-  { value: "NS", label: "NS", description: "Nameserver" },
-];
+const DNS_RECORD_TYPES: DnsRecordType[] = ["A", "AAAA", "MX", "CNAME", "TXT", "NS"];
 
-const AUTH_TYPES: { value: AuthType; label: string }[] = [
-  { value: "none", label: "Keine" },
-  { value: "basic", label: "Basic Auth" },
-  { value: "bearer", label: "Bearer Token" },
-];
+const AUTH_TYPES: AuthType[] = ["none", "basic", "bearer"];
 
 const INTERVAL_PRESETS = [
   { value: 10, label: "10s" },
@@ -187,9 +158,13 @@ export function MonitorEditDialog({
   onOpenChange,
   onSave,
 }: MonitorEditDialogProps) {
+  const t = useTranslations("monitors");
+  const tValidation = useTranslations();
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [headers, setHeaders] = useState<{ key: string; value: string }[]>([]);
+
+  const monitorFormSchema = createMonitorFormSchema(tValidation as unknown as (key: string) => string);
 
   const {
     register,
@@ -202,6 +177,34 @@ export function MonitorEditDialog({
     resolver: zodResolver(monitorFormSchema),
     defaultValues: monitorToFormValues(monitor),
   });
+
+  // Monitor types with translated labels
+  const monitorTypes: TypeOption[] = [
+    {
+      value: "http",
+      label: t("types.http"),
+      description: t("editDialog.typeDescription.http"),
+      icon: MONITOR_TYPE_ICONS.http,
+    },
+    {
+      value: "tcp",
+      label: t("types.tcp"),
+      description: t("editDialog.typeDescription.tcp"),
+      icon: MONITOR_TYPE_ICONS.tcp,
+    },
+    {
+      value: "ping",
+      label: t("types.ping"),
+      description: t("editDialog.typeDescription.ping"),
+      icon: MONITOR_TYPE_ICONS.ping,
+    },
+    {
+      value: "dns",
+      label: t("types.dns"),
+      description: t("editDialog.typeDescription.dns"),
+      icon: MONITOR_TYPE_ICONS.dns,
+    },
+  ];
 
   // Watch form values for conditional rendering
   const watchedType = useWatch({ control, name: "type" });
@@ -294,9 +297,9 @@ export function MonitorEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Monitor bearbeiten</DialogTitle>
+          <DialogTitle>{t("editDialog.title")}</DialogTitle>
           <DialogDescription>
-            Konfiguration für &quot;{monitor.name}&quot; anpassen
+            {t("editDialog.description", { name: monitor.name })}
           </DialogDescription>
         </DialogHeader>
 
@@ -307,10 +310,10 @@ export function MonitorEditDialog({
           <div className="space-y-4">
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("editDialog.fields.name")}</Label>
               <Input
                 id="name"
-                placeholder="z.B. Production API"
+                placeholder={t("editDialog.fields.namePlaceholder")}
                 {...register("name")}
                 aria-invalid={!!errors.name}
               />
@@ -319,9 +322,9 @@ export function MonitorEditDialog({
 
             {/* Type */}
             <div className="space-y-2">
-              <Label>Monitor-Typ</Label>
+              <Label>{t("editDialog.fields.monitorType")}</Label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {MONITOR_TYPES.map((type) => (
+                {monitorTypes.map((type) => (
                   <button
                     key={type.value}
                     type="button"
@@ -345,14 +348,14 @@ export function MonitorEditDialog({
             {/* Type-specific Address Fields */}
             {watchedType === "http" && (
               <div className="space-y-2">
-                <Label htmlFor="url">URL</Label>
+                <Label htmlFor="url">{t("editDialog.fields.url")}</Label>
                 <Input
                   id="url"
-                  placeholder="https://example.com/health"
+                  placeholder={t("editDialog.fields.urlPlaceholder")}
                   {...register("url")}
                   aria-invalid={!!errors.url}
                 />
-                <FieldHint>Vollständige URL inkl. Protokoll (https://)</FieldHint>
+                <FieldHint>{t("editDialog.fields.urlHint")}</FieldHint>
                 <FieldError message={errors.url?.message} />
               </div>
             )}
@@ -360,21 +363,21 @@ export function MonitorEditDialog({
             {watchedType === "tcp" && (
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-2">
-                  <Label htmlFor="tcp-host">Host (DNS / IP)</Label>
+                  <Label htmlFor="tcp-host">{t("editDialog.fields.tcpHost")}</Label>
                   <Input
                     id="tcp-host"
-                    placeholder="db.example.com oder 192.168.1.1"
+                    placeholder={t("editDialog.fields.tcpHostPlaceholder")}
                     {...register("config.tcp.host")}
                     aria-invalid={!!errors.config?.tcp?.host}
                   />
                   <FieldError message={errors.config?.tcp?.host?.message} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tcp-port">Port</Label>
+                  <Label htmlFor="tcp-port">{t("editDialog.fields.tcpPort")}</Label>
                   <Input
                     id="tcp-port"
                     type="number"
-                    placeholder="5432"
+                    placeholder={t("editDialog.fields.tcpPortPlaceholder")}
                     min={1}
                     max={65535}
                     {...register("config.tcp.port", { valueAsNumber: true })}
@@ -388,10 +391,10 @@ export function MonitorEditDialog({
             {watchedType === "dns" && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="dns-domain">Domain</Label>
+                  <Label htmlFor="dns-domain">{t("editDialog.fields.dnsDomain")}</Label>
                   <Input
                     id="dns-domain"
-                    placeholder="example.com"
+                    placeholder={t("editDialog.fields.dnsDomainPlaceholder")}
                     {...register("config.dns.domain")}
                     aria-invalid={!!errors.config?.dns?.domain}
                   />
@@ -399,7 +402,7 @@ export function MonitorEditDialog({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label>Record-Typ</Label>
+                    <Label>{t("editDialog.fields.dnsRecordType")}</Label>
                     <Select
                       value={watchedDnsRecordType || "A"}
                       onValueChange={(v) =>
@@ -411,22 +414,22 @@ export function MonitorEditDialog({
                       </SelectTrigger>
                       <SelectContent>
                         {DNS_RECORD_TYPES.map((rt) => (
-                          <SelectItem key={rt.value} value={rt.value}>
-                            <span className="font-mono">{rt.label}</span>
-                            <span className="text-muted-foreground ml-2">- {rt.description}</span>
+                          <SelectItem key={rt} value={rt}>
+                            <span className="font-mono">{rt}</span>
+                            <span className="text-muted-foreground ml-2">- {t(`editDialog.dnsRecordTypes.${rt}`)}</span>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="dns-expected">Erwartetes Ergebnis</Label>
+                    <Label htmlFor="dns-expected">{t("editDialog.fields.dnsExpected")}</Label>
                     <Input
                       id="dns-expected"
-                      placeholder="Optional"
+                      placeholder={t("editDialog.fields.dnsExpectedPlaceholder")}
                       {...register("config.dns.expectedResult")}
                     />
-                    <FieldHint>Leer = nur Existenz prüfen</FieldHint>
+                    <FieldHint>{t("editDialog.fields.dnsExpectedHint")}</FieldHint>
                   </div>
                 </div>
               </div>
@@ -434,10 +437,10 @@ export function MonitorEditDialog({
 
             {watchedType === "ping" && (
               <div className="space-y-2">
-                <Label htmlFor="ping-host">Host (DNS / IP)</Label>
+                <Label htmlFor="ping-host">{t("editDialog.fields.pingHost")}</Label>
                 <Input
                   id="ping-host"
-                  placeholder="192.168.1.1 oder server.example.com"
+                  placeholder={t("editDialog.fields.pingHostPlaceholder")}
                   {...register("config.ping.host")}
                   aria-invalid={!!errors.config?.ping?.host}
                 />
@@ -450,12 +453,12 @@ export function MonitorEditDialog({
           {/* Check Configuration */}
           {/* ============================================ */}
           <div className="space-y-4 pt-4 border-t">
-            <h4 className="font-medium text-sm">Check-Konfiguration</h4>
+            <h4 className="font-medium text-sm">{t("editDialog.sections.check")}</h4>
 
             <div className="grid grid-cols-2 gap-4">
               {/* Interval */}
               <div className="space-y-2">
-                <Label htmlFor="interval">Intervall (Sekunden)</Label>
+                <Label htmlFor="interval">{t("editDialog.fields.interval")}</Label>
                 <Input
                   id="interval"
                   type="number"
@@ -474,7 +477,7 @@ export function MonitorEditDialog({
 
               {/* Timeout */}
               <div className="space-y-2">
-                <Label htmlFor="timeout">Timeout (Sekunden)</Label>
+                <Label htmlFor="timeout">{t("editDialog.fields.timeout")}</Label>
                 <Input
                   id="timeout"
                   type="number"
@@ -483,7 +486,7 @@ export function MonitorEditDialog({
                   {...register("timeout", { valueAsNumber: true })}
                   aria-invalid={!!errors.timeout}
                 />
-                <FieldHint>Muss kleiner als Intervall sein</FieldHint>
+                <FieldHint>{t("editDialog.fields.timeoutHint")}</FieldHint>
                 <FieldError message={errors.timeout?.message} />
               </div>
             </div>
@@ -491,7 +494,7 @@ export function MonitorEditDialog({
             {/* Retries and SSL Certificate (for HTTP) */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="retries">Wiederholungen bei Fehler</Label>
+                <Label htmlFor="retries">{t("editDialog.fields.retries")}</Label>
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"
@@ -528,7 +531,7 @@ export function MonitorEditDialog({
               {/* SSL Certificate Check - only for HTTP */}
               {watchedType === "http" && (
                 <div className="space-y-2">
-                  <Label>SSL-Zertifikat prüfen</Label>
+                  <Label>{t("editDialog.fields.sslVerify")}</Label>
                   <div className="flex items-center gap-3 h-9">
                     <input
                       type="checkbox"
@@ -537,7 +540,7 @@ export function MonitorEditDialog({
                       {...register("config.http.verifyCertificate")}
                     />
                     <label htmlFor="verify-certificate" className="text-sm text-muted-foreground">
-                      Gültigkeit und Ablauf überwachen
+                      {t("editDialog.fields.sslVerifyHint")}
                     </label>
                   </div>
                 </div>
@@ -556,7 +559,7 @@ export function MonitorEditDialog({
                   variant="ghost"
                   className="w-full justify-between"
                 >
-                  <span>Erweiterte HTTP-Optionen</span>
+                  <span>{t("http.advancedOptions")}</span>
                   {advancedOpen ? (
                     <ChevronUp className="h-4 w-4" />
                   ) : (
@@ -568,7 +571,7 @@ export function MonitorEditDialog({
                 {/* HTTP Method */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>HTTP-Methode</Label>
+                    <Label>{t("editDialog.fields.httpMethod")}</Label>
                     <Select
                       value={watchedMethod || "GET"}
                       onValueChange={(v) =>
@@ -590,10 +593,10 @@ export function MonitorEditDialog({
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="status-codes">Erwartete Status-Codes</Label>
+                    <Label htmlFor="status-codes">{t("editDialog.fields.statusCodes")}</Label>
                     <Input
                       id="status-codes"
-                      placeholder="200 oder 200,201 oder 200-299"
+                      placeholder={t("editDialog.fields.statusCodesPlaceholder")}
                       {...register("config.http.expectedStatusCodes")}
                     />
                     <FieldError message={errors.config?.http?.expectedStatusCodes?.message} />
@@ -605,11 +608,11 @@ export function MonitorEditDialog({
                   watchedMethod === "PUT" ||
                   watchedMethod === "PATCH") && (
                   <div className="space-y-2">
-                    <Label htmlFor="body">Request Body</Label>
+                    <Label htmlFor="body">{t("editDialog.fields.requestBody")}</Label>
                     <textarea
                       id="body"
                       className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
-                      placeholder='{"key": "value"}'
+                      placeholder={t("editDialog.fields.requestBodyPlaceholder")}
                       {...register("config.http.body")}
                     />
                   </div>
@@ -618,22 +621,22 @@ export function MonitorEditDialog({
                 {/* Headers */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Request Headers</Label>
+                    <Label>{t("editDialog.fields.headers")}</Label>
                     <Button type="button" variant="outline" size="sm" onClick={addHeader}>
                       <Plus className="h-3 w-3 mr-1" />
-                      Header hinzufügen
+                      {t("editDialog.fields.addHeader")}
                     </Button>
                   </div>
                   {headers.map((header, index) => (
                     <div key={index} className="flex gap-2">
                       <Input
-                        placeholder="Header-Name"
+                        placeholder={t("editDialog.fields.headerName")}
                         value={header.key}
                         onChange={(e) => updateHeader(index, "key", e.target.value)}
                         className="flex-1"
                       />
                       <Input
-                        placeholder="Wert"
+                        placeholder={t("editDialog.fields.headerValue")}
                         value={header.value}
                         onChange={(e) => updateHeader(index, "value", e.target.value)}
                         className="flex-1"
@@ -652,18 +655,18 @@ export function MonitorEditDialog({
 
                 {/* Keyword Check */}
                 <div className="space-y-2">
-                  <Label htmlFor="keyword">Keyword-Check</Label>
+                  <Label htmlFor="keyword">{t("editDialog.fields.keywordCheck")}</Label>
                   <Input
                     id="keyword"
-                    placeholder="Response muss diesen Text enthalten"
+                    placeholder={t("editDialog.fields.keywordPlaceholder")}
                     {...register("config.http.checkKeyword")}
                   />
-                  <FieldHint>Optional: Prüft ob die Antwort diesen Text enthält</FieldHint>
+                  <FieldHint>{t("editDialog.fields.keywordHint")}</FieldHint>
                 </div>
 
                 {/* Authentication */}
                 <div className="space-y-3">
-                  <Label>Authentifizierung</Label>
+                  <Label>{t("editDialog.fields.authentication")}</Label>
                   <Select
                     value={watchedAuthType || "none"}
                     onValueChange={(v) =>
@@ -675,8 +678,8 @@ export function MonitorEditDialog({
                     </SelectTrigger>
                     <SelectContent>
                       {AUTH_TYPES.map((a) => (
-                        <SelectItem key={a.value} value={a.value}>
-                          {a.label}
+                        <SelectItem key={a} value={a}>
+                          {t(`auth.${a}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -685,14 +688,14 @@ export function MonitorEditDialog({
                   {watchedAuthType === "basic" && (
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label htmlFor="auth-user">Benutzername</Label>
+                        <Label htmlFor="auth-user">{t("editDialog.fields.username")}</Label>
                         <Input
                           id="auth-user"
                           {...register("config.http.authUsername")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="auth-pass">Passwort</Label>
+                        <Label htmlFor="auth-pass">{t("editDialog.fields.password")}</Label>
                         <div className="relative">
                           <Input
                             id="auth-pass"
@@ -719,12 +722,12 @@ export function MonitorEditDialog({
 
                   {watchedAuthType === "bearer" && (
                     <div className="space-y-2">
-                      <Label htmlFor="auth-token">Bearer Token</Label>
+                      <Label htmlFor="auth-token">{t("editDialog.fields.bearerToken")}</Label>
                       <div className="relative">
                         <Input
                           id="auth-token"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Token ohne 'Bearer ' Prefix"
+                          placeholder={t("editDialog.fields.bearerTokenPlaceholder")}
                           {...register("config.http.authToken")}
                         />
                         <Button
@@ -748,8 +751,8 @@ export function MonitorEditDialog({
                 {/* Redirects Option */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Redirects folgen</Label>
-                    <FieldHint>HTTP 3xx Weiterleitungen automatisch folgen</FieldHint>
+                    <Label>{t("editDialog.fields.followRedirects")}</Label>
+                    <FieldHint>{t("editDialog.fields.followRedirectsHint")}</FieldHint>
                   </div>
                   <input
                     type="checkbox"
@@ -766,13 +769,13 @@ export function MonitorEditDialog({
           {/* ============================================ */}
           {watchedType === "dns" && (
             <div className="space-y-2">
-              <Label htmlFor="dns-server">Benutzerdefinierter DNS-Server</Label>
+              <Label htmlFor="dns-server">{t("editDialog.fields.dnsServer")}</Label>
               <Input
                 id="dns-server"
-                placeholder="8.8.8.8 oder leer für System-DNS"
+                placeholder={t("editDialog.fields.dnsServerPlaceholder")}
                 {...register("config.dns.dnsServer")}
               />
-              <FieldHint>Optional: Spezifischen DNS-Server verwenden</FieldHint>
+              <FieldHint>{t("editDialog.fields.dnsServerHint")}</FieldHint>
               <FieldError message={errors.config?.dns?.dnsServer?.message} />
             </div>
           )}
@@ -781,12 +784,12 @@ export function MonitorEditDialog({
           {/* SLA Configuration */}
           {/* ============================================ */}
           <div className="space-y-4 pt-4 border-t bg-muted/30 -mx-6 px-6 py-4">
-            <h4 className="font-medium text-sm">SLA-Konfiguration</h4>
+            <h4 className="font-medium text-sm">{t("editDialog.sections.sla")}</h4>
 
             <div className="grid grid-cols-2 gap-4">
               {/* SLA Target */}
               <div className="space-y-2">
-                <Label htmlFor="slaTarget">Uptime-Ziel (%)</Label>
+                <Label htmlFor="slaTarget">{t("editDialog.fields.slaTarget")}</Label>
                 <Input
                   id="slaTarget"
                   type="number"
@@ -807,7 +810,7 @@ export function MonitorEditDialog({
 
               {/* Max Response Time */}
               <div className="space-y-2">
-                <Label htmlFor="maxResponseTime">Max. Antwortzeit (ms)</Label>
+                <Label htmlFor="maxResponseTime">{t("editDialog.fields.maxResponseTime")}</Label>
                 <Input
                   id="maxResponseTime"
                   type="number"
@@ -818,7 +821,7 @@ export function MonitorEditDialog({
                   {...register("maxResponseTime", { valueAsNumber: true })}
                   aria-invalid={!!errors.maxResponseTime}
                 />
-                <FieldHint>Langsamere Antworten gelten als degradiert</FieldHint>
+                <FieldHint>{t("editDialog.fields.maxResponseTimeHint")}</FieldHint>
                 <FieldError message={errors.maxResponseTime?.message} />
               </div>
             </div>
@@ -834,16 +837,16 @@ export function MonitorEditDialog({
               onClick={handleCancel}
               disabled={isSubmitting}
             >
-              Abbrechen
+              {t("editDialog.buttons.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting || !isDirty}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Speichern...
+                  {t("editDialog.buttons.saving")}
                 </>
               ) : (
-                "Speichern"
+                t("editDialog.buttons.save")
               )}
             </Button>
           </DialogFooter>

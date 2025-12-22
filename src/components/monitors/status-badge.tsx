@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { MonitorStatus } from "@/types";
@@ -7,28 +10,28 @@ interface StatusBadgeProps {
   className?: string;
 }
 
-const statusConfig: Record<
+const statusVariants: Record<
   MonitorStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+  "default" | "secondary" | "destructive" | "outline"
 > = {
-  up: { label: "Up", variant: "default" },
-  down: { label: "Down", variant: "destructive" },
-  pending: { label: "Pending", variant: "secondary" },
-  paused: { label: "Paused", variant: "outline" },
+  up: "default",
+  down: "destructive",
+  pending: "secondary",
+  paused: "outline",
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const t = useTranslations("monitors");
 
   return (
     <Badge
-      variant={config.variant}
+      variant={statusVariants[status]}
       className={cn(
         status === "up" && "bg-green-500 hover:bg-green-500/80",
         className
       )}
     >
-      {config.label}
+      {t(`status.${status}`)}
     </Badge>
   );
 }

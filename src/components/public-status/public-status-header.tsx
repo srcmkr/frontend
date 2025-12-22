@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CheckCircle2, AlertTriangle, XCircle, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OverallStatus } from "@/lib/public-status-utils";
@@ -28,6 +29,7 @@ export function PublicStatusHeader({
   overallStatus,
   lastUpdated,
 }: PublicStatusHeaderProps) {
+  const t = useTranslations("publicStatus");
   const statusInfo = getStatusDisplayInfo(overallStatus);
   const StatusIcon = statusIcons[overallStatus];
 
@@ -72,7 +74,7 @@ export function PublicStatusHeader({
               {statusInfo.labelDe}
             </h2>
             <p className="text-xs text-muted-foreground">
-              Zuletzt aktualisiert: {formatRelativeTime(lastUpdated, "de")}
+              {t("lastUpdated", { time: formatRelativeTime(lastUpdated, "de") })}
             </p>
           </div>
         </div>

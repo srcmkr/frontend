@@ -54,9 +54,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  userSchema,
-  userEditSchema,
-  userPasswordSchema,
+  createUserSchema,
+  createUserEditSchema,
+  createUserPasswordSchema,
   type UserFormData,
   type UserEditFormData,
   type UserPasswordFormData,
@@ -70,7 +70,13 @@ const CURRENT_USER_ID = "user-1";
 
 export function UserSettings() {
   const t = useTranslations("settings");
+  const tValidation = useTranslations();
   const locale = useLocale();
+
+  // Create validation schemas with translations
+  const userSchema = createUserSchema(tValidation as unknown as (key: string) => string);
+  const userEditSchema = createUserEditSchema(tValidation as unknown as (key: string) => string);
+  const userPasswordSchema = createUserPasswordSchema(tValidation as unknown as (key: string) => string);
 
   // Fetch users using React Query
   const { data: fetchedUsers = [], isLoading } = useUsers();

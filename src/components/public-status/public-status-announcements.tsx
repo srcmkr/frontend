@@ -1,7 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Info, AlertTriangle, Wrench, CheckCircle, Pin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import type { StatusPageAnnouncement } from "@/types";
 
 interface PublicStatusAnnouncementsProps {
@@ -42,11 +44,14 @@ const announcementConfig = {
 export function PublicStatusAnnouncements({
   announcements,
 }: PublicStatusAnnouncementsProps) {
+  const t = useTranslations("publicStatus");
+  const locale = useLocale();
+
   if (announcements.length === 0) return null;
 
   return (
     <div className="space-y-2">
-      <h2 className="text-base font-semibold">Ankündigungen</h2>
+      <h2 className="text-base font-semibold">{t("announcements")}</h2>
       <div className="space-y-2">
         {announcements.map((announcement) => {
           const config = announcementConfig[announcement.type];
@@ -76,7 +81,7 @@ export function PublicStatusAnnouncements({
                     {announcement.message}
                   </p>
                   <p className="text-xs text-muted-foreground/70 mt-1.5">
-                    {new Date(announcement.createdAt).toLocaleDateString("de-DE", {
+                    {new Date(announcement.createdAt).toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",

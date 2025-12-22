@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronRight,
   Folder,
@@ -57,6 +58,7 @@ export function GroupItemContent({
   ghost,
   clone,
 }: GroupItemContentProps) {
+  const t = useTranslations("monitors");
   const [editName, setEditName] = useState(item.name);
   const [pendingEdit, setPendingEdit] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -198,18 +200,18 @@ export function GroupItemContent({
             >
               <DropdownMenuItem onSelect={() => onAddSubgroup?.(item.id)}>
                 <FolderPlus className="h-4 w-4 mr-2" />
-                Unterordner erstellen
+                {t("groups.createSubfolder")}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setPendingEdit(true)}>
                 <Pencil className="h-4 w-4 mr-2" />
-                Umbenennen
+                {t("groups.rename")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => onDelete?.(item.id)}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Löschen
+                {t("detail.delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

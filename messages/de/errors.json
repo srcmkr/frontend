@@ -68,5 +68,23 @@
     "invalidFormat": "Ungültiges Format",
     "tooShort": "Eingabe ist zu kurz",
     "tooLong": "Eingabe ist zu lang"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "message": "Die angeforderte Seite existiert nicht oder wurde verschoben.",
+    "back": "Zurück",
+    "toDashboard": "Zum Dashboard",
+    "statusPage": {
+      "title": "Status-Seite nicht gefunden",
+      "message": "Die angeforderte Status-Seite existiert nicht oder wurde entfernt.",
+      "toHome": "Zur Startseite"
+    }
+  },
+  "actions": {
+    "tryAgain": "Erneut versuchen"
+  },
+  "errorState": {
+    "defaultTitle": "Etwas ist schiefgelaufen",
+    "defaultMessage": "Die Daten konnten nicht geladen werden."
   }
 }

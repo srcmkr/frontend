@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { IncidentStatus } from "@/types";
 
@@ -13,7 +14,6 @@ interface IncidentStatusBadgeProps {
 const STATUS_CONFIG: Record<
   IncidentStatus,
   {
-    label: string;
     bgLight: string;
     bgDark: string;
     textLight: string;
@@ -25,7 +25,6 @@ const STATUS_CONFIG: Record<
   }
 > = {
   ongoing: {
-    label: "Aktiv",
     bgLight: "bg-red-50",
     bgDark: "dark:bg-red-950/30",
     textLight: "text-red-700",
@@ -36,7 +35,6 @@ const STATUS_CONFIG: Record<
     pulse: true,
   },
   resolved: {
-    label: "Behoben",
     bgLight: "bg-green-50",
     bgDark: "dark:bg-green-950/30",
     textLight: "text-green-700",
@@ -53,6 +51,7 @@ export function IncidentStatusBadge({
   showLabel = true,
   className,
 }: IncidentStatusBadgeProps) {
+  const t = useTranslations("incidents");
   const config = STATUS_CONFIG[status];
 
   return (
@@ -78,7 +77,7 @@ export function IncidentStatusBadge({
           config.pulse && "animate-pulse"
         )}
       />
-      {showLabel && config.label}
+      {showLabel && t(`status.${status}`)}
     </span>
   );
 }

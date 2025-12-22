@@ -94,24 +94,24 @@ export function groupMonitors(
   const typeOrder = ["http", "tcp", "ping", "dns"];
   const order = groupBy === "status" ? statusOrder : typeOrder;
 
-  const titles: Record<string, string> = {
-    // Status titles
-    down: "Services Down",
-    up: "Services Up",
-    pending: "Pending",
-    paused: "Paused",
-    // Type titles
-    http: "HTTP Monitors",
-    tcp: "TCP Monitors",
-    ping: "Ping Monitors",
-    dns: "DNS Monitors",
+  const titleKeys: Record<string, string> = {
+    // Status keys - map to monitors.status.* translations
+    down: "status.down",
+    up: "status.up",
+    pending: "status.pending",
+    paused: "status.paused",
+    // Type keys - map to monitors.types.* translations
+    http: "types.http",
+    tcp: "types.tcp",
+    ping: "types.ping",
+    dns: "types.dns",
   };
 
   return order
     .filter((key) => groups.has(key))
     .map((key) => ({
       key,
-      title: titles[key] || key,
+      title: titleKeys[key] || key,
       monitors: groups.get(key)!,
     }));
 }

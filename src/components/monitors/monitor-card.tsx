@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "./status-badge";
 import { ResponseTimeSparkline } from "@/components/charts/response-time-sparkline";
@@ -11,6 +12,8 @@ interface MonitorCardProps {
 }
 
 export function MonitorCard({ monitor }: MonitorCardProps) {
+  const t = useTranslations("monitors.card");
+
   // Generate fake sparkline data for demo
   const sparklineData = Array.from({ length: 20 }, (_, i) => ({
     time: i,
@@ -46,14 +49,14 @@ export function MonitorCard({ monitor }: MonitorCardProps) {
 
             <div className="flex items-center gap-6 text-sm">
               <div className="text-right">
-                <div className="text-muted-foreground text-xs">Response</div>
+                <div className="text-muted-foreground text-xs">{t("response")}</div>
                 <div className="font-mono">
                   {formatResponseTime(monitor.lastResponseTime)}
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-muted-foreground text-xs">24h</div>
+                <div className="text-muted-foreground text-xs">{t("uptime24h")}</div>
                 <div
                   className={
                     monitor.uptime24h >= 99.9
@@ -68,7 +71,7 @@ export function MonitorCard({ monitor }: MonitorCardProps) {
               </div>
 
               <div className="text-right">
-                <div className="text-muted-foreground text-xs">7d</div>
+                <div className="text-muted-foreground text-xs">{t("uptime7d")}</div>
                 <div
                   className={
                     monitor.uptime7d >= 99.9

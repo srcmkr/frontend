@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { StatusIndicator } from "./status-indicator";
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar } from "recharts";
 import type { Monitor } from "@/types";
@@ -17,6 +18,8 @@ function generateTrendData(baseValue: number, variance: number = 0.1) {
 }
 
 export function StatsOverview({ monitors }: StatsOverviewProps) {
+  const t = useTranslations("monitors");
+
   const upMonitors = monitors.filter((m) => m.status === "up").length;
   const downMonitors = monitors.filter((m) => m.status === "down").length;
 
@@ -72,7 +75,7 @@ export function StatsOverview({ monitors }: StatsOverviewProps) {
         <div className="relative z-10 p-4 h-full flex items-center justify-between">
           <div>
             <div className="text-2xl font-bold text-green-600">{upMonitors}</div>
-            <div className="text-sm text-muted-foreground">Services Up</div>
+            <div className="text-sm text-muted-foreground">{t("stats.servicesUp")}</div>
           </div>
           <StatusIndicator status="up" size="lg" />
         </div>
@@ -101,7 +104,7 @@ export function StatsOverview({ monitors }: StatsOverviewProps) {
         <div className="relative z-10 p-4 h-full flex items-center justify-between">
           <div>
             <div className="text-2xl font-bold text-red-600">{downMonitors}</div>
-            <div className="text-sm text-muted-foreground">Services Down</div>
+            <div className="text-sm text-muted-foreground">{t("stats.servicesDown")}</div>
           </div>
           {downMonitors > 0 && <StatusIndicator status="down" size="lg" />}
         </div>
@@ -142,7 +145,7 @@ export function StatsOverview({ monitors }: StatsOverviewProps) {
             >
               {avgUptime24h.toFixed(2)}%
             </div>
-            <div className="text-sm text-muted-foreground">Avg. Uptime (24h)</div>
+            <div className="text-sm text-muted-foreground">{t("stats.avgUptime")}</div>
           </div>
         </div>
       </div>
@@ -172,7 +175,7 @@ export function StatsOverview({ monitors }: StatsOverviewProps) {
         <div className="relative z-10 p-4 h-full flex items-center">
           <div>
             <div className="text-2xl font-bold">{Math.round(avgResponseTime)}ms</div>
-            <div className="text-sm text-muted-foreground">Avg. Response Time</div>
+            <div className="text-sm text-muted-foreground">{t("stats.avgResponseTime")}</div>
           </div>
         </div>
       </div>

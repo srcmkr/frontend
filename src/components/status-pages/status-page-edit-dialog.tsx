@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -62,6 +63,8 @@ export function StatusPageEditDialog({
   onOpenChange,
   onSave,
 }: StatusPageEditDialogProps) {
+  const t = useTranslations("statusPages");
+  const tCommon = useTranslations("common.form");
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<StatusPageFormData>(defaultFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -116,32 +119,32 @@ export function StatusPageEditDialog({
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = "Titel ist erforderlich";
+      newErrors.title = t("form.titleRequired");
     }
 
     if (!formData.slug.trim()) {
-      newErrors.slug = "Slug ist erforderlich";
+      newErrors.slug = t("form.slugRequired");
     } else if (!/^[a-z0-9-]+$/.test(formData.slug)) {
-      newErrors.slug = "Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten";
+      newErrors.slug = t("form.slugInvalidChars");
     } else if (existingSlugs.includes(formData.slug)) {
-      newErrors.slug = "Dieser Slug wird bereits verwendet";
+      newErrors.slug = t("form.slugAlreadyUsed");
     }
 
     if (formData.uptimeHistoryDays < 1 || formData.uptimeHistoryDays > 365) {
-      newErrors.uptimeHistoryDays = "Muss zwischen 1 und 365 Tagen liegen";
+      newErrors.uptimeHistoryDays = t("display.uptimeHistoryDaysError");
     }
 
     if (formData.incidentHistoryDays < 1 || formData.incidentHistoryDays > 365) {
-      newErrors.incidentHistoryDays = "Muss zwischen 1 und 365 Tagen liegen";
+      newErrors.incidentHistoryDays = t("display.incidentHistoryDaysError");
     }
 
     if (formData.groups.length === 0) {
-      newErrors.groups = "Mindestens eine Gruppe ist erforderlich";
+      newErrors.groups = t("form.groupRequired");
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData, existingSlugs]);
+  }, [formData, existingSlugs, t]);
 
   const handleSave = async () => {
     if (!validate()) return;
@@ -173,23 +176,23 @@ export function StatusPageEditDialog({
       <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Statusseite bearbeiten" : "Neue Statusseite erstellen"}
+            {isEditing ? t("edit.editStatusPage") : t("edit.newStatusPage")}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Ändere die Einstellungen dieser Statusseite"
-              : "Erstelle eine neue öffentliche oder private Statusseite"}
+              ? t("edit.editDescription")
+              : t("edit.createDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="general" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="general">Allgemein</TabsTrigger>
+            <TabsTrigger value="general">{t("tabs.general")}</TabsTrigger>
             <TabsTrigger value="monitors">
-              Monitors & Gruppen
+              {t("tabs.monitors")} & {t("header.groups")}
               {errors.groups && <span className="ml-1 text-destructive">*</span>}
             </TabsTrigger>
-            <TabsTrigger value="display">Anzeige</TabsTrigger>
+            <TabsTrigger value="display">{t("tabs.display")}</TabsTrigger>
           </TabsList>
 
           <div className="flex-1 overflow-y-auto py-4">
@@ -197,21 +200,21 @@ export function StatusPageEditDialog({
             <TabsContent value="general" className="space-y-4 mt-0">
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title">Titel *</Label>
+                <Label htmlFor="title">{t("form.title")} *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  placeholder="z.B. System Status"
+                  placeholder={t("form.titlePlaceholder")}
                 />
                 <FieldError message={errors.title} />
               </div>
 
               {/* Slug */}
               <div className="space-y-2">
-                <Label htmlFor="slug">URL-Slug *</Label>
+                <Label htmlFor="slug">{t("form.urlSlug")} *</Label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">/status/</span>
                   <Input
@@ -221,26 +224,26 @@ export function StatusPageEditDialog({
                       setSlugManuallyEdited(true);
                       setFormData((prev) => ({ ...prev, slug: e.target.value }));
                     }}
-                    placeholder="system-status"
+                    placeholder={t("form.slugPlaceholder")}
                     className="font-mono"
                   />
                 </div>
                 <FieldError message={errors.slug} />
                 <p className="text-xs text-muted-foreground">
-                  Nur Kleinbuchstaben, Zahlen und Bindestriche erlaubt
+                  {t("form.slugHintChars")}
                 </p>
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description">Beschreibung</Label>
+                <Label htmlFor="description">{t("form.description")}</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, description: e.target.value }))
                   }
-                  placeholder="Kurze Beschreibung der Statusseite..."
+                  placeholder={t("form.descriptionPlaceholder")}
                   rows={3}
                 />
               </div>
@@ -248,9 +251,9 @@ export function StatusPageEditDialog({
               {/* Public Toggle */}
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <Label htmlFor="isPublic">Öffentlich zugänglich</Label>
+                  <Label htmlFor="isPublic">{t("access.publicAccess")}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Öffentliche Seiten sind ohne Anmeldung erreichbar
+                    {t("access.publicAccessYes")}
                   </p>
                 </div>
                 <Switch
@@ -267,9 +270,9 @@ export function StatusPageEditDialog({
             <TabsContent value="monitors" className="mt-0">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium mb-1">Gruppen & Monitors</h3>
+                  <h3 className="text-sm font-medium mb-1">{t("form.groupsAndMonitors")}</h3>
                   <p className="text-xs text-muted-foreground mb-4">
-                    Organisiere Monitors in Gruppen. Jeder Monitor kann nur einer Gruppe zugeordnet sein.
+                    {t("form.groupsDescription")}
                   </p>
                   <FieldError message={errors.groups} />
                 </div>
@@ -287,9 +290,9 @@ export function StatusPageEditDialog({
               {/* Show Uptime History */}
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <Label htmlFor="showUptimeHistory">Uptime-Historie anzeigen</Label>
+                  <Label htmlFor="showUptimeHistory">{t("display.showUptimeHistory")}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Zeigt Uptime-Bars für jeden Monitor
+                    {t("display.showUptimeHistoryHint")}
                   </p>
                 </div>
                 <Switch
@@ -304,7 +307,7 @@ export function StatusPageEditDialog({
               {/* Uptime History Days */}
               {formData.showUptimeHistory && (
                 <div className="space-y-2">
-                  <Label htmlFor="uptimeHistoryDays">Uptime-Historie (Tage)</Label>
+                  <Label htmlFor="uptimeHistoryDays">{t("display.uptimeHistoryDays")}</Label>
                   <Input
                     id="uptimeHistoryDays"
                     type="number"
@@ -326,9 +329,9 @@ export function StatusPageEditDialog({
               {/* Show Incidents */}
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <Label htmlFor="showIncidents">Incidents anzeigen</Label>
+                  <Label htmlFor="showIncidents">{t("display.showIncidents")}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Zeigt aktuelle und vergangene Vorfälle
+                    {t("display.showIncidentsHint")}
                   </p>
                 </div>
                 <Switch
@@ -343,7 +346,7 @@ export function StatusPageEditDialog({
               {/* Incident History Days */}
               {formData.showIncidents && (
                 <div className="space-y-2">
-                  <Label htmlFor="incidentHistoryDays">Incident-Verlauf (Tage)</Label>
+                  <Label htmlFor="incidentHistoryDays">{t("display.incidentHistoryDays")}</Label>
                   <Input
                     id="incidentHistoryDays"
                     type="number"
@@ -364,20 +367,20 @@ export function StatusPageEditDialog({
 
               {/* Logo URL */}
               <div className="space-y-2 pt-4 border-t">
-                <Label htmlFor="logo">Logo URL (optional)</Label>
+                <Label htmlFor="logo">{t("branding.logoUrl")} ({tCommon("optional")})</Label>
                 <Input
                   id="logo"
                   value={formData.logo || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, logo: e.target.value || undefined }))
                   }
-                  placeholder="https://example.com/logo.png"
+                  placeholder={t("branding.logoUrlPlaceholder")}
                 />
               </div>
 
               {/* Primary Color */}
               <div className="space-y-2">
-                <Label htmlFor="primaryColor">Primärfarbe (optional)</Label>
+                <Label htmlFor="primaryColor">{t("branding.primaryColor")} ({tCommon("optional")})</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="primaryColor"
@@ -402,7 +405,7 @@ export function StatusPageEditDialog({
 
               {/* Custom CSS */}
               <div className="space-y-2">
-                <Label htmlFor="customCss">Custom CSS (optional)</Label>
+                <Label htmlFor="customCss">{t("branding.customCss")} ({tCommon("optional")})</Label>
                 <Textarea
                   id="customCss"
                   value={formData.customCss || ""}
@@ -417,7 +420,7 @@ export function StatusPageEditDialog({
                   className="font-mono text-sm"
                 />
                 <p className="text-xs text-muted-foreground">
-                  CSS wird auf der öffentlichen Statusseite angewendet
+                  {t("branding.customCssHint")}
                 </p>
               </div>
             </TabsContent>
@@ -426,11 +429,11 @@ export function StatusPageEditDialog({
 
         <DialogFooter className="border-t pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
+            {t("edit.cancel")}
           </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {isEditing ? "Speichern" : "Erstellen"}
+            {isEditing ? t("edit.save") : t("edit.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

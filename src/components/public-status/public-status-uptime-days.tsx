@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import type { Monitor } from "@/types";
 import { generateDailyUptimeData, type DayUptimeData } from "@/lib/public-status-utils";
 
@@ -22,6 +23,7 @@ export function PublicStatusUptimeDays({
   days,
   className,
 }: PublicStatusUptimeDaysProps) {
+  const locale = useLocale();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tooltipPos, setTooltipPos] = useState<TooltipPosition | null>(null);
 
@@ -45,7 +47,7 @@ export function PublicStatusUptimeDays({
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("de-DE", {
+    return date.toLocaleDateString(locale, {
       weekday: "short",
       day: "2-digit",
       month: "2-digit",
@@ -117,7 +119,7 @@ export function PublicStatusUptimeDays({
           >
             <div className="font-medium">{formatDate(hoveredData.date)}</div>
             {hoveredData.status === "no-data" ? (
-              <div className="text-muted-foreground">Keine Daten</div>
+              <div className="text-muted-foreground">{locale.startsWith("de") ? "Keine Daten" : "No data"}</div>
             ) : (
               <div
                 className={cn(

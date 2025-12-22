@@ -1,0 +1,204 @@
+{
+  "periodSelector": {
+    "periodType": "Zeitraum:",
+    "period": "Periode:",
+    "selectPlaceholder": "Auswählen...",
+    "types": {
+      "year": "Jahr",
+      "halfYear": "Halbjahr",
+      "quarter": "Quartal",
+      "month": "Monat"
+    }
+  },
+  "dialog": {
+    "title": "SLA Report",
+    "slaSettings": "SLA: {target}% / {maxResponse}ms",
+    "exportPdf": "PDF",
+    "exporting": "Exportiere...",
+    "exportFailed": "PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "slaTargetLabel": "SLA-Ziel Verfügbarkeit (%)",
+    "maxResponseLabel": "Max. Antwortzeit (ms)",
+    "errorLoading": "Fehler beim Laden des Reports: {message}",
+    "noPeriodSelected": "Wählen Sie einen Zeitraum aus",
+    "generatedAt": "Report generiert am"
+  },
+  "executiveSummary": {
+    "title": "Zusammenfassung",
+    "slaTarget": "SLA-Ziel Verfügbarkeit:",
+    "maxResponseTime": "Max. Antwortzeit:",
+    "availability": "Verfügbarkeit",
+    "met": "Eingehalten",
+    "violated": "Verletzt",
+    "responseTime": "Antwortzeit",
+    "downtime": "Ausfallzeit",
+    "totalMinutes": "Minuten gesamt",
+    "trendVsPrevious": "Trend vs. Vorperiode",
+    "uptime": "Uptime"
+  },
+  "availability": {
+    "title": "Verfügbarkeit",
+    "uptime": "Uptime",
+    "available": "Verfügbar",
+    "downtime": "Ausfallzeit",
+    "slaBreaches": "SLA-Verletzungen",
+    "viewMode": {
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich"
+    },
+    "table": {
+      "period": "Zeitraum",
+      "uptime": "Uptime",
+      "checks": "Checks",
+      "failed": "Fehlgeschlagen",
+      "week": "Woche"
+    },
+    "weekPrefix": "KW",
+    "slaBreachesTitle": "SLA-Verletzungen",
+    "severity": {
+      "critical": "Kritisch",
+      "major": "Schwer",
+      "minor": "Leicht"
+    }
+  },
+  "performance": {
+    "title": "Performance",
+    "average": "Durchschnitt",
+    "median": "Median",
+    "minMax": "Min / Max",
+    "degradations": "Degradationen",
+    "percentiles": "Perzentile",
+    "responseTimeTrend": "Response Time Trend",
+    "degradationIncidents": "Performance-Degradationen",
+    "slow": "Langsam",
+    "duration": "Dauer: {duration}min",
+    "threshold": "(Schwelle: {threshold}ms)",
+    "tooltip": {
+      "average": "Durchschnitt: {value}ms",
+      "p95": "P95: {value}ms"
+    },
+    "legend": {
+      "average": "Durchschnitt",
+      "p95": "P95"
+    },
+    "slaMet": "Eingehalten",
+    "slaViolated": "Verletzt",
+    "maxResponseTimeSla": "Max. Antwortzeit SLA:"
+  },
+  "incidents": {
+    "title": "Incident-Analyse",
+    "totalIncidents": "Incidents gesamt",
+    "mtbf": "MTBF",
+    "mtbfDesc": "Mean Time Between Failures",
+    "mttr": "MTTR",
+    "mttrDesc": "Mean Time To Recovery",
+    "longestOutage": "Längster Ausfall",
+    "severityDistribution": "Schweregrad-Verteilung",
+    "rootCauses": "Ursachen",
+    "timeline": "Incident-Timeline",
+    "ongoing": "andauernd",
+    "durationLabel": "Dauer:",
+    "noIncidents": "Keine Incidents",
+    "noIncidentsDescription": "Im ausgewählten Zeitraum gab es keine Vorfälle.",
+    "severity": {
+      "critical": "Kritisch",
+      "major": "Schwer",
+      "minor": "Leicht"
+    }
+  },
+  "checkStatistics": {
+    "title": "Check-Statistiken",
+    "totalChecks": "Checks gesamt",
+    "successful": "Erfolgreich",
+    "failed": "Fehlgeschlagen",
+    "successRate": "Erfolgsrate",
+    "checksPerDay": "Checks pro Tag (Durchschnitt)",
+    "checksPerHour": "= {count} Checks/Stunde",
+    "failedChecksChart": "Fehlgeschlagene Checks pro Tag",
+    "successRateDistribution": "Erfolgsrate-Verteilung",
+    "tooltip": {
+      "failed": "Fehlgeschlagen: {count}",
+      "successful": "Erfolgreich: {count}",
+      "successRate": "Erfolgsrate: {rate}%"
+    },
+    "legend": {
+      "successful": "Erfolgreich",
+      "failed": "Fehlgeschlagen"
+    }
+  },
+  "technicalDetails": {
+    "title": "Technische Details",
+    "dnsResolution": "DNS-Auflösung",
+    "average": "Durchschnitt",
+    "min": "Min",
+    "max": "Max",
+    "p95": "P95",
+    "certificateHistory": "Zertifikat-Historie",
+    "certificateTable": {
+      "date": "Datum",
+      "expiryDate": "Ablaufdatum",
+      "remaining": "Verbleibend",
+      "issuer": "Aussteller"
+    },
+    "days": "{count} Tage",
+    "tlsVersion": "TLS-Version",
+    "ipChanges": "IP-Adressen-Änderungen",
+    "noIpChanges": "Keine IP-Änderungen im ausgewählten Zeitraum."
+  },
+  "pdf": {
+    "title": "SLA Report",
+    "summary": "Zusammenfassung",
+    "slaTargetAvailability": "SLA-Ziel Verfügbarkeit:",
+    "maxResponseTime": "Max. Antwortzeit:",
+    "availability": "Verfügbarkeit",
+    "met": "Eingehalten",
+    "violated": "Verletzt",
+    "responseTime": "Antwortzeit",
+    "uptime": "Uptime",
+    "downtime": "Ausfallzeit",
+    "trendVsPrevious": "Trend vs. Vorperiode:",
+    "available": "Verfügbar",
+    "slaBreaches": "SLA-Verletzungen",
+    "table": {
+      "week": "Woche",
+      "uptime": "Uptime",
+      "checks": "Checks",
+      "failed": "Fehlgeschlagen"
+    },
+    "weekPrefix": "KW",
+    "generatedAt": "Report generiert am",
+    "performance": {
+      "title": "Performance",
+      "maxResponseTimeSla": "Max. Antwortzeit SLA:",
+      "average": "Durchschnitt",
+      "median": "Median",
+      "minMax": "Min / Max:"
+    },
+    "incidents": {
+      "title": "Incident-Analyse",
+      "totalIncidents": "Incidents gesamt",
+      "mtbf": "MTBF",
+      "mttr": "MTTR",
+      "longestOutage": "Längster Ausfall",
+      "severity": {
+        "critical": "Kritisch",
+        "major": "Schwer",
+        "minor": "Leicht"
+      }
+    },
+    "checkStatistics": {
+      "title": "Check-Statistiken",
+      "totalChecks": "Checks gesamt",
+      "successful": "Erfolgreich",
+      "failed": "Fehlgeschlagen",
+      "successRate": "Erfolgsrate"
+    },
+    "technicalDetails": {
+      "title": "Technische Details",
+      "dnsAvg": "DNS Avg",
+      "dnsP95": "DNS P95",
+      "ipChanges": "IP-Änderungen",
+      "tlsVersion": "TLS-Version"
+    }
+  }
+}

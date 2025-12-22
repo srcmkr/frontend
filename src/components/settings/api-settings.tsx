@@ -37,11 +37,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { apiKeySchema, type ApiKeyFormData } from "@/lib/validations/settings";
+import { createApiKeySchema, type ApiKeyFormData } from "@/lib/validations/settings";
 import { useApiKeys, type ApiKey } from "@/features/settings";
 
 export function ApiSettings() {
   const t = useTranslations("settings");
+  const tValidation = useTranslations();
   const locale = useLocale();
 
   // Fetch API keys using React Query
@@ -54,6 +55,8 @@ export function ApiSettings() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null);
   const [newKeyValue, setNewKeyValue] = useState<string | null>(null);
+
+  const apiKeySchema = createApiKeySchema(tValidation as unknown as (key: string) => string);
 
   const {
     register,

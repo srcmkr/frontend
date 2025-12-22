@@ -63,6 +63,8 @@
     "back": "Zurück",
     "editStatusPage": "Statusseite bearbeiten",
     "newStatusPage": "Neue Statusseite",
+    "editDescription": "Ändere die Einstellungen dieser Statusseite",
+    "createDescription": "Erstelle eine neue öffentliche oder private Statusseite",
     "cancel": "Abbrechen",
     "save": "Speichern",
     "create": "Erstellen"
@@ -279,5 +281,10 @@
     "partialOutage": "Teilweiser Ausfall",
     "majorOutage": "Größerer Ausfall",
     "maintenance": "In Wartung"
+  },
+  "toast": {
+    "createSuccess": "Statusseite \"{title}\" erstellt",
+    "updateSuccess": "Statusseite \"{title}\" aktualisiert",
+    "deleteSuccess": "Statusseite gelöscht"
   }
 }

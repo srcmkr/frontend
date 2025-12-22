@@ -68,5 +68,23 @@
     "invalidFormat": "Invalid format",
     "tooShort": "Input is too short",
     "tooLong": "Input is too long"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "The requested page does not exist or has been moved.",
+    "back": "Back",
+    "toDashboard": "To Dashboard",
+    "statusPage": {
+      "title": "Status Page Not Found",
+      "message": "The requested status page does not exist or has been removed.",
+      "toHome": "To Home"
+    }
+  },
+  "actions": {
+    "tryAgain": "Try Again"
+  },
+  "errorState": {
+    "defaultTitle": "Something went wrong",
+    "defaultMessage": "The data could not be loaded."
   }
 }

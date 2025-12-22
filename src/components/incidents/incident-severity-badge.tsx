@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { IncidentSeverity } from "@/types";
 
@@ -13,7 +14,6 @@ interface IncidentSeverityBadgeProps {
 const SEVERITY_CONFIG: Record<
   IncidentSeverity,
   {
-    label: string;
     bgLight: string;
     bgDark: string;
     textLight: string;
@@ -24,7 +24,6 @@ const SEVERITY_CONFIG: Record<
   }
 > = {
   info: {
-    label: "Info",
     bgLight: "bg-blue-50",
     bgDark: "dark:bg-blue-950/30",
     textLight: "text-blue-700",
@@ -33,7 +32,6 @@ const SEVERITY_CONFIG: Record<
     borderDark: "dark:border-blue-800",
   },
   minor: {
-    label: "Gering",
     bgLight: "bg-yellow-50",
     bgDark: "dark:bg-yellow-950/30",
     textLight: "text-yellow-700",
@@ -42,7 +40,6 @@ const SEVERITY_CONFIG: Record<
     borderDark: "dark:border-yellow-800",
   },
   major: {
-    label: "Mittel",
     bgLight: "bg-orange-50",
     bgDark: "dark:bg-orange-950/30",
     textLight: "text-orange-700",
@@ -51,7 +48,6 @@ const SEVERITY_CONFIG: Record<
     borderDark: "dark:border-orange-800",
   },
   critical: {
-    label: "Kritisch",
     bgLight: "bg-red-50",
     bgDark: "dark:bg-red-950/30",
     textLight: "text-red-700",
@@ -68,6 +64,7 @@ export function IncidentSeverityBadge({
   showLabel = true,
   className,
 }: IncidentSeverityBadgeProps) {
+  const t = useTranslations("incidents");
   const config = SEVERITY_CONFIG[severity];
 
   return (
@@ -96,7 +93,7 @@ export function IncidentSeverityBadge({
           config.pulse && "animate-pulse"
         )}
       />
-      {showLabel && config.label}
+      {showLabel && t(`severity.${severity}`)}
     </span>
   );
 }

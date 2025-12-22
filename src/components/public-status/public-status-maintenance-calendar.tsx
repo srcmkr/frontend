@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Calendar, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import type { StatusPageMaintenance, StatusPageGroup } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,22 +14,44 @@ interface PublicStatusMaintenanceCalendarProps {
   groups: StatusPageGroup[];
 }
 
-const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-const MONTHS = [
-  "Januar", "Februar", "März", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Dezember",
-];
-
 export function PublicStatusMaintenanceCalendar({
   maintenances,
   groups,
 }: PublicStatusMaintenanceCalendarProps) {
+  const t = useTranslations("publicStatus");
+  const locale = useLocale();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // Get current month and year
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
+
+  // Weekdays and months from translations
+  const WEEKDAYS = [
+    t("calendar.weekdays.mon"),
+    t("calendar.weekdays.tue"),
+    t("calendar.weekdays.wed"),
+    t("calendar.weekdays.thu"),
+    t("calendar.weekdays.fri"),
+    t("calendar.weekdays.sat"),
+    t("calendar.weekdays.sun"),
+  ];
+
+  const MONTHS = [
+    t("calendar.months.january"),
+    t("calendar.months.february"),
+    t("calendar.months.march"),
+    t("calendar.months.april"),
+    t("calendar.months.may"),
+    t("calendar.months.june"),
+    t("calendar.months.july"),
+    t("calendar.months.august"),
+    t("calendar.months.september"),
+    t("calendar.months.october"),
+    t("calendar.months.november"),
+    t("calendar.months.december"),
+  ];
 
   // Calculate calendar days
   const calendarDays = useMemo(() => {
@@ -100,7 +124,7 @@ export function PublicStatusMaintenanceCalendar({
   };
 
   const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString("de-DE", {
+    return new Date(dateStr).toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -118,7 +142,7 @@ export function PublicStatusMaintenanceCalendar({
     <div className="space-y-2">
       <h2 className="text-base font-semibold flex items-center gap-2">
         <Calendar className="h-4 w-4" />
-        Wartungskalender
+        {t("maintenance.calendar")}
       </h2>
 
       <div className="rounded-lg border bg-card overflow-hidden">
@@ -209,11 +233,12 @@ export function PublicStatusMaintenanceCalendar({
         {selectedDate && selectedMaintenances.length > 0 && (
           <div className="border-t p-3 space-y-2">
             <h3 className="font-medium text-xs text-muted-foreground">
-              Wartungen am{" "}
-              {new Date(selectedDate).toLocaleDateString("de-DE", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
+              {t("maintenance.maintenancesOn", {
+                date: new Date(selectedDate).toLocaleDateString(locale, {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                }),
               })}
             </h3>
             {selectedMaintenances.map((maintenance) => (
@@ -248,8 +273,8 @@ export function PublicStatusMaintenanceCalendar({
                       )}
                     >
                       {maintenance.status === "in_progress"
-                        ? "Läuft"
-                        : "Geplant"}
+                        ? t("maintenance.running")
+                        : t("maintenance.planned")}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -271,11 +296,11 @@ export function PublicStatusMaintenanceCalendar({
         <div className="border-t px-3 py-2 flex items-center gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-            <span>Geplant</span>
+            <span>{t("maintenance.planned")}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-            <span>In Bearbeitung</span>
+            <span>{t("maintenance.inProgress")}</span>
           </div>
         </div>
       </div>

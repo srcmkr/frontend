@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  statusPageSettingsSchema,
+  createStatusPageSettingsSchema,
   type StatusPageSettingsFormData,
 } from "@/lib/validations/settings";
 import { defaultStatusPageSettings } from "@/mocks/settings";
 
 export function StatusPageSettings() {
   const t = useTranslations("settings");
+  const tValidation = useTranslations();
+  const statusPageSettingsSchema = createStatusPageSettingsSchema(tValidation as unknown as (key: string) => string);
   const {
     register,
     handleSubmit,

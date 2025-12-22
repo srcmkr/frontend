@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
+import { useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -18,6 +20,9 @@ interface CheckStatisticsSectionProps {
 }
 
 export function CheckStatisticsSection({ data, className }: CheckStatisticsSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations("reports.checkStatistics");
+
   // Aggregate to max 30 days for chart
   const aggregatedData = () => {
     const checks = data.checksByDay;
@@ -48,7 +53,7 @@ export function CheckStatisticsSection({ data, className }: CheckStatisticsSecti
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+    return date.toLocaleDateString(locale, { day: "2-digit", month: "2-digit" });
   };
 
   const formatNumber = (num: number) => {
@@ -65,22 +70,22 @@ export function CheckStatisticsSection({ data, className }: CheckStatisticsSecti
 
   return (
     <div className={cn("space-y-6", className)}>
-      <h3 className="font-semibold text-lg">Check-Statistiken</h3>
+      <h3 className="font-semibold text-lg">{t("title")}</h3>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Checks gesamt</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("totalChecks")}</p>
           <p className="text-2xl font-bold font-mono">{formatNumber(data.totalChecks)}</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Erfolgreich</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("successful")}</p>
           <p className="text-2xl font-bold font-mono text-green-600">
             {formatNumber(data.successfulChecks)}
           </p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Fehlgeschlagen</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("failed")}</p>
           <p className={cn(
             "text-2xl font-bold font-mono",
             data.failedChecks > 0 ? "text-red-600" : "text-green-600"
@@ -89,7 +94,7 @@ export function CheckStatisticsSection({ data, className }: CheckStatisticsSecti
           </p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Erfolgsrate</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("successRate")}</p>
           <p className={cn(
             "text-2xl font-bold font-mono",
             getSuccessRateColor(data.successRate)
@@ -101,42 +106,44 @@ export function CheckStatisticsSection({ data, className }: CheckStatisticsSecti
 
       {/* Daily Success Rate */}
       <div className="bg-muted/50 rounded-lg p-4">
-        <p className="text-xs text-muted-foreground mb-1">Checks pro Tag (Durchschnitt)</p>
+        <p className="text-xs text-muted-foreground mb-1">{t("checksPerDay")}</p>
         <p className="text-2xl font-bold font-mono">{formatNumber(data.checksPerDay)}</p>
         <p className="text-xs text-muted-foreground mt-1">
-          = {Math.round(data.checksPerDay / 24)} Checks/Stunde
+          {t("checksPerHour", { count: Math.round(data.checksPerDay / 24) })}
         </p>
       </div>
 
       {/* Failed Checks Chart */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground">Fehlgeschlagene Checks pro Tag</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">{t("failedChecksChart")}</h4>
         <div className="h-[180px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDate}
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 10, fill: "currentColor", opacity: 0.5 }}
                 tickLine={false}
                 axisLine={false}
+                className="text-muted-foreground"
               />
               <YAxis
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 10, fill: "currentColor", opacity: 0.5 }}
                 tickLine={false}
                 axisLine={false}
                 width={40}
+                className="text-muted-foreground"
               />
               <Tooltip
                 content={({ active, payload, label }) => {
                   if (!active || !payload?.length) return null;
-                  const data = payload[0].payload;
+                  const chartEntry = payload[0].payload;
                   return (
                     <div className="bg-popover text-popover-foreground border rounded-md shadow-lg px-3 py-2 text-xs">
                       <p className="font-medium">{formatDate(String(label))}</p>
-                      <p>Fehlgeschlagen: {data.failed}</p>
-                      <p>Erfolgreich: {data.successful}</p>
-                      <p>Erfolgsrate: {data.successRate?.toFixed(2)}%</p>
+                      <p>{t("tooltip.failed", { count: chartEntry.failed })}</p>
+                      <p>{t("tooltip.successful", { count: chartEntry.successful })}</p>
+                      <p>{t("tooltip.successRate", { rate: chartEntry.successRate?.toFixed(2) })}</p>
                     </div>
                   );
                 }}
@@ -156,7 +163,7 @@ export function CheckStatisticsSection({ data, className }: CheckStatisticsSecti
 
       {/* Success Rate Distribution */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground">Erfolgsrate-Verteilung</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">{t("successRateDistribution")}</h4>
         <div className="relative">
           <div className="h-6 bg-muted rounded-full overflow-hidden flex">
             <div
@@ -184,11 +191,11 @@ export function CheckStatisticsSection({ data, className }: CheckStatisticsSecti
         <div className="flex justify-between text-xs">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm bg-green-500"></span>
-            <span className="text-muted-foreground">Erfolgreich</span>
+            <span className="text-muted-foreground">{t("legend.successful")}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm bg-red-500"></span>
-            <span className="text-muted-foreground">Fehlgeschlagen</span>
+            <span className="text-muted-foreground">{t("legend.failed")}</span>
           </span>
         </div>
       </div>

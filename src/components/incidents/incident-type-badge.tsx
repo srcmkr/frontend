@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Wrench, Megaphone } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { IncidentType } from "@/types";
 
@@ -14,7 +15,6 @@ interface IncidentTypeBadgeProps {
 const TYPE_CONFIG: Record<
   IncidentType,
   {
-    label: string;
     icon: React.ElementType;
     bgLight: string;
     bgDark: string;
@@ -23,7 +23,6 @@ const TYPE_CONFIG: Record<
   }
 > = {
   incident: {
-    label: "Vorfall",
     icon: AlertTriangle,
     bgLight: "bg-slate-100",
     bgDark: "dark:bg-slate-800/50",
@@ -31,7 +30,6 @@ const TYPE_CONFIG: Record<
     textDark: "dark:text-slate-300",
   },
   maintenance: {
-    label: "Wartung",
     icon: Wrench,
     bgLight: "bg-purple-50",
     bgDark: "dark:bg-purple-950/30",
@@ -39,7 +37,6 @@ const TYPE_CONFIG: Record<
     textDark: "dark:text-purple-300",
   },
   announcement: {
-    label: "Ankündigung",
     icon: Megaphone,
     bgLight: "bg-cyan-50",
     bgDark: "dark:bg-cyan-950/30",
@@ -54,6 +51,7 @@ export function IncidentTypeBadge({
   showLabel = true,
   className,
 }: IncidentTypeBadgeProps) {
+  const t = useTranslations("incidents");
   const config = TYPE_CONFIG[type];
   const Icon = config.icon;
 
@@ -70,7 +68,7 @@ export function IncidentTypeBadge({
       )}
     >
       <Icon className={cn(size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5")} />
-      {showLabel && config.label}
+      {showLabel && t(`types.${type}`)}
     </span>
   );
 }

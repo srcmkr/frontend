@@ -1,0 +1,49 @@
+{
+  "lastUpdated": "Last updated: {time}",
+  "poweredBy": "Powered by",
+  "incidentHistory": "Incident History",
+  "noIncidentsMessage": "No incidents in the last days",
+  "affectedServices": "Affected Services",
+  "lastUpdate": "Last Update",
+  "announcements": "Announcements",
+  "maintenance": {
+    "calendar": "Maintenance Calendar",
+    "ongoing": "Ongoing Maintenance",
+    "scheduled": "Scheduled Maintenances",
+    "maintenancesOn": "Maintenances on {date}",
+    "running": "Running",
+    "planned": "Planned",
+    "inProgress": "In Progress",
+    "affectedGroups": "Affected Groups",
+    "timeIn": {
+      "days": "in {count, plural, one {# day} other {# days}}",
+      "hours": "in {count, plural, one {# hour} other {# hours}}",
+      "minutes": "in {count, plural, one {# minute} other {# minutes}}"
+    }
+  },
+  "calendar": {
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  }
+}

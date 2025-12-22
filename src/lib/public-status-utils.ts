@@ -172,12 +172,13 @@ export function filterIncidentsByDays(
  * Group incidents by date
  */
 export function groupIncidentsByDate(
-  incidents: ExtendedIncident[]
+  incidents: ExtendedIncident[],
+  locale: string = "en-US"
 ): Map<string, ExtendedIncident[]> {
   const groups = new Map<string, ExtendedIncident[]>();
 
   for (const incident of incidents) {
-    const date = new Date(incident.startedAt).toLocaleDateString("de-DE", {
+    const date = new Date(incident.startedAt).toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",

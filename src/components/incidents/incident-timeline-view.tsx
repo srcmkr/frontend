@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import { IncidentSeverityBadge } from "./incident-severity-badge";
 import { IncidentTypeBadge } from "./incident-type-badge";
 import type { ExtendedIncident } from "@/types";
@@ -19,27 +21,35 @@ interface DayGroup {
   incidents: ExtendedIncident[];
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
+function formatDuration(
+  seconds: number,
+  t: (key: string, values?: Record<string, number>) => string
+): string {
+  if (seconds < 60) return t("seconds", { count: seconds });
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}min`;
+  if (minutes < 60) return t("minutes", { count: minutes });
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   if (hours < 24) {
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+    return remainingMinutes > 0
+      ? t("hoursMinutes", { hours, minutes: remainingMinutes })
+      : t("hours", { count: hours });
   }
   const days = Math.floor(hours / 24);
-  return `${days}d`;
+  return t("days", { count: days });
 }
 
-function getOngoingDuration(startedAt: string): string {
+function getOngoingDuration(
+  startedAt: string,
+  t: (key: string, values?: Record<string, number>) => string
+): string {
   const start = new Date(startedAt);
   const now = new Date();
   const diffSeconds = Math.floor((now.getTime() - start.getTime()) / 1000);
-  return formatDuration(diffSeconds);
+  return formatDuration(diffSeconds, t);
 }
 
-function getDayLabel(date: Date): string {
+function getDayLabel(date: Date, locale: string, t: (key: string) => string): string {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today);
@@ -52,20 +62,20 @@ function getDayLabel(date: Date): string {
   );
 
   if (incidentDate.getTime() === today.getTime()) {
-    return "Heute";
+    return t("today");
   }
   if (incidentDate.getTime() === yesterday.getTime()) {
-    return "Gestern";
+    return t("yesterday");
   }
 
-  return date.toLocaleDateString("de-DE", {
+  return date.toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
 }
 
-function groupIncidentsByDay(incidents: ExtendedIncident[]): DayGroup[] {
+function groupIncidentsByDay(incidents: ExtendedIncident[], locale: string, t: (key: string) => string): DayGroup[] {
   const groups = new Map<string, DayGroup>();
 
   // Sort incidents by startedAt descending
@@ -79,7 +89,7 @@ function groupIncidentsByDay(incidents: ExtendedIncident[]): DayGroup[] {
 
     if (!groups.has(dateKey)) {
       groups.set(dateKey, {
-        label: getDayLabel(date),
+        label: getDayLabel(date, locale, t),
         date,
         incidents: [],
       });
@@ -97,12 +107,17 @@ export function IncidentTimelineView({
   onSelectIncident,
   className,
 }: IncidentTimelineViewProps) {
-  const dayGroups = useMemo(() => groupIncidentsByDay(incidents), [incidents]);
+  const t = useTranslations("incidents.timeline");
+  const tDuration = useTranslations("common.duration");
+  const locale = useLocale();
+  const dayGroups = useMemo(() => groupIncidentsByDay(incidents, locale, t as unknown as (key: string) => string), [incidents, locale, t]);
 
   if (incidents.length === 0) {
     return (
       <div className={cn("flex items-center justify-center py-12", className)}>
-        <p className="text-muted-foreground">Keine Incidents in diesem Zeitraum</p>
+        <p className="text-muted-foreground">
+          {t("noIncidentsInPeriod")}
+        </p>
       </div>
     );
   }
@@ -129,7 +144,7 @@ export function IncidentTimelineView({
                 const isOngoing = incident.status === "ongoing";
                 const isSelected = incident.id === selectedIncidentId;
                 const time = new Date(incident.startedAt).toLocaleTimeString(
-                  "de-DE",
+                  locale,
                   { hour: "2-digit", minute: "2-digit" }
                 );
 
@@ -195,11 +210,11 @@ export function IncidentTimelineView({
                         </span>
                         {isOngoing ? (
                           <span className="text-red-600 dark:text-red-400">
-                            seit {getOngoingDuration(incident.startedAt)}
+                            {t("for")} {getOngoingDuration(incident.startedAt, tDuration as unknown as (key: string, values?: Record<string, number>) => string)}
                           </span>
                         ) : (
                           incident.duration && (
-                            <span>Dauer: {formatDuration(incident.duration)}</span>
+                            <span>{t("duration")}: {formatDuration(incident.duration, tDuration as unknown as (key: string, values?: Record<string, number>) => string)}</span>
                           )
                         )}
                       </div>

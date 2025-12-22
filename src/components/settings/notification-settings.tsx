@@ -35,7 +35,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  notificationSettingsSchema,
+  createNotificationSettingsSchema,
   type NotificationSettingsFormData,
 } from "@/lib/validations/settings";
 import {
@@ -48,6 +48,8 @@ import type { NotificationChannelFormData } from "@/lib/validations/notification
 
 export function NotificationSettings() {
   const t = useTranslations("settings");
+  const tValidation = useTranslations();
+  const notificationSettingsSchema = createNotificationSettingsSchema(tValidation as unknown as (key: string) => string);
   const [channels, setChannels] = useState<NotificationChannel[]>(mockNotificationChannels);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingChannel, setEditingChannel] = useState<NotificationChannel | undefined>(undefined);

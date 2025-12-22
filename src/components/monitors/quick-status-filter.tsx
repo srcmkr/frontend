@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Monitor, MonitorStatus } from "@/types";
 
@@ -12,19 +13,21 @@ interface QuickStatusFilterProps {
   className?: string;
 }
 
-const filterOptions: { value: FilterValue; label: string }[] = [
-  { value: "all", label: "Alle" },
-  { value: "up", label: "Up" },
-  { value: "down", label: "Down" },
-  { value: "paused", label: "Paused" },
-];
-
 export function QuickStatusFilter({
   monitors,
   value,
   onChange,
   className,
 }: QuickStatusFilterProps) {
+  const t = useTranslations("monitors");
+
+  const filterOptions: { value: FilterValue; labelKey: string }[] = [
+    { value: "all", labelKey: "filters.all" },
+    { value: "up", labelKey: "status.up" },
+    { value: "down", labelKey: "status.down" },
+    { value: "paused", labelKey: "status.paused" },
+  ];
+
   const getCounts = (status: FilterValue) => {
     if (status === "all") return monitors.length;
     return monitors.filter((m) => m.status === status).length;
@@ -53,7 +56,7 @@ export function QuickStatusFilter({
                 isSelected ? "bg-primary-foreground" : "bg-current opacity-50"
               )}
             />
-            <span>{option.label}</span>
+            <span>{t(option.labelKey as Parameters<typeof t>[0])}</span>
             <span className={cn("text-xs", isSelected ? "opacity-80" : "opacity-60")}>
               ({count})
             </span>

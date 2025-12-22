@@ -3,6 +3,7 @@
 import { useEffect, useCallback, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { Loader2, AlertTriangle, Wrench, Megaphone, Info, AlertCircle, Flame, Search, X } from "lucide-react";
 import {
   Dialog,
@@ -18,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
-  incidentFormSchema,
+  createIncidentFormSchema,
   incidentToFormValues,
   defaultIncidentFormValues,
   type IncidentFormValues,
@@ -37,17 +38,17 @@ interface IncidentEditDialogProps {
   isHistorical?: boolean;
 }
 
-const INCIDENT_TYPES: { value: IncidentType; label: string; icon: React.ElementType; description: string }[] = [
-  { value: "incident", label: "Vorfall", icon: AlertTriangle, description: "Unerwartetes Problem" },
-  { value: "maintenance", label: "Wartung", icon: Wrench, description: "Geplante Arbeiten" },
-  { value: "announcement", label: "Ankündigung", icon: Megaphone, description: "Allgemeine Info" },
+const INCIDENT_TYPES: { value: IncidentType; icon: React.ElementType }[] = [
+  { value: "incident", icon: AlertTriangle },
+  { value: "maintenance", icon: Wrench },
+  { value: "announcement", icon: Megaphone },
 ];
 
-const SEVERITY_LEVELS: { value: IncidentSeverity; label: string; color: string; icon: React.ElementType }[] = [
-  { value: "info", label: "Info", color: "bg-blue-500", icon: Info },
-  { value: "minor", label: "Gering", color: "bg-yellow-500", icon: AlertCircle },
-  { value: "major", label: "Mittel", color: "bg-orange-500", icon: AlertTriangle },
-  { value: "critical", label: "Kritisch", color: "bg-red-500", icon: Flame },
+const SEVERITY_LEVELS: { value: IncidentSeverity; color: string; icon: React.ElementType }[] = [
+  { value: "info", color: "bg-blue-500", icon: Info },
+  { value: "minor", color: "bg-yellow-500", icon: AlertCircle },
+  { value: "major", color: "bg-orange-500", icon: AlertTriangle },
+  { value: "critical", color: "bg-red-500", icon: Flame },
 ];
 
 function FieldError({ message }: { message?: string }) {
@@ -65,6 +66,17 @@ export function IncidentEditDialog({
   isHistorical = false,
 }: IncidentEditDialogProps) {
   const isEditMode = !!incident;
+  const t = useTranslations("incidents");
+  const tTypes = useTranslations("incidents.typeLabelsWithDescriptions");
+  const tSeverity = useTranslations("incidents.severityLabels");
+  const tForm = useTranslations("incidents.formLabels");
+  const tActions = useTranslations("incidents.dialogActions");
+  const tHeadings = useTranslations("incidents.headings");
+  const tDescriptions = useTranslations("incidents.editDescriptions");
+  const tValidation = useTranslations();
+  const tCommon = useTranslations("common.form");
+
+  const incidentFormSchema = createIncidentFormSchema(tValidation as unknown as (key: string) => string);
 
   const {
     register,
@@ -157,25 +169,25 @@ export function IncidentEditDialog({
         <DialogHeader>
           <DialogTitle>
             {isEditMode
-              ? "Vorfall bearbeiten"
+              ? tHeadings("editIncident")
               : isHistorical
-                ? "Historischen Eintrag erstellen"
+                ? tHeadings("createHistorical")
                 : initialType === "maintenance"
-                  ? "Geplante Wartung erstellen"
+                  ? tHeadings("createMaintenance")
                   : initialType === "announcement"
-                    ? "Ankündigung erstellen"
-                    : "Neuen Vorfall erstellen"}
+                    ? tHeadings("createAnnouncement")
+                    : tHeadings("createIncident")}
           </DialogTitle>
           <DialogDescription>
             {isEditMode
-              ? `Bearbeite die Details für "${incident.title}"`
+              ? tDescriptions("editIncident", { title: incident.title })
               : isHistorical
-                ? "Erfasse einen vergangenen Vorfall zur Dokumentation"
+                ? tDescriptions("createHistorical")
                 : initialType === "maintenance"
-                  ? "Plane eine Wartung und informiere die Nutzer"
+                  ? tDescriptions("createMaintenance")
                   : initialType === "announcement"
-                    ? "Erstelle eine allgemeine Ankündigung"
-                    : "Erstelle einen neuen Vorfall, Wartungshinweis oder eine Ankündigung"}
+                    ? tDescriptions("createAnnouncement")
+                    : tDescriptions("createIncident")}
           </DialogDescription>
         </DialogHeader>
 
@@ -186,7 +198,7 @@ export function IncidentEditDialog({
             <div className="space-y-5">
               {/* Type Selection */}
               <div className="space-y-2">
-                <Label>Typ</Label>
+                <Label>{tForm("type")}</Label>
                 <div className="grid grid-cols-3 gap-2">
                   {INCIDENT_TYPES.map((type) => {
                     const Icon = type.icon;
@@ -211,7 +223,7 @@ export function IncidentEditDialog({
                             isSelected ? "text-primary" : "text-muted-foreground"
                           )}
                         />
-                        <span className="text-sm font-medium">{type.label}</span>
+                        <span className="text-sm font-medium">{tTypes(type.value)}</span>
                       </button>
                     );
                   })}
@@ -221,7 +233,7 @@ export function IncidentEditDialog({
 
               {/* Severity Selection */}
               <div className="space-y-2">
-                <Label>Schweregrad</Label>
+                <Label>{tForm("severity")}</Label>
                 <div className="grid grid-cols-4 gap-1.5">
                   {SEVERITY_LEVELS.map((level) => {
                     const isSelected = watchedSeverity === level.value;
@@ -242,7 +254,7 @@ export function IncidentEditDialog({
                         <span
                           className={cn("h-2.5 w-2.5 rounded-full shrink-0", level.color)}
                         />
-                        <span className="text-sm font-medium">{level.label}</span>
+                        <span className="text-sm font-medium">{tSeverity(level.value)}</span>
                       </button>
                     );
                   })}
@@ -253,7 +265,7 @@ export function IncidentEditDialog({
               {/* Time Fields - only shown on mobile, moved to right column on lg */}
               <div className="grid grid-cols-2 gap-3 lg:hidden">
                 <div className="space-y-2">
-                  <Label htmlFor="startedAt-mobile">Startzeit</Label>
+                  <Label htmlFor="startedAt-mobile">{tForm("startTime")}</Label>
                   <Input
                     id="startedAt-mobile"
                     type="datetime-local"
@@ -266,7 +278,7 @@ export function IncidentEditDialog({
                 {/* End Time - only for historical entries or when editing resolved incidents */}
                 {(isHistorical || (isEditMode && incident?.status === "resolved")) && (
                   <div className="space-y-2">
-                    <Label htmlFor="resolvedAt-mobile">Endzeit</Label>
+                    <Label htmlFor="resolvedAt-mobile">{tForm("endTime")}</Label>
                     <Input
                       id="resolvedAt-mobile"
                       type="datetime-local"
@@ -281,10 +293,10 @@ export function IncidentEditDialog({
               {/* Affected Monitors with Search */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Betroffene Monitore</Label>
+                  <Label>{tForm("affectedMonitors")}</Label>
                   {selectedCount > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      {selectedCount} ausgewählt
+                      {tForm("selectedCount", { selected: selectedCount })}
                     </span>
                   )}
                 </div>
@@ -292,7 +304,7 @@ export function IncidentEditDialog({
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Monitore suchen..."
+                    placeholder={tForm("searchMonitors")}
                     value={monitorSearch}
                     onChange={(e) => setMonitorSearch(e.target.value)}
                     className="pl-8 pr-8 h-9"
@@ -311,7 +323,7 @@ export function IncidentEditDialog({
                 <div className="border rounded-lg divide-y max-h-[180px] overflow-y-auto">
                   {filteredMonitors.length === 0 ? (
                     <p className="text-sm text-muted-foreground p-3 text-center">
-                      Keine Monitore gefunden
+                      {tForm("noMonitorsFound")}
                     </p>
                   ) : (
                     filteredMonitors.map((monitor) => {
@@ -355,7 +367,7 @@ export function IncidentEditDialog({
               {/* Time Fields - only shown on lg, hidden on mobile (shown in left column) */}
               <div className="hidden lg:grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="startedAt-desktop">Startzeit</Label>
+                  <Label htmlFor="startedAt-desktop">{tForm("startTime")}</Label>
                   <Input
                     id="startedAt-desktop"
                     type="datetime-local"
@@ -368,7 +380,7 @@ export function IncidentEditDialog({
                 {/* End Time - only for historical entries or when editing resolved incidents */}
                 {(isHistorical || (isEditMode && incident?.status === "resolved")) && (
                   <div className="space-y-2">
-                    <Label htmlFor="resolvedAt-desktop">Endzeit</Label>
+                    <Label htmlFor="resolvedAt-desktop">{tForm("endTime")}</Label>
                     <Input
                       id="resolvedAt-desktop"
                       type="datetime-local"
@@ -382,10 +394,10 @@ export function IncidentEditDialog({
 
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title">Titel</Label>
+                <Label htmlFor="title">{tForm("title")}</Label>
                 <Input
                   id="title"
-                  placeholder="z.B. API-Server nicht erreichbar"
+                  placeholder={tForm("titlePlaceholder")}
                   {...register("title")}
                   aria-invalid={!!errors.title}
                 />
@@ -394,10 +406,10 @@ export function IncidentEditDialog({
 
               {/* Cause */}
               <div className="space-y-2">
-                <Label htmlFor="cause">Ursache</Label>
+                <Label htmlFor="cause">{tForm("cause")}</Label>
                 <Textarea
                   id="cause"
-                  placeholder="Kurze Beschreibung der Ursache..."
+                  placeholder={tForm("causePlaceholder")}
                   className="min-h-[100px] lg:min-h-[120px]"
                   {...register("cause")}
                   aria-invalid={!!errors.cause}
@@ -408,14 +420,14 @@ export function IncidentEditDialog({
               {/* Description (optional) */}
               <div className="space-y-2">
                 <Label htmlFor="description">
-                  Beschreibung{" "}
+                  {tForm("descriptionOptional")}{" "}
                   <span className="text-muted-foreground font-normal">
-                    (optional)
+                    ({tCommon("optional")})
                   </span>
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Detailliertere Beschreibung..."
+                  placeholder={tForm("descriptionPlaceholderOptional")}
                   className="min-h-[120px] lg:min-h-[180px]"
                   {...register("description")}
                 />
@@ -432,18 +444,18 @@ export function IncidentEditDialog({
               onClick={handleCancel}
               disabled={isSubmitting}
             >
-              Abbrechen
+              {tActions("cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting || !isDirty}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Speichern...
+                  {tActions("saving")}
                 </>
               ) : isEditMode ? (
-                "Speichern"
+                tActions("save")
               ) : (
-                "Erstellen"
+                tActions("create")
               )}
             </Button>
           </DialogFooter>

@@ -29,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  incidentFormSchema,
+  createIncidentFormSchema,
   incidentToFormValues,
   defaultIncidentFormValues,
   type IncidentFormValues,
@@ -96,7 +96,10 @@ export function IncidentEditPanel({
   className,
 }: IncidentEditPanelProps) {
   const t = useTranslations("incidents");
+  const tValidation = useTranslations();
   const isEditMode = !!incident;
+
+  const incidentFormSchema = createIncidentFormSchema(tValidation as unknown as (key: string) => string);
 
   const {
     register,

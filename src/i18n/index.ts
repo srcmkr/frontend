@@ -10,6 +10,9 @@ import type notificationsEn from "../../messages/en/notifications.json";
 import type settingsEn from "../../messages/en/settings.json";
 import type loginEn from "../../messages/en/login.json";
 import type errorsEn from "../../messages/en/errors.json";
+import type publicStatusEn from "../../messages/en/public-status.json";
+import type reportsEn from "../../messages/en/reports.json";
+import type validationsEn from "../../messages/en/validations.json";
 
 // Combine all message types
 export type Messages = {
@@ -21,6 +24,9 @@ export type Messages = {
   settings: typeof settingsEn;
   login: typeof loginEn;
   errors: typeof errorsEn;
+  publicStatus: typeof publicStatusEn;
+  reports: typeof reportsEn;
+  validations: typeof validationsEn;
 };
 
 // Namespace keys for type-safe access

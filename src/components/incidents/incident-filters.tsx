@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,6 +33,8 @@ export function IncidentFilters({
   compact = false,
   className,
 }: IncidentFiltersProps) {
+  const t = useTranslations("incidents.filters");
+
   const updateFilter = <K extends keyof IncidentFilterState>(
     key: K,
     value: IncidentFilterState[K]
@@ -47,7 +50,7 @@ export function IncidentFilters({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Suchen..."
+              placeholder={t("searchPlaceholder")}
               value={filters.search}
               onChange={(e) => updateFilter("search", e.target.value)}
               className="pl-9 h-9"
@@ -60,12 +63,12 @@ export function IncidentFilters({
             }
           >
             <SelectTrigger className="w-[100px] h-9">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t("statusPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle</SelectItem>
-              <SelectItem value="ongoing">Aktiv</SelectItem>
-              <SelectItem value="resolved">Behoben</SelectItem>
+              <SelectItem value="all">{t("all")}</SelectItem>
+              <SelectItem value="ongoing">{t("active")}</SelectItem>
+              <SelectItem value="resolved">{t("resolved")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -80,7 +83,7 @@ export function IncidentFilters({
         <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Suchen..."
+            placeholder={t("searchPlaceholder")}
             value={filters.search}
             onChange={(e) => updateFilter("search", e.target.value)}
             className="pl-9 h-9"
@@ -95,12 +98,12 @@ export function IncidentFilters({
           }
         >
           <SelectTrigger className="w-[100px] h-9">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t("statusPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Alle</SelectItem>
-            <SelectItem value="ongoing">Aktiv</SelectItem>
-            <SelectItem value="resolved">Behoben</SelectItem>
+            <SelectItem value="all">{t("all")}</SelectItem>
+            <SelectItem value="ongoing">{t("active")}</SelectItem>
+            <SelectItem value="resolved">{t("resolved")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -112,14 +115,14 @@ export function IncidentFilters({
           }
         >
           <SelectTrigger className="w-[110px] h-9">
-            <SelectValue placeholder="Schwere" />
+            <SelectValue placeholder={t("severityLabel")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Alle</SelectItem>
-            <SelectItem value="critical">Kritisch</SelectItem>
-            <SelectItem value="major">Mittel</SelectItem>
-            <SelectItem value="minor">Gering</SelectItem>
-            <SelectItem value="info">Info</SelectItem>
+            <SelectItem value="all">{t("severityAll")}</SelectItem>
+            <SelectItem value="critical">{t("critical")}</SelectItem>
+            <SelectItem value="major">{t("major")}</SelectItem>
+            <SelectItem value="minor">{t("minor")}</SelectItem>
+            <SelectItem value="info">{t("info")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -131,13 +134,13 @@ export function IncidentFilters({
           }
         >
           <SelectTrigger className="w-[120px] h-9">
-            <SelectValue placeholder="Typ" />
+            <SelectValue placeholder={t("typeLabel")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Alle Typen</SelectItem>
-            <SelectItem value="incident">Vorfall</SelectItem>
-            <SelectItem value="maintenance">Wartung</SelectItem>
-            <SelectItem value="announcement">Ankündigung</SelectItem>
+            <SelectItem value="all">{t("allTypes")}</SelectItem>
+            <SelectItem value="incident">{t("incident")}</SelectItem>
+            <SelectItem value="maintenance">{t("maintenance")}</SelectItem>
+            <SelectItem value="announcement">{t("announcement")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -147,10 +150,10 @@ export function IncidentFilters({
           onValueChange={(value) => updateFilter("monitorId", value)}
         >
           <SelectTrigger className="w-[140px] h-9">
-            <SelectValue placeholder="Monitor" />
+            <SelectValue placeholder={t("monitorLabel")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Alle Monitore</SelectItem>
+            <SelectItem value="all">{t("allMonitors")}</SelectItem>
             {monitors.map((monitor) => (
               <SelectItem key={monitor.id} value={monitor.id}>
                 {monitor.name}
@@ -171,15 +174,15 @@ export function IncidentFilters({
           }}
         >
           <SelectTrigger className="w-[140px] h-9">
-            <SelectValue placeholder="Sortieren" />
+            <SelectValue placeholder={t("sortLabel")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="startedAt-desc">Neueste zuerst</SelectItem>
-            <SelectItem value="startedAt-asc">Älteste zuerst</SelectItem>
-            <SelectItem value="severity-desc">Schwere (hoch)</SelectItem>
-            <SelectItem value="severity-asc">Schwere (niedrig)</SelectItem>
-            <SelectItem value="duration-desc">Dauer (lang)</SelectItem>
-            <SelectItem value="duration-asc">Dauer (kurz)</SelectItem>
+            <SelectItem value="startedAt-desc">{t("sortNewest")}</SelectItem>
+            <SelectItem value="startedAt-asc">{t("sortOldest")}</SelectItem>
+            <SelectItem value="severity-desc">{t("sortSeverityHigh")}</SelectItem>
+            <SelectItem value="severity-asc">{t("sortSeverityLow")}</SelectItem>
+            <SelectItem value="duration-desc">{t("sortDurationLong")}</SelectItem>
+            <SelectItem value="duration-asc">{t("sortDurationShort")}</SelectItem>
           </SelectContent>
         </Select>
       </div>

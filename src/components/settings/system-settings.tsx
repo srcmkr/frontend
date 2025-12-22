@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  systemSettingsSchema,
+  createSystemSettingsSchema,
   type SystemSettingsFormData,
 } from "@/lib/validations/settings";
 import {
@@ -27,6 +27,8 @@ import {
 
 export function SystemSettings() {
   const t = useTranslations("settings");
+  const tValidation = useTranslations();
+  const systemSettingsSchema = createSystemSettingsSchema(tValidation as unknown as (key: string) => string);
   const {
     setValue,
     watch,

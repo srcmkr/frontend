@@ -63,6 +63,8 @@
     "back": "Back",
     "editStatusPage": "Edit Status Page",
     "newStatusPage": "New Status Page",
+    "editDescription": "Change the settings of this status page",
+    "createDescription": "Create a new public or private status page",
     "cancel": "Cancel",
     "save": "Save",
     "create": "Create"
@@ -279,5 +281,10 @@
     "partialOutage": "Partial Outage",
     "majorOutage": "Major Outage",
     "maintenance": "Under Maintenance"
+  },
+  "toast": {
+    "createSuccess": "Status page \"{title}\" created",
+    "updateSuccess": "Status page \"{title}\" updated",
+    "deleteSuccess": "Status page deleted"
   }
 }

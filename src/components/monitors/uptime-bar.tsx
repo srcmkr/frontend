@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import type { UptimeSegment } from "@/types";
 
 interface UptimeBarProps {
@@ -23,6 +25,8 @@ export function UptimeBar({
   showLabel = true,
   className,
 }: UptimeBarProps) {
+  const t = useTranslations("monitors");
+  const locale = useLocale();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tooltipPos, setTooltipPos] = useState<TooltipPosition | null>(null);
 
@@ -47,13 +51,13 @@ export function UptimeBar({
     const start = new Date(timestamp);
     const end = new Date(start.getTime() + 60 * 60 * 1000);
     const formatTime = (d: Date) =>
-      d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+      d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
     return `${formatTime(start)} - ${formatTime(end)}`;
   };
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString("de-DE", {
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
     });
@@ -153,7 +157,7 @@ export function UptimeBar({
               {formatTimeRange(hoveredSegment.timestamp)}
             </div>
             {hoveredSegment.status === "no-data" ? (
-              <div className="text-muted-foreground">Keine Daten</div>
+              <div className="text-muted-foreground">{t("timeline.noData")}</div>
             ) : (
               <>
                 <div
@@ -166,12 +170,14 @@ export function UptimeBar({
                         : "text-red-500"
                   )}
                 >
-                  {hoveredSegment.uptime.toFixed(1)}% Uptime
+                  {t("timeline.uptimePercent", { percent: hoveredSegment.uptime.toFixed(1) })}
                 </div>
                 {hoveredSegment.failedChecks > 0 && (
                   <div className="text-red-400">
-                    {hoveredSegment.failedChecks}/{hoveredSegment.totalChecks}{" "}
-                    Checks fehlgeschlagen
+                    {t("timeline.failedChecks", {
+                      failed: hoveredSegment.failedChecks,
+                      total: hoveredSegment.totalChecks
+                    })}
                   </div>
                 )}
               </>

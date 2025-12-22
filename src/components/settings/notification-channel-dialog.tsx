@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  notificationChannelSchema,
+  createNotificationChannelSchema,
   type NotificationChannelFormData,
   type EmailChannelFormData,
 } from "@/lib/validations/notification-channel";
@@ -52,6 +52,8 @@ export function NotificationChannelDialog({
   onSave,
 }: NotificationChannelDialogProps) {
   const t = useTranslations("settings");
+  const tValidations = useTranslations();
+  const notificationChannelSchema = createNotificationChannelSchema(tValidations as unknown as (key: string) => string);
   const isEditing = !!channel;
   const [channelType, setChannelType] = useState<ChannelType>(channel?.type ?? "email");
   const [toEmails, setToEmails] = useState<string[]>(

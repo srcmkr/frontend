@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -19,8 +21,11 @@ interface TechnicalDetailsSectionProps {
 }
 
 export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations("reports.technicalDetails");
+
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("de-DE", {
+    return new Date(dateStr).toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -29,30 +34,30 @@ export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSec
 
   return (
     <div className={cn("space-y-6", className)}>
-      <h3 className="font-semibold text-lg">Technische Details</h3>
+      <h3 className="font-semibold text-lg">{t("title")}</h3>
 
       {/* DNS Resolution Stats */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground">DNS-Auflösung</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">{t("dnsResolution")}</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">Durchschnitt</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("average")}</p>
             <p className="text-xl font-bold font-mono">{data.dnsResolutionStats.averageTime}ms</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">Min</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("min")}</p>
             <p className="text-xl font-bold font-mono">
               {data.dnsResolutionStats.minTime}ms
             </p>
           </div>
           <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">Max</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("max")}</p>
             <p className="text-xl font-bold font-mono">
               {data.dnsResolutionStats.maxTime}ms
             </p>
           </div>
           <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-xs text-muted-foreground mb-1">P95</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("p95")}</p>
             <p className="text-xl font-bold font-mono">{data.dnsResolutionStats.p95Time}ms</p>
           </div>
         </div>
@@ -61,15 +66,15 @@ export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSec
       {/* Certificate History */}
       {data.certificateHistory.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-medium text-muted-foreground">Zertifikat-Historie</h4>
+          <h4 className="text-sm font-medium text-muted-foreground">{t("certificateHistory")}</h4>
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Ablaufdatum</TableHead>
-                  <TableHead>Verbleibend</TableHead>
-                  <TableHead>Aussteller</TableHead>
+                  <TableHead>{t("certificateTable.date")}</TableHead>
+                  <TableHead>{t("certificateTable.expiryDate")}</TableHead>
+                  <TableHead>{t("certificateTable.remaining")}</TableHead>
+                  <TableHead>{t("certificateTable.issuer")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -86,7 +91,7 @@ export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSec
                           cert.daysUntilExpiry >= 60 && "bg-green-600 text-white"
                         )}
                       >
-                        {cert.daysUntilExpiry} Tage
+                        {t("days", { count: cert.daysUntilExpiry })}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground truncate max-w-[200px]">
@@ -103,7 +108,7 @@ export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSec
       {/* TLS Version History */}
       {data.tlsVersionHistory.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-medium text-muted-foreground">TLS-Version</h4>
+          <h4 className="text-sm font-medium text-muted-foreground">{t("tlsVersion")}</h4>
           <div className="flex flex-wrap gap-2">
             {data.tlsVersionHistory.map((entry, index) => (
               <div key={index} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
@@ -119,7 +124,7 @@ export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSec
 
       {/* IP Address Changes */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-muted-foreground">IP-Adressen-Änderungen</h4>
+        <h4 className="text-sm font-medium text-muted-foreground">{t("ipChanges")}</h4>
         {data.ipAddressChanges.length > 0 ? (
           <div className="space-y-2">
             {data.ipAddressChanges.map((change, index) => (
@@ -143,7 +148,7 @@ export function TechnicalDetailsSection({ data, className }: TechnicalDetailsSec
         ) : (
           <div className="p-4 bg-muted/50 rounded-lg">
             <p className="text-sm text-muted-foreground">
-              Keine IP-Änderungen im ausgewählten Zeitraum.
+              {t("noIpChanges")}
             </p>
           </div>
         )}

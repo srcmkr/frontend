@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function GlobalError({
   error,
@@ -9,12 +10,14 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("errors");
+
   useEffect(() => {
     console.error("Global error:", error);
   }, [error]);
 
   return (
-    <html lang="de">
+    <html lang="en">
       <body>
         <div
           style={{
@@ -54,10 +57,10 @@ export default function GlobalError({
               </svg>
             </div>
             <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>
-              Kritischer Fehler
+              {t("global.title")}
             </h2>
             <p style={{ color: "#666", marginBottom: "16px" }}>
-              Die Anwendung konnte nicht geladen werden. Bitte versuchen Sie es erneut.
+              {t("global.message")}
             </p>
             <button
               onClick={reset}
@@ -70,7 +73,7 @@ export default function GlobalError({
                 fontSize: "14px",
               }}
             >
-              Erneut versuchen
+              {t("generic.tryAgain")}
             </button>
           </div>
         </div>

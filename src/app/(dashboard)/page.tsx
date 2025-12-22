@@ -289,7 +289,7 @@ export default function DashboardPage() {
                 incidents.map((incident) => (
                   <div
                     key={incident.id}
-                    className="group flex items-start gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900"
+                    className="group flex items-start gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60"
                   >
                     <StatusIndicator status="down" size="sm" showPulse />
                     <div className="flex-1 min-w-0">

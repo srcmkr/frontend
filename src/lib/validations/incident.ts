@@ -11,54 +11,57 @@ import type {
 // Zod Schema for Incident Form
 // ============================================
 
-export const incidentFormSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Titel ist erforderlich")
-    .max(200, "Titel darf maximal 200 Zeichen lang sein"),
+export const createIncidentFormSchema = (t: (key: string) => string) =>
+  z
+    .object({
+      title: z
+        .string()
+        .min(1, t("validations.incident.titleRequired"))
+        .max(200, t("validations.incident.titleMaxLength")),
 
-  type: z.enum(["incident", "maintenance", "announcement"] as const, {
-    message: "Bitte wähle einen Typ",
-  }),
+      type: z.enum(["incident", "maintenance", "announcement"] as const, {
+        message: t("validations.incident.selectType"),
+      }),
 
-  severity: z.enum(["info", "minor", "major", "critical"] as const, {
-    message: "Bitte wähle einen Schweregrad",
-  }),
+      severity: z.enum(["info", "minor", "major", "critical"] as const, {
+        message: t("validations.incident.selectSeverity"),
+      }),
 
-  cause: z
-    .string()
-    .min(1, "Ursache ist erforderlich")
-    .max(500, "Ursache darf maximal 500 Zeichen lang sein"),
+      cause: z
+        .string()
+        .min(1, t("validations.incident.causeRequired"))
+        .max(500, t("validations.incident.causeMaxLength")),
 
-  description: z
-    .string()
-    .max(2000, "Beschreibung darf maximal 2000 Zeichen lang sein")
-    .optional(),
+      description: z
+        .string()
+        .max(2000, t("validations.incident.descriptionMaxLength"))
+        .optional(),
 
-  affectedMonitors: z
-    .array(z.string())
-    .min(1, "Mindestens ein betroffener Monitor ist erforderlich"),
+      affectedMonitors: z
+        .array(z.string())
+        .min(1, t("validations.incident.affectedMonitorsMin")),
 
-  status: z.enum(["ongoing", "resolved"] as const),
+      status: z.enum(["ongoing", "resolved"] as const),
 
-  startedAt: z.string().min(1, "Startzeit ist erforderlich"),
+      startedAt: z.string().min(1, t("validations.incident.startTimeRequired")),
 
-  resolvedAt: z.string().optional(),
-}).refine(
-  (data) => {
-    // If status is resolved and resolvedAt is provided, it must be after startedAt
-    if (data.status === "resolved" && data.resolvedAt) {
-      return new Date(data.resolvedAt) >= new Date(data.startedAt);
-    }
-    return true;
-  },
-  {
-    message: "Die Endzeit muss nach der Startzeit liegen",
-    path: ["resolvedAt"],
-  }
-);
+      resolvedAt: z.string().optional(),
+    })
+    .refine(
+      (data) => {
+        // If status is resolved and resolvedAt is provided, it must be after startedAt
+        if (data.status === "resolved" && data.resolvedAt) {
+          return new Date(data.resolvedAt) >= new Date(data.startedAt);
+        }
+        return true;
+      },
+      {
+        message: t("validations.incident.resolvedAfterStarted"),
+        path: ["resolvedAt"],
+      }
+    );
 
-export type IncidentFormValues = z.infer<typeof incidentFormSchema>;
+export type IncidentFormValues = z.infer<ReturnType<typeof createIncidentFormSchema>>;
 
 // ============================================
 // Default values

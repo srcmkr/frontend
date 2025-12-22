@@ -1,6 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import { IncidentSeverityBadge } from "./incident-severity-badge";
 import { IncidentTypeBadge } from "./incident-type-badge";
 import type { ExtendedIncident } from "@/types";
@@ -12,7 +14,11 @@ interface IncidentListItemProps {
   className?: string;
 }
 
-function formatRelativeTime(dateString: string): string {
+function formatRelativeTime(
+  dateString: string,
+  locale: string,
+  t: (key: string, values?: Record<string, number>) => string
+): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -21,37 +27,47 @@ function formatRelativeTime(dateString: string): string {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffMin < 1) return "gerade eben";
-  if (diffMin < 60) return `vor ${diffMin}m`;
-  if (diffHour < 24) return `vor ${diffHour}h`;
-  if (diffDay === 1) return "gestern";
-  if (diffDay < 7) return `vor ${diffDay}d`;
+  if (diffMin < 1) return t("justNow");
+  if (diffMin < 60) return t("minutesAgo", { minutes: diffMin });
+  if (diffHour < 24) return t("hoursAgo", { hours: diffHour });
+  if (diffDay === 1) return t("yesterday");
+  if (diffDay < 7) return t("daysAgo", { days: diffDay });
 
-  return date.toLocaleDateString("de-DE", {
+  return date.toLocaleDateString(locale, {
     day: "numeric",
     month: "short",
   });
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
+function formatDuration(
+  seconds: number,
+  t: (key: string, values?: Record<string, number>) => string
+): string {
+  if (seconds < 60) return t("seconds", { count: seconds });
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}min`;
+  if (minutes < 60) return t("minutes", { count: minutes });
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   if (hours < 24) {
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+    return remainingMinutes > 0
+      ? t("hoursMinutes", { hours, minutes: remainingMinutes })
+      : t("hours", { count: hours });
   }
   const days = Math.floor(hours / 24);
   const remainingHours = hours % 24;
-  return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
+  return remainingHours > 0
+    ? t("daysHours", { days, hours: remainingHours })
+    : t("days", { count: days });
 }
 
-function getOngoingDuration(startedAt: string): string {
+function getOngoingDuration(
+  startedAt: string,
+  t: (key: string, values?: Record<string, number>) => string
+): string {
   const start = new Date(startedAt);
   const now = new Date();
   const diffSeconds = Math.floor((now.getTime() - start.getTime()) / 1000);
-  return formatDuration(diffSeconds);
+  return formatDuration(diffSeconds, t);
 }
 
 export function IncidentListItem({
@@ -60,6 +76,9 @@ export function IncidentListItem({
   onSelect,
   className,
 }: IncidentListItemProps) {
+  const locale = useLocale();
+  const t = useTranslations("incidents.relativeTime");
+  const tDuration = useTranslations("common.duration");
   const isOngoing = incident.status === "ongoing";
 
   return (
@@ -96,15 +115,15 @@ export function IncidentListItem({
         <span className="text-border">|</span>
         {isOngoing ? (
           <span className="text-red-600 dark:text-red-400 font-medium">
-            seit {getOngoingDuration(incident.startedAt)}
+            {t("since")} {getOngoingDuration(incident.startedAt, tDuration as unknown as (key: string, values?: Record<string, number>) => string)}
           </span>
         ) : (
           <span>
-            {formatRelativeTime(incident.startedAt)}
+            {formatRelativeTime(incident.startedAt, locale, t as unknown as (key: string, values?: Record<string, number>) => string)}
             {incident.duration && (
               <span className="text-muted-foreground/70">
                 {" "}
-                ({formatDuration(incident.duration)})
+                ({formatDuration(incident.duration, tDuration as unknown as (key: string, values?: Record<string, number>) => string)})
               </span>
             )}
           </span>

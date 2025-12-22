@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -9,6 +10,7 @@ import {
   Tooltip,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/format-utils";
 import type { CheckResult } from "@/types";
 
 interface ResponseTimeChartProps {
@@ -17,13 +19,15 @@ interface ResponseTimeChartProps {
 }
 
 export function ResponseTimeChart({ checks, className }: ResponseTimeChartProps) {
+  const t = useTranslations("monitors");
+  const locale = useLocale();
   // Aggregate checks into 5-minute buckets for smoother visualization
-  const data = aggregateChecks(checks).slice(-48); // Last 4 hours worth of 5-min buckets
+  const data = aggregateChecks(checks, locale).slice(-48); // Last 4 hours worth of 5-min buckets
 
   if (data.length === 0) {
     return (
       <div className={cn("h-[180px] flex items-center justify-center text-muted-foreground text-sm", className)}>
-        Keine Daten verfügbar
+        {t("chart.noData")}
       </div>
     );
   }
@@ -42,15 +46,17 @@ export function ResponseTimeChart({ checks, className }: ResponseTimeChartProps)
             dataKey="time"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+            tick={{ fontSize: 10, fill: "currentColor", opacity: 0.5 }}
             tickMargin={8}
+            className="text-muted-foreground"
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+            tick={{ fontSize: 10, fill: "currentColor", opacity: 0.5 }}
             tickFormatter={(v) => `${v}ms`}
             width={45}
+            className="text-muted-foreground"
           />
           <Tooltip
             content={({ active, payload }) => {
@@ -80,7 +86,7 @@ export function ResponseTimeChart({ checks, className }: ResponseTimeChartProps)
   );
 }
 
-function aggregateChecks(checks: CheckResult[]) {
+function aggregateChecks(checks: CheckResult[], locale: string) {
   if (checks.length === 0) return [];
 
   const buckets = new Map<string, { times: number[]; timestamp: Date }>();
@@ -104,7 +110,7 @@ function aggregateChecks(checks: CheckResult[]) {
   return Array.from(buckets.values())
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
     .map((bucket) => ({
-      time: bucket.timestamp.toLocaleTimeString("de-DE", {
+      time: bucket.timestamp.toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
       }),

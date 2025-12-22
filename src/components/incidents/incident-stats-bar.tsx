@@ -12,6 +12,7 @@ interface IncidentStatsBarProps {
 
 export function IncidentStatsBar({ stats, className }: IncidentStatsBarProps) {
   const t = useTranslations("incidents");
+  const tDuration = useTranslations("common.duration");
 
   return (
     <div
@@ -54,7 +55,7 @@ export function IncidentStatsBar({ stats, className }: IncidentStatsBarProps) {
         <span>
           {t("metrics.mttr")}:{" "}
           <span className="font-medium text-foreground">
-            {stats.mttrMinutes > 0 ? `${stats.mttrMinutes}min` : "-"}
+            {stats.mttrMinutes > 0 ? tDuration("minutes", { count: stats.mttrMinutes }) : "-"}
           </span>
         </span>
       </div>

@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  dataSettingsSchema,
+  createDataSettingsSchema,
   type DataSettingsFormData,
 } from "@/lib/validations/settings";
 import {
@@ -43,6 +43,8 @@ const BYTES_PER_CHECK = 130;
 export function DataSettings() {
   const t = useTranslations("settings");
   const locale = useLocale();
+
+  const dataSettingsSchema = createDataSettingsSchema();
 
   const {
     setValue,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -21,6 +22,12 @@ interface MonitorTableProps {
 
 export function MonitorTable({ monitors, title, embedded }: MonitorTableProps) {
   const router = useRouter();
+  const t = useTranslations("monitors.table");
+  const tTime = useTranslations("monitors.time");
+  const tMonitors = useTranslations("monitors");
+
+  // Translate title if it's a translation key (contains a dot)
+  const displayTitle = title?.includes(".") ? tMonitors(title as never) : title;
 
   const formatResponseTime = (ms: number | null) => {
     if (ms === null) return "-";
@@ -29,14 +36,14 @@ export function MonitorTable({ monitors, title, embedded }: MonitorTableProps) {
   };
 
   const formatLastCheck = (date: string | null) => {
-    if (!date) return "Never";
+    if (!date) return tTime("never");
     const diff = Date.now() - new Date(date).getTime();
     const seconds = Math.floor(diff / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 60) return tTime("secondsAgo", { seconds });
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return tTime("minutesAgo", { minutes });
     const hours = Math.floor(minutes / 60);
-    return `${hours}h ago`;
+    return tTime("hoursAgo", { hours });
   };
 
   if (monitors.length === 0) {
@@ -45,19 +52,19 @@ export function MonitorTable({ monitors, title, embedded }: MonitorTableProps) {
 
   return (
     <div className={embedded ? "" : "rounded-lg border bg-card"}>
-      {title && (
+      {displayTitle && (
         <div className="px-4 py-3 border-b">
-          <h3 className="font-medium text-sm">{title}</h3>
+          <h3 className="font-medium text-sm">{displayTitle}</h3>
         </div>
       )}
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[40px]"></TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead className="text-right w-[80px]">Response</TableHead>
-            <TableHead className="hidden sm:table-cell text-right">Uptime (24h)</TableHead>
-            <TableHead className="text-right hidden md:table-cell w-[80px]">Last Check</TableHead>
+            <TableHead>{t("name")}</TableHead>
+            <TableHead className="text-right w-[80px]">{t("response")}</TableHead>
+            <TableHead className="hidden sm:table-cell text-right">{t("uptime24h")}</TableHead>
+            <TableHead className="text-right hidden md:table-cell w-[80px]">{t("lastCheck")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

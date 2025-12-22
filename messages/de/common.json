@@ -58,6 +58,9 @@
     "copy": "Kopieren",
     "copied": "Kopiert!"
   },
+  "ui": {
+    "close": "Schließen"
+  },
   "settings": {
     "language": "Sprache",
     "theme": "Design",
@@ -81,12 +84,23 @@
     "daysAgo": "{count, plural, one {vor # Tag} other {vor # Tagen}}",
     "since": "Seit {time}"
   },
+  "duration": {
+    "seconds": "{count}s",
+    "minutes": "{count}min",
+    "hours": "{count}h",
+    "days": "{count}d",
+    "hoursMinutes": "{hours}h {minutes}min",
+    "daysHours": "{days}d {hours}h"
+  },
   "validation": {
     "required": "Dieses Feld ist erforderlich",
     "invalidUrl": "Bitte geben Sie eine gültige URL ein",
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
     "minLength": "Muss mindestens {min} Zeichen lang sein",
     "maxLength": "Darf maximal {max} Zeichen lang sein"
+  },
+  "form": {
+    "optional": "optional"
   },
   "commandPalette": {
     "placeholder": "Suchen oder Befehl eingeben...",

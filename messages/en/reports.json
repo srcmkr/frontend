@@ -1,0 +1,204 @@
+{
+  "periodSelector": {
+    "periodType": "Period Type:",
+    "period": "Period:",
+    "selectPlaceholder": "Select...",
+    "types": {
+      "year": "Year",
+      "halfYear": "Half Year",
+      "quarter": "Quarter",
+      "month": "Month"
+    }
+  },
+  "dialog": {
+    "title": "SLA Report",
+    "slaSettings": "SLA: {target}% / {maxResponse}ms",
+    "exportPdf": "PDF",
+    "exporting": "Exporting...",
+    "exportFailed": "PDF export failed. Please try again.",
+    "slaTargetLabel": "SLA Target Availability (%)",
+    "maxResponseLabel": "Max Response Time (ms)",
+    "errorLoading": "Error loading report: {message}",
+    "noPeriodSelected": "Select a period",
+    "generatedAt": "Report generated on"
+  },
+  "executiveSummary": {
+    "title": "Executive Summary",
+    "slaTarget": "SLA Target Availability:",
+    "maxResponseTime": "Max Response Time:",
+    "availability": "Availability",
+    "met": "Met",
+    "violated": "Violated",
+    "responseTime": "Response Time",
+    "downtime": "Downtime",
+    "totalMinutes": "minutes total",
+    "trendVsPrevious": "Trend vs. Previous Period",
+    "uptime": "Uptime"
+  },
+  "availability": {
+    "title": "Availability",
+    "uptime": "Uptime",
+    "available": "Available",
+    "downtime": "Downtime",
+    "slaBreaches": "SLA Breaches",
+    "viewMode": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "table": {
+      "period": "Period",
+      "uptime": "Uptime",
+      "checks": "Checks",
+      "failed": "Failed",
+      "week": "Week"
+    },
+    "weekPrefix": "CW",
+    "slaBreachesTitle": "SLA Breaches",
+    "severity": {
+      "critical": "Critical",
+      "major": "Major",
+      "minor": "Minor"
+    }
+  },
+  "performance": {
+    "title": "Performance",
+    "average": "Average",
+    "median": "Median",
+    "minMax": "Min / Max",
+    "degradations": "Degradations",
+    "percentiles": "Percentiles",
+    "responseTimeTrend": "Response Time Trend",
+    "degradationIncidents": "Performance Degradations",
+    "slow": "Slow",
+    "duration": "Duration: {duration}min",
+    "threshold": "(Threshold: {threshold}ms)",
+    "tooltip": {
+      "average": "Average: {value}ms",
+      "p95": "P95: {value}ms"
+    },
+    "legend": {
+      "average": "Average",
+      "p95": "P95"
+    },
+    "slaMet": "Met",
+    "slaViolated": "Violated",
+    "maxResponseTimeSla": "Max Response Time SLA:"
+  },
+  "incidents": {
+    "title": "Incident Analysis",
+    "totalIncidents": "Total Incidents",
+    "mtbf": "MTBF",
+    "mtbfDesc": "Mean Time Between Failures",
+    "mttr": "MTTR",
+    "mttrDesc": "Mean Time To Recovery",
+    "longestOutage": "Longest Outage",
+    "severityDistribution": "Severity Distribution",
+    "rootCauses": "Root Causes",
+    "timeline": "Incident Timeline",
+    "ongoing": "ongoing",
+    "durationLabel": "Duration:",
+    "noIncidents": "No Incidents",
+    "noIncidentsDescription": "No incidents occurred in the selected time period.",
+    "severity": {
+      "critical": "Critical",
+      "major": "Major",
+      "minor": "Minor"
+    }
+  },
+  "checkStatistics": {
+    "title": "Check Statistics",
+    "totalChecks": "Total Checks",
+    "successful": "Successful",
+    "failed": "Failed",
+    "successRate": "Success Rate",
+    "checksPerDay": "Checks per Day (Average)",
+    "checksPerHour": "= {count} Checks/Hour",
+    "failedChecksChart": "Failed Checks per Day",
+    "successRateDistribution": "Success Rate Distribution",
+    "tooltip": {
+      "failed": "Failed: {count}",
+      "successful": "Successful: {count}",
+      "successRate": "Success Rate: {rate}%"
+    },
+    "legend": {
+      "successful": "Successful",
+      "failed": "Failed"
+    }
+  },
+  "technicalDetails": {
+    "title": "Technical Details",
+    "dnsResolution": "DNS Resolution",
+    "average": "Average",
+    "min": "Min",
+    "max": "Max",
+    "p95": "P95",
+    "certificateHistory": "Certificate History",
+    "certificateTable": {
+      "date": "Date",
+      "expiryDate": "Expiry Date",
+      "remaining": "Remaining",
+      "issuer": "Issuer"
+    },
+    "days": "{count} Days",
+    "tlsVersion": "TLS Version",
+    "ipChanges": "IP Address Changes",
+    "noIpChanges": "No IP changes in the selected time period."
+  },
+  "pdf": {
+    "title": "SLA Report",
+    "summary": "Summary",
+    "slaTargetAvailability": "SLA Target Availability:",
+    "maxResponseTime": "Max Response Time:",
+    "availability": "Availability",
+    "met": "Met",
+    "violated": "Violated",
+    "responseTime": "Response Time",
+    "uptime": "Uptime",
+    "downtime": "Downtime",
+    "trendVsPrevious": "Trend vs. Previous Period:",
+    "available": "Available",
+    "slaBreaches": "SLA Breaches",
+    "table": {
+      "week": "Week",
+      "uptime": "Uptime",
+      "checks": "Checks",
+      "failed": "Failed"
+    },
+    "weekPrefix": "CW",
+    "generatedAt": "Report generated on",
+    "performance": {
+      "title": "Performance",
+      "maxResponseTimeSla": "Max Response Time SLA:",
+      "average": "Average",
+      "median": "Median",
+      "minMax": "Min / Max:"
+    },
+    "incidents": {
+      "title": "Incident Analysis",
+      "totalIncidents": "Total Incidents",
+      "mtbf": "MTBF",
+      "mttr": "MTTR",
+      "longestOutage": "Longest Outage",
+      "severity": {
+        "critical": "Critical",
+        "major": "Major",
+        "minor": "Minor"
+      }
+    },
+    "checkStatistics": {
+      "title": "Check Statistics",
+      "totalChecks": "Total Checks",
+      "successful": "Successful",
+      "failed": "Failed",
+      "successRate": "Success Rate"
+    },
+    "technicalDetails": {
+      "title": "Technical Details",
+      "dnsAvg": "DNS Avg",
+      "dnsP95": "DNS P95",
+      "ipChanges": "IP Changes",
+      "tlsVersion": "TLS Version"
+    }
+  }
+}

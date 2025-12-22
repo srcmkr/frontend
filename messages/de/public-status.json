@@ -1,0 +1,49 @@
+{
+  "lastUpdated": "Zuletzt aktualisiert: {time}",
+  "poweredBy": "Powered by",
+  "incidentHistory": "Vorfallshistorie",
+  "noIncidentsMessage": "Keine Vorfälle in den letzten Tagen",
+  "affectedServices": "Betroffene Services",
+  "lastUpdate": "Letztes Update",
+  "announcements": "Ankündigungen",
+  "maintenance": {
+    "calendar": "Wartungskalender",
+    "ongoing": "Laufende Wartung",
+    "scheduled": "Geplante Wartungen",
+    "maintenancesOn": "Wartungen am {date}",
+    "running": "Läuft",
+    "planned": "Geplant",
+    "inProgress": "In Bearbeitung",
+    "affectedGroups": "Betroffene Gruppen",
+    "timeIn": {
+      "days": "in {count, plural, one {# Tag} other {# Tagen}}",
+      "hours": "in {count, plural, one {# Stunde} other {# Stunden}}",
+      "minutes": "in {count, plural, one {# Minute} other {# Minuten}}"
+    }
+  },
+  "calendar": {
+    "weekdays": {
+      "mon": "Mo",
+      "tue": "Di",
+      "wed": "Mi",
+      "thu": "Do",
+      "fri": "Fr",
+      "sat": "Sa",
+      "sun": "So"
+    },
+    "months": {
+      "january": "Januar",
+      "february": "Februar",
+      "march": "März",
+      "april": "April",
+      "may": "Mai",
+      "june": "Juni",
+      "july": "Juli",
+      "august": "August",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "Dezember"
+    }
+  }
+}

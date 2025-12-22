@@ -165,7 +165,7 @@ export const translations = {
     affectedServices: "Betroffene Services",
     incidentCause: "Ursache",
     incidentDescription: "Beschreibung",
-    incidentTimeline: "Timeline",
+    incidentTimeline: "Zeitleiste",
     addUpdate: "Update hinzufügen",
     noIncidents: "Keine Vorfälle",
     allSystemsOperational: "Alle Systeme funktionieren einwandfrei",

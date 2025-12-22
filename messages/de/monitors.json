@@ -198,7 +198,9 @@
     "addSubgroup": "Untergruppe hinzufügen",
     "deleteGroup": "Gruppe löschen",
     "ungrouped": "Nicht gruppiert",
-    "services": "{count, plural, one {# Service} other {# Services}}"
+    "services": "{count, plural, one {# Service} other {# Services}}",
+    "elements": "{count, plural, one {# Element} other {# Elemente}}",
+    "createSubfolder": "Unterordner erstellen"
   },
   "uptime": {
     "last24h": "Letzte 24 Stunden",
@@ -213,5 +215,140 @@
     "noData": "Keine Daten",
     "uptimePercent": "{percent}% Uptime",
     "failedChecks": "{failed}/{total} fehlgeschlagen"
+  },
+  "toast": {
+    "createSuccess": "Monitor \"{name}\" erstellt",
+    "updateSuccess": "Monitor \"{name}\" aktualisiert",
+    "deleteSuccess": "Monitor gelöscht",
+    "paused": "Monitor pausiert",
+    "resumed": "Monitor fortgesetzt",
+    "saveError": "Fehler beim Speichern: {error}"
+  },
+  "filters": {
+    "search": "Suchen...",
+    "statusPlaceholder": "Status",
+    "typePlaceholder": "Typ",
+    "allStatuses": "Alle Status",
+    "allTypes": "Alle Typen",
+    "byStatus": "Nach Status",
+    "byType": "Nach Typ",
+    "none": "Keine",
+    "groupBy": "Gruppieren",
+    "sortBy": "Sortieren",
+    "nameAsc": "Name A-Z",
+    "nameDesc": "Name Z-A",
+    "statusAsc": "Status (Up zuerst)",
+    "statusDesc": "Status (Down zuerst)",
+    "uptimeAsc": "Uptime (niedrigste)",
+    "uptimeDesc": "Uptime (höchste)",
+    "responseAsc": "Response (schnellste)",
+    "responseDesc": "Response (langsamste)",
+    "checkAsc": "Check (älteste)",
+    "checkDesc": "Check (neueste)",
+    "all": "Alle"
+  },
+  "editDialog": {
+    "title": "Monitor bearbeiten",
+    "description": "Konfiguration für \"{name}\" anpassen",
+    "typeDescription": {
+      "http": "Websites und APIs überwachen",
+      "tcp": "Port-Verfügbarkeit prüfen",
+      "ping": "ICMP-Erreichbarkeit testen",
+      "dns": "DNS-Auflösung prüfen"
+    },
+    "sections": {
+      "basic": "Basis-Konfiguration",
+      "check": "Check-Konfiguration",
+      "advanced": "Erweiterte Optionen",
+      "sla": "SLA-Konfiguration"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "z.B. Production API",
+      "monitorType": "Monitor-Typ",
+      "url": "URL",
+      "urlPlaceholder": "https://example.com/health",
+      "urlHint": "Vollständige URL inkl. Protokoll (https://)",
+      "tcpHost": "Host (DNS / IP)",
+      "tcpHostPlaceholder": "db.example.com oder 192.168.1.1",
+      "tcpPort": "Port",
+      "tcpPortPlaceholder": "5432",
+      "dnsDomain": "Domain",
+      "dnsDomainPlaceholder": "example.com",
+      "dnsRecordType": "Record-Typ",
+      "dnsExpected": "Erwartetes Ergebnis",
+      "dnsExpectedPlaceholder": "Optional",
+      "dnsExpectedHint": "Leer = nur Existenz prüfen",
+      "pingHost": "Host (DNS / IP)",
+      "pingHostPlaceholder": "192.168.1.1 oder server.example.com",
+      "interval": "Intervall (Sekunden)",
+      "timeout": "Timeout (Sekunden)",
+      "timeoutHint": "Muss kleiner als Intervall sein",
+      "retries": "Wiederholungen bei Fehler",
+      "sslVerify": "SSL-Zertifikat prüfen",
+      "sslVerifyHint": "Gültigkeit und Ablauf überwachen",
+      "httpMethod": "HTTP-Methode",
+      "statusCodes": "Erwartete Status-Codes",
+      "statusCodesPlaceholder": "200 oder 200,201 oder 200-299",
+      "requestBody": "Request Body",
+      "requestBodyPlaceholder": "{\"key\": \"value\"}",
+      "headers": "Request Headers",
+      "addHeader": "Header hinzufügen",
+      "headerName": "Header-Name",
+      "headerValue": "Wert",
+      "keywordCheck": "Keyword-Check",
+      "keywordPlaceholder": "Response muss diesen Text enthalten",
+      "keywordHint": "Optional: Prüft ob die Antwort diesen Text enthält",
+      "authentication": "Authentifizierung",
+      "username": "Benutzername",
+      "password": "Passwort",
+      "bearerToken": "Bearer Token",
+      "bearerTokenPlaceholder": "Token ohne 'Bearer ' Prefix",
+      "followRedirects": "Weiterleitungen folgen",
+      "followRedirectsHint": "HTTP 3xx Weiterleitungen automatisch folgen",
+      "dnsServer": "Benutzerdefinierter DNS-Server",
+      "dnsServerPlaceholder": "8.8.8.8 oder leer für System-DNS",
+      "dnsServerHint": "Optional: Spezifischen DNS-Server verwenden",
+      "slaTarget": "Uptime-Ziel (%)",
+      "maxResponseTime": "Max. Antwortzeit (ms)",
+      "maxResponseTimeHint": "Langsamere Antworten gelten als degradiert"
+    },
+    "dnsRecordTypes": {
+      "A": "IPv4-Adresse",
+      "AAAA": "IPv6-Adresse",
+      "MX": "Mail-Server",
+      "CNAME": "Alias",
+      "TXT": "Text-Record",
+      "NS": "Nameserver"
+    },
+    "buttons": {
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Speichern..."
+    }
+  },
+  "chart": {
+    "noData": "Keine Daten verfügbar"
+  },
+  "time": {
+    "never": "Niemals",
+    "secondsAgo": "vor {seconds}s",
+    "minutesAgo": "vor {minutes}m",
+    "hoursAgo": "vor {hours}h"
+  },
+  "table": {
+    "name": "Name",
+    "response": "Antwortzeit",
+    "uptime24h": "Uptime (24h)",
+    "lastCheck": "Letzter Check"
+  },
+  "card": {
+    "response": "Antwortzeit",
+    "uptime24h": "24h",
+    "uptime7d": "7d"
+  },
+  "emptyState": {
+    "title": "Noch keine Monitore konfiguriert",
+    "description": "Erstelle deinen ersten Monitor, um die Uptime zu überwachen."
   }
 }

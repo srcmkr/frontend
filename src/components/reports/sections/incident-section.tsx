@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { IncidentAnalysis } from "@/types";
 
@@ -16,17 +17,13 @@ const SEVERITY_COLORS = {
   critical: "#ef4444",
 };
 
-const SEVERITY_LABELS = {
-  minor: "Leicht",
-  major: "Schwer",
-  critical: "Kritisch",
-};
-
 export function IncidentSection({ data, className }: IncidentSectionProps) {
+  const t = useTranslations("reports.incidents");
+
   const pieData = [
-    { name: "Leicht", value: data.severityDistribution.minor, color: SEVERITY_COLORS.minor },
-    { name: "Schwer", value: data.severityDistribution.major, color: SEVERITY_COLORS.major },
-    { name: "Kritisch", value: data.severityDistribution.critical, color: SEVERITY_COLORS.critical },
+    { name: t("severity.minor"), value: data.severityDistribution.minor, color: SEVERITY_COLORS.minor, key: "minor" },
+    { name: t("severity.major"), value: data.severityDistribution.major, color: SEVERITY_COLORS.major, key: "major" },
+    { name: t("severity.critical"), value: data.severityDistribution.critical, color: SEVERITY_COLORS.critical, key: "critical" },
   ].filter((d) => d.value > 0);
 
   const formatDuration = (minutes: number) => {
@@ -36,14 +33,18 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
     return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
   };
 
+  const getSeverityLabel = (severity: "minor" | "major" | "critical") => {
+    return t(`severity.${severity}`);
+  };
+
   return (
     <div className={cn("space-y-6", className)}>
-      <h3 className="font-semibold text-lg">Incident-Analyse</h3>
+      <h3 className="font-semibold text-lg">{t("title")}</h3>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Incidents gesamt</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("totalIncidents")}</p>
           <p className={cn(
             "text-2xl font-bold font-mono",
             data.totalIncidents > 0 ? "text-red-600" : "text-green-600"
@@ -52,17 +53,17 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
           </p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">MTBF</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("mtbf")}</p>
           <p className="text-2xl font-bold font-mono">{data.mtbf}h</p>
-          <p className="text-xs text-muted-foreground">Mean Time Between Failures</p>
+          <p className="text-xs text-muted-foreground">{t("mtbfDesc")}</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">MTTR</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("mttr")}</p>
           <p className="text-2xl font-bold font-mono">{data.mttr}min</p>
-          <p className="text-xs text-muted-foreground">Mean Time To Recovery</p>
+          <p className="text-xs text-muted-foreground">{t("mttrDesc")}</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Längster Ausfall</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("longestOutage")}</p>
           <p className="text-2xl font-bold font-mono text-red-600">
             {formatDuration(data.longestOutage)}
           </p>
@@ -76,7 +77,7 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Pie Chart */}
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-muted-foreground">Schweregrad-Verteilung</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">{t("severityDistribution")}</h4>
               <div className="h-[180px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -112,7 +113,7 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
               {/* Legend */}
               <div className="flex justify-center gap-4 text-xs">
                 {pieData.map((entry) => (
-                  <div key={entry.name} className="flex items-center gap-1">
+                  <div key={entry.key} className="flex items-center gap-1">
                     <div
                       className="w-3 h-3 rounded-sm"
                       style={{ backgroundColor: entry.color }}
@@ -127,7 +128,7 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
 
             {/* Root Causes */}
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-muted-foreground">Ursachen</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">{t("rootCauses")}</h4>
               <div className="space-y-3">
                 {data.rootCauseCategories.map((cause) => (
                   <div key={cause.category} className="space-y-1.5">
@@ -151,7 +152,7 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
 
           {/* Incident Timeline */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground">Incident-Timeline</h4>
+            <h4 className="text-sm font-medium text-muted-foreground">{t("timeline")}</h4>
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
               {data.incidentTimeline.map((incident) => (
                 <div
@@ -176,16 +177,16 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
                       <Badge
                         variant={incident.severity === "critical" ? "destructive" : "secondary"}
                       >
-                        {SEVERITY_LABELS[incident.severity]}
+                        {getSeverityLabel(incident.severity)}
                       </Badge>
                       <span className="font-mono text-sm">{incident.date}</span>
                       <span className="text-xs text-muted-foreground">
-                        {incident.startTime} - {incident.endTime || "ongoing"}
+                        {incident.startTime} - {incident.endTime || t("ongoing")}
                       </span>
                     </div>
                     <p className="text-sm mt-1">{incident.cause}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Dauer: <span className="font-mono">{formatDuration(incident.duration)}</span>
+                      {t("durationLabel")} <span className="font-mono">{formatDuration(incident.duration)}</span>
                     </p>
                   </div>
                 </div>
@@ -197,8 +198,8 @@ export function IncidentSection({ data, className }: IncidentSectionProps) {
 
       {data.totalIncidents === 0 && (
         <div className="text-center py-8 bg-muted/50 rounded-lg">
-          <p className="text-lg font-medium text-green-600">Keine Incidents</p>
-          <p className="text-sm text-muted-foreground mt-1">Im ausgewählten Zeitraum gab es keine Vorfälle.</p>
+          <p className="text-lg font-medium text-green-600">{t("noIncidents")}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t("noIncidentsDescription")}</p>
         </div>
       )}
     </div>

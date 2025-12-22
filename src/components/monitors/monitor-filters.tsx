@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +31,8 @@ interface MonitorFiltersProps {
 }
 
 export function MonitorFilters({ filters, onFiltersChange }: MonitorFiltersProps) {
+  const t = useTranslations("monitors");
+
   const updateFilter = <K extends keyof MonitorFilterState>(
     key: K,
     value: MonitorFilterState[K]
@@ -43,7 +46,7 @@ export function MonitorFilters({ filters, onFiltersChange }: MonitorFiltersProps
       <div className="relative flex-1 min-w-[200px] max-w-[300px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Suchen..."
+          placeholder={t("filters.search")}
           value={filters.search}
           onChange={(e) => updateFilter("search", e.target.value)}
           className="pl-9"
@@ -56,14 +59,14 @@ export function MonitorFilters({ filters, onFiltersChange }: MonitorFiltersProps
         onValueChange={(value) => updateFilter("status", value as MonitorStatus | "all")}
       >
         <SelectTrigger className="w-[130px]">
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder={t("filters.statusPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Alle Status</SelectItem>
-          <SelectItem value="up">Up</SelectItem>
-          <SelectItem value="down">Down</SelectItem>
-          <SelectItem value="pending">Pending</SelectItem>
-          <SelectItem value="paused">Paused</SelectItem>
+          <SelectItem value="all">{t("filters.allStatuses")}</SelectItem>
+          <SelectItem value="up">{t("status.up")}</SelectItem>
+          <SelectItem value="down">{t("status.down")}</SelectItem>
+          <SelectItem value="pending">{t("status.pending")}</SelectItem>
+          <SelectItem value="paused">{t("status.paused")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -73,14 +76,14 @@ export function MonitorFilters({ filters, onFiltersChange }: MonitorFiltersProps
         onValueChange={(value) => updateFilter("type", value as MonitorType | "all")}
       >
         <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="Typ" />
+          <SelectValue placeholder={t("filters.typePlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Alle Typen</SelectItem>
-          <SelectItem value="http">HTTP</SelectItem>
-          <SelectItem value="tcp">TCP</SelectItem>
-          <SelectItem value="ping">Ping</SelectItem>
-          <SelectItem value="dns">DNS</SelectItem>
+          <SelectItem value="all">{t("filters.allTypes")}</SelectItem>
+          <SelectItem value="http">{t("types.http")}</SelectItem>
+          <SelectItem value="tcp">{t("types.tcp")}</SelectItem>
+          <SelectItem value="ping">{t("types.ping")}</SelectItem>
+          <SelectItem value="dns">{t("types.dns")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -90,12 +93,12 @@ export function MonitorFilters({ filters, onFiltersChange }: MonitorFiltersProps
         onValueChange={(value) => updateFilter("groupBy", value as GroupBy)}
       >
         <SelectTrigger className="w-[140px]">
-          <SelectValue placeholder="Gruppieren" />
+          <SelectValue placeholder={t("filters.groupBy")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="status">Nach Status</SelectItem>
-          <SelectItem value="type">Nach Typ</SelectItem>
-          <SelectItem value="none">Keine</SelectItem>
+          <SelectItem value="status">{t("filters.byStatus")}</SelectItem>
+          <SelectItem value="type">{t("filters.byType")}</SelectItem>
+          <SelectItem value="none">{t("filters.none")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -108,19 +111,19 @@ export function MonitorFilters({ filters, onFiltersChange }: MonitorFiltersProps
         }}
       >
         <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="Sortieren" />
+          <SelectValue placeholder={t("filters.sortBy")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="name-asc">Name A-Z</SelectItem>
-          <SelectItem value="name-desc">Name Z-A</SelectItem>
-          <SelectItem value="status-asc">Status (Up zuerst)</SelectItem>
-          <SelectItem value="status-desc">Status (Down zuerst)</SelectItem>
-          <SelectItem value="uptime-asc">Uptime (niedrigste)</SelectItem>
-          <SelectItem value="uptime-desc">Uptime (höchste)</SelectItem>
-          <SelectItem value="responseTime-asc">Response (schnellste)</SelectItem>
-          <SelectItem value="responseTime-desc">Response (langsamste)</SelectItem>
-          <SelectItem value="lastCheck-asc">Check (älteste)</SelectItem>
-          <SelectItem value="lastCheck-desc">Check (neueste)</SelectItem>
+          <SelectItem value="name-asc">{t("filters.nameAsc")}</SelectItem>
+          <SelectItem value="name-desc">{t("filters.nameDesc")}</SelectItem>
+          <SelectItem value="status-asc">{t("filters.statusAsc")}</SelectItem>
+          <SelectItem value="status-desc">{t("filters.statusDesc")}</SelectItem>
+          <SelectItem value="uptime-asc">{t("filters.uptimeAsc")}</SelectItem>
+          <SelectItem value="uptime-desc">{t("filters.uptimeDesc")}</SelectItem>
+          <SelectItem value="responseTime-asc">{t("filters.responseAsc")}</SelectItem>
+          <SelectItem value="responseTime-desc">{t("filters.responseDesc")}</SelectItem>
+          <SelectItem value="lastCheck-asc">{t("filters.checkAsc")}</SelectItem>
+          <SelectItem value="lastCheck-desc">{t("filters.checkDesc")}</SelectItem>
         </SelectContent>
       </Select>
     </div>

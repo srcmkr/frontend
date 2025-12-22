@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Wrench, Clock, Calendar } from "lucide-react";
 import type { StatusPageMaintenance, StatusPageGroup } from "@/types";
 import { formatMaintenanceTime } from "@/lib/public-status-utils";
@@ -14,6 +15,8 @@ export function PublicStatusMaintenance({
   maintenances,
   groups,
 }: PublicStatusMaintenanceProps) {
+  const t = useTranslations("publicStatus");
+
   const getGroupNames = (groupIds: string[]) => {
     return groupIds
       .map((id) => groups.find((g) => g.id === id)?.name || id)
@@ -31,9 +34,9 @@ export function PublicStatusMaintenance({
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays > 0) return `in ${diffDays} Tag${diffDays === 1 ? "" : "en"}`;
-    if (diffHours > 0) return `in ${diffHours} Stunde${diffHours === 1 ? "" : "n"}`;
-    return `in ${diffMins} Minute${diffMins === 1 ? "" : "n"}`;
+    if (diffDays > 0) return t("maintenance.timeIn.days", { count: diffDays });
+    if (diffHours > 0) return t("maintenance.timeIn.hours", { count: diffHours });
+    return t("maintenance.timeIn.minutes", { count: diffMins });
   };
 
   const inProgress = maintenances.filter((m) => m.status === "in_progress");
@@ -48,7 +51,7 @@ export function PublicStatusMaintenance({
         <div className="space-y-2">
           <h2 className="text-base font-semibold flex items-center gap-2">
             <Wrench className="h-4 w-4 text-blue-500" />
-            Laufende Wartung
+            {t("maintenance.ongoing")}
           </h2>
           {inProgress.map((maintenance) => (
             <div
@@ -65,7 +68,7 @@ export function PublicStatusMaintenance({
                       {maintenance.title}
                     </h3>
                     <Badge variant="default" className="bg-blue-500 text-xs">
-                      In Bearbeitung
+                      {t("maintenance.inProgress")}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -83,7 +86,7 @@ export function PublicStatusMaintenance({
                   </div>
                   {maintenance.affectedGroups.length > 0 && (
                     <p className="text-xs text-muted-foreground mt-1.5">
-                      Betroffene Gruppen: {getGroupNames(maintenance.affectedGroups)}
+                      {t("maintenance.affectedGroups")}: {getGroupNames(maintenance.affectedGroups)}
                     </p>
                   )}
                 </div>
@@ -98,7 +101,7 @@ export function PublicStatusMaintenance({
         <div className="space-y-2">
           <h2 className="text-base font-semibold flex items-center gap-2">
             <Calendar className="h-4 w-4 text-orange-500" />
-            Geplante Wartungen
+            {t("maintenance.scheduled")}
           </h2>
           {scheduled.map((maintenance) => {
             const timeUntil = getTimeUntil(maintenance.scheduledStart);
@@ -136,7 +139,7 @@ export function PublicStatusMaintenance({
                     </div>
                     {maintenance.affectedGroups.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-1.5">
-                        Betroffene Gruppen: {getGroupNames(maintenance.affectedGroups)}
+                        {t("maintenance.affectedGroups")}: {getGroupNames(maintenance.affectedGroups)}
                       </p>
                     )}
                   </div>

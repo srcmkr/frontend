@@ -188,14 +188,74 @@ const styles = StyleSheet.create({
   },
 });
 
-interface SLAReportPDFProps {
-  report: SLAReport;
+// Translation type for PDF
+export interface PDFTranslations {
+  title: string;
+  summary: string;
+  slaTargetAvailability: string;
+  maxResponseTime: string;
+  availability: string;
+  met: string;
+  violated: string;
+  responseTime: string;
+  uptime: string;
+  downtime: string;
+  trendVsPrevious: string;
+  available: string;
+  slaBreaches: string;
+  table: {
+    week: string;
+    uptime: string;
+    checks: string;
+    failed: string;
+  };
+  weekPrefix: string;
+  generatedAt: string;
+  performance: {
+    title: string;
+    maxResponseTimeSla: string;
+    average: string;
+    median: string;
+    minMax: string;
+  };
+  incidents: {
+    title: string;
+    totalIncidents: string;
+    mtbf: string;
+    mttr: string;
+    longestOutage: string;
+    severity: {
+      critical: string;
+      major: string;
+      minor: string;
+    };
+  };
+  checkStatistics: {
+    title: string;
+    totalChecks: string;
+    successful: string;
+    failed: string;
+    successRate: string;
+  };
+  technicalDetails: {
+    title: string;
+    dnsAvg: string;
+    dnsP95: string;
+    ipChanges: string;
+    tlsVersion: string;
+  };
 }
 
-export function SLAReportPDF({ report }: SLAReportPDFProps) {
+interface SLAReportPDFProps {
+  report: SLAReport;
+  locale?: string;
+  translations: PDFTranslations;
+}
+
+export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAReportPDFProps) {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("de-DE", {
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -214,7 +274,7 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>SLA Report</Text>
+          <Text style={styles.title}>{t.title}</Text>
           <Text style={styles.subtitle}>{report.monitorName}</Text>
           <Text style={styles.periodBadge}>
             {report.period.label} ({report.period.startDate} - {report.period.endDate})
@@ -223,46 +283,46 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
 
         {/* Executive Summary */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Zusammenfassung</Text>
+          <Text style={styles.sectionTitle}>{t.summary}</Text>
 
           {/* SLA Requirements Overview */}
           <View style={styles.slaRequirementsBox}>
             <View style={styles.slaRequirementItem}>
-              <Text style={styles.slaRequirementLabel}>SLA-Ziel Verfügbarkeit:</Text>
+              <Text style={styles.slaRequirementLabel}>{t.slaTargetAvailability}</Text>
               <Text style={styles.slaRequirementValue}>{report.slaTarget}%</Text>
             </View>
             <View style={styles.slaRequirementItem}>
-              <Text style={styles.slaRequirementLabel}>Max. Antwortzeit:</Text>
+              <Text style={styles.slaRequirementLabel}>{t.maxResponseTime}</Text>
               <Text style={styles.slaRequirementValue}>{report.maxResponseTime}ms</Text>
             </View>
           </View>
 
           <View style={styles.statsGrid}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Verfügbarkeit</Text>
+              <Text style={styles.statLabel}>{t.availability}</Text>
               <Text style={report.executiveSummary.slaCompliant ? styles.statValueGreen : styles.statValueRed}>
-                {report.executiveSummary.slaCompliant ? "Eingehalten" : "Verletzt"}
+                {report.executiveSummary.slaCompliant ? t.met : t.violated}
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Antwortzeit</Text>
+              <Text style={styles.statLabel}>{t.responseTime}</Text>
               <Text style={report.executiveSummary.responseTimeCompliant ? styles.statValueGreen : styles.statValueRed}>
-                {report.executiveSummary.responseTimeCompliant ? "Eingehalten" : "Verletzt"}
+                {report.executiveSummary.responseTimeCompliant ? t.met : t.violated}
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Uptime</Text>
+              <Text style={styles.statLabel}>{t.uptime}</Text>
               <Text style={getUptimeStyle(report.executiveSummary.overallAvailability)}>
                 {report.executiveSummary.overallAvailability.toFixed(3)}%
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Ausfallzeit</Text>
+              <Text style={styles.statLabel}>{t.downtime}</Text>
               <Text style={styles.statValue}>{report.executiveSummary.totalDowntimeFormatted}</Text>
             </View>
           </View>
           <View style={styles.row}>
-            <Text style={styles.statLabel}>Trend vs. Vorperiode: </Text>
+            <Text style={styles.statLabel}>{t.trendVsPrevious} </Text>
             <Text style={report.executiveSummary.trendVsPreviousPeriod >= 0 ? styles.statValueGreen : styles.statValueRed}>
               {report.executiveSummary.trendVsPreviousPeriod > 0 ? "+" : ""}
               {report.executiveSummary.trendVsPreviousPeriod.toFixed(2)}%
@@ -272,28 +332,28 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
 
         {/* Availability */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Verfügbarkeit</Text>
+          <Text style={styles.sectionTitle}>{t.availability}</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Uptime</Text>
+              <Text style={styles.statLabel}>{t.uptime}</Text>
               <Text style={getUptimeStyle(report.availability.uptimePercentage)}>
                 {report.availability.uptimePercentage.toFixed(2)}%
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Verfügbar</Text>
+              <Text style={styles.statLabel}>{t.available}</Text>
               <Text style={styles.statValue}>
                 {report.availability.uptimeHours}h {report.availability.uptimeMinutes}m
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Ausfallzeit</Text>
+              <Text style={styles.statLabel}>{t.downtime}</Text>
               <Text style={styles.statValueRed}>
                 {report.availability.downtimeHours}h {report.availability.downtimeMinutes}m
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>SLA-Verletzungen</Text>
+              <Text style={styles.statLabel}>{t.slaBreaches}</Text>
               <Text style={report.availability.slaBreachCount > 0 ? styles.statValueRed : styles.statValueGreen}>
                 {report.availability.slaBreachCount}
               </Text>
@@ -304,15 +364,15 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
           {report.availability.weeklyBreakdown.length > 0 && (
             <View style={styles.table}>
               <View style={styles.tableHeader}>
-                <Text style={[styles.tableHeaderCell, styles.col1]}>Woche</Text>
-                <Text style={[styles.tableHeaderCell, styles.col2]}>Uptime</Text>
-                <Text style={[styles.tableHeaderCell, styles.col3]}>Checks</Text>
-                <Text style={[styles.tableHeaderCell, styles.col4]}>Fehlgeschlagen</Text>
+                <Text style={[styles.tableHeaderCell, styles.col1]}>{t.table.week}</Text>
+                <Text style={[styles.tableHeaderCell, styles.col2]}>{t.table.uptime}</Text>
+                <Text style={[styles.tableHeaderCell, styles.col3]}>{t.table.checks}</Text>
+                <Text style={[styles.tableHeaderCell, styles.col4]}>{t.table.failed}</Text>
               </View>
               {report.availability.weeklyBreakdown.slice(0, 8).map((week) => (
                 <View key={week.weekNumber} style={styles.tableRow}>
                   <Text style={[styles.tableCell, styles.col1]}>
-                    KW {week.weekNumber}
+                    {t.weekPrefix} {week.weekNumber}
                   </Text>
                   <Text style={[styles.tableCell, styles.col2, getUptimeStyle(week.uptime)]}>
                     {week.uptime.toFixed(2)}%
@@ -328,7 +388,7 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
         </View>
 
         <Text style={styles.footer}>
-          Report generiert am {formatDate(report.generatedAt)} | {report.monitorUrl}
+          {t.generatedAt} {formatDate(report.generatedAt)} | {report.monitorUrl}
         </Text>
         <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
       </Page>
@@ -337,9 +397,9 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
       <Page size="A4" style={styles.page}>
         {/* Performance */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Performance</Text>
+          <Text style={styles.sectionTitle}>{t.performance.title}</Text>
           <View style={styles.row}>
-            <Text style={styles.statLabel}>Max. Antwortzeit SLA: </Text>
+            <Text style={styles.statLabel}>{t.performance.maxResponseTimeSla} </Text>
             <Text style={styles.slaRequirementValue}>{report.maxResponseTime}ms</Text>
             <Text style={[
               styles.slaRequirementValue,
@@ -348,18 +408,18 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
                 ? styles.statValueGreen
                 : styles.statValueRed
             ]}>
-              ({report.performance.averageResponseTime <= report.maxResponseTime ? "Eingehalten" : "Verletzt"})
+              ({report.performance.averageResponseTime <= report.maxResponseTime ? t.met : t.violated})
             </Text>
           </View>
           <View style={[styles.statsGrid, { marginTop: 10 }]}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Durchschnitt</Text>
+              <Text style={styles.statLabel}>{t.performance.average}</Text>
               <Text style={report.performance.averageResponseTime <= report.maxResponseTime ? styles.statValueGreen : styles.statValueRed}>
                 {report.performance.averageResponseTime}ms
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Median</Text>
+              <Text style={styles.statLabel}>{t.performance.median}</Text>
               <Text style={styles.statValue}>{report.performance.medianResponseTime}ms</Text>
             </View>
             <View style={styles.statBox}>
@@ -376,7 +436,7 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
             </View>
           </View>
           <View style={styles.row}>
-            <Text style={styles.statLabel}>Min / Max: </Text>
+            <Text style={styles.statLabel}>{t.performance.minMax} </Text>
             <Text style={styles.tableCell}>
               {report.performance.minResponseTime}ms / {report.performance.maxResponseTime}ms
             </Text>
@@ -385,24 +445,24 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
 
         {/* Incidents */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Incident-Analyse</Text>
+          <Text style={styles.sectionTitle}>{t.incidents.title}</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Incidents gesamt</Text>
+              <Text style={styles.statLabel}>{t.incidents.totalIncidents}</Text>
               <Text style={report.incidents.totalIncidents > 0 ? styles.statValueRed : styles.statValueGreen}>
                 {report.incidents.totalIncidents}
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>MTBF</Text>
+              <Text style={styles.statLabel}>{t.incidents.mtbf}</Text>
               <Text style={styles.statValue}>{report.incidents.mtbf}h</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>MTTR</Text>
+              <Text style={styles.statLabel}>{t.incidents.mttr}</Text>
               <Text style={styles.statValue}>{report.incidents.mttr}min</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Längster Ausfall</Text>
+              <Text style={styles.statLabel}>{t.incidents.longestOutage}</Text>
               <Text style={styles.statValueRed}>{report.incidents.longestOutage}min</Text>
             </View>
           </View>
@@ -415,8 +475,8 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
                 incident.severity === "critical" ? styles.badgeCritical :
                   incident.severity === "major" ? styles.badgeMajor : styles.badgeMinor
               ]}>
-                {incident.severity === "critical" ? "Kritisch" :
-                  incident.severity === "major" ? "Schwer" : "Leicht"}
+                {incident.severity === "critical" ? t.incidents.severity.critical :
+                  incident.severity === "major" ? t.incidents.severity.major : t.incidents.severity.minor}
               </Text>
               <Text style={styles.tableCell}>{incident.date} {incident.startTime}</Text>
               <Text style={[styles.tableCell, { marginLeft: 10 }]}>{incident.cause}</Text>
@@ -427,26 +487,26 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
 
         {/* Check Statistics */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Check-Statistiken</Text>
+          <Text style={styles.sectionTitle}>{t.checkStatistics.title}</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Checks gesamt</Text>
-              <Text style={styles.statValue}>{report.checks.totalChecks.toLocaleString("de-DE")}</Text>
+              <Text style={styles.statLabel}>{t.checkStatistics.totalChecks}</Text>
+              <Text style={styles.statValue}>{report.checks.totalChecks.toLocaleString(locale)}</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Erfolgreich</Text>
+              <Text style={styles.statLabel}>{t.checkStatistics.successful}</Text>
               <Text style={styles.statValueGreen}>
-                {report.checks.successfulChecks.toLocaleString("de-DE")}
+                {report.checks.successfulChecks.toLocaleString(locale)}
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Fehlgeschlagen</Text>
+              <Text style={styles.statLabel}>{t.checkStatistics.failed}</Text>
               <Text style={report.checks.failedChecks > 0 ? styles.statValueRed : styles.statValueGreen}>
-                {report.checks.failedChecks.toLocaleString("de-DE")}
+                {report.checks.failedChecks.toLocaleString(locale)}
               </Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Erfolgsrate</Text>
+              <Text style={styles.statLabel}>{t.checkStatistics.successRate}</Text>
               <Text style={getUptimeStyle(report.checks.successRate)}>
                 {report.checks.successRate.toFixed(2)}%
               </Text>
@@ -456,22 +516,22 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
 
         {/* Technical Details */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Technische Details</Text>
+          <Text style={styles.sectionTitle}>{t.technicalDetails.title}</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>DNS Avg</Text>
+              <Text style={styles.statLabel}>{t.technicalDetails.dnsAvg}</Text>
               <Text style={styles.statValue}>{report.technical.dnsResolutionStats.averageTime}ms</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>DNS P95</Text>
+              <Text style={styles.statLabel}>{t.technicalDetails.dnsP95}</Text>
               <Text style={styles.statValue}>{report.technical.dnsResolutionStats.p95Time}ms</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>IP-Änderungen</Text>
+              <Text style={styles.statLabel}>{t.technicalDetails.ipChanges}</Text>
               <Text style={styles.statValue}>{report.technical.ipAddressChanges.length}</Text>
             </View>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>TLS-Version</Text>
+              <Text style={styles.statLabel}>{t.technicalDetails.tlsVersion}</Text>
               <Text style={styles.statValue}>
                 {report.technical.tlsVersionHistory[0]?.version || "-"}
               </Text>
@@ -480,7 +540,7 @@ export function SLAReportPDF({ report }: SLAReportPDFProps) {
         </View>
 
         <Text style={styles.footer}>
-          Report generiert am {formatDate(report.generatedAt)} | {report.monitorUrl}
+          {t.generatedAt} {formatDate(report.generatedAt)} | {report.monitorUrl}
         </Text>
         <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
       </Page>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -11,6 +12,8 @@ interface ExecutiveSummaryProps {
 }
 
 export function ExecutiveSummary({ data, className }: ExecutiveSummaryProps) {
+  const t = useTranslations("reports.executiveSummary");
+
   const TrendIcon =
     data.trendDirection === "up"
       ? TrendingUp
@@ -27,16 +30,16 @@ export function ExecutiveSummary({ data, className }: ExecutiveSummaryProps) {
 
   return (
     <div className={cn("space-y-4", className)}>
-      <h3 className="font-semibold text-lg">Zusammenfassung</h3>
+      <h3 className="font-semibold text-lg">{t("title")}</h3>
 
       {/* SLA Requirements Overview */}
       <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg border">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">SLA-Ziel Verfügbarkeit:</span>
+          <span className="text-sm text-muted-foreground">{t("slaTarget")}</span>
           <span className="font-mono font-semibold">{data.slaTarget}%</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Max. Antwortzeit:</span>
+          <span className="text-sm text-muted-foreground">{t("maxResponseTime")}</span>
           <span className="font-mono font-semibold">{data.maxResponseTime}ms</span>
         </div>
       </div>
@@ -44,7 +47,7 @@ export function ExecutiveSummary({ data, className }: ExecutiveSummaryProps) {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {/* SLA Availability Compliance */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-2">Verfügbarkeit</p>
+          <p className="text-xs text-muted-foreground mb-2">{t("availability")}</p>
           <Badge
             variant={data.slaCompliant ? "default" : "destructive"}
             className={cn(
@@ -52,13 +55,13 @@ export function ExecutiveSummary({ data, className }: ExecutiveSummaryProps) {
               data.slaCompliant && "bg-green-600 hover:bg-green-700"
             )}
           >
-            {data.slaCompliant ? "Eingehalten" : "Verletzt"}
+            {data.slaCompliant ? t("met") : t("violated")}
           </Badge>
         </div>
 
         {/* Response Time Compliance */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-2">Antwortzeit</p>
+          <p className="text-xs text-muted-foreground mb-2">{t("responseTime")}</p>
           <Badge
             variant={data.responseTimeCompliant ? "default" : "destructive"}
             className={cn(
@@ -66,13 +69,13 @@ export function ExecutiveSummary({ data, className }: ExecutiveSummaryProps) {
               data.responseTimeCompliant && "bg-green-600 hover:bg-green-700"
             )}
           >
-            {data.responseTimeCompliant ? "Eingehalten" : "Verletzt"}
+            {data.responseTimeCompliant ? t("met") : t("violated")}
           </Badge>
         </div>
 
         {/* Overall Availability */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Verfügbarkeit</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("availability")}</p>
           <p
             className={cn(
               "text-2xl font-bold font-mono",
@@ -96,18 +99,18 @@ export function ExecutiveSummary({ data, className }: ExecutiveSummaryProps) {
 
         {/* Total Downtime */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Ausfallzeit</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("downtime")}</p>
           <p className="text-2xl font-bold font-mono">
             {data.totalDowntimeFormatted}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {data.totalDowntimeMinutes} Minuten gesamt
+            {data.totalDowntimeMinutes} {t("totalMinutes")}
           </p>
         </div>
 
         {/* Trend */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">Trend vs. Vorperiode</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("trendVsPrevious")}</p>
           <div className="flex items-center gap-2">
             <TrendIcon className={cn("h-5 w-5", trendColor)} />
             <span className={cn("text-2xl font-bold font-mono", trendColor)}>

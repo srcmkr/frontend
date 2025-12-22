@@ -1,43 +1,58 @@
 import { z } from "zod";
 
 // Email configuration schema (Resend API)
-const emailConfigSchema = z.object({
-  apiKey: z.string().min(1, "API-Key erforderlich"),
-  fromEmail: z.string().email("Ungültige E-Mail-Adresse"),
-  toEmails: z.array(z.string().email("Ungültige E-Mail-Adresse")).min(1, "Mindestens ein Empfänger erforderlich"),
-});
+const createEmailConfigSchema = (t: (key: string) => string) =>
+  z.object({
+    apiKey: z.string().min(1, t("validations.notification.apiKeyRequired")),
+    fromEmail: z.string().email(t("validations.notification.emailInvalid")),
+    toEmails: z
+      .array(z.string().email(t("validations.notification.emailInvalid")))
+      .min(1, t("validations.notification.emailRecipientMin")),
+  });
 
 // Webhook configuration schema
-const webhookConfigSchema = z.object({
-  url: z.string().url("Ungültige URL"),
-  headers: z.record(z.string(), z.string()).optional(),
-});
+const createWebhookConfigSchema = (t: (key: string) => string) =>
+  z.object({
+    url: z.string().url(t("validations.notification.urlInvalid")),
+    headers: z.record(z.string(), z.string()).optional(),
+  });
 
 // Email channel schema
-const emailChannelSchema = z.object({
-  type: z.literal("email"),
-  name: z.string().min(1, "Name erforderlich").max(50, "Maximal 50 Zeichen"),
-  enabled: z.boolean(),
-  config: emailConfigSchema,
-});
+const createEmailChannelSchema = (t: (key: string) => string) =>
+  z.object({
+    type: z.literal("email"),
+    name: z
+      .string()
+      .min(1, t("validations.notification.nameRequired"))
+      .max(50, t("validations.notification.nameMaxLength")),
+    enabled: z.boolean(),
+    config: createEmailConfigSchema(t),
+  });
 
 // Webhook channel schema
-const webhookChannelSchema = z.object({
-  type: z.literal("webhook"),
-  name: z.string().min(1, "Name erforderlich").max(50, "Maximal 50 Zeichen"),
-  enabled: z.boolean(),
-  config: webhookConfigSchema,
-});
+const createWebhookChannelSchema = (t: (key: string) => string) =>
+  z.object({
+    type: z.literal("webhook"),
+    name: z
+      .string()
+      .min(1, t("validations.notification.nameRequired"))
+      .max(50, t("validations.notification.nameMaxLength")),
+    enabled: z.boolean(),
+    config: createWebhookConfigSchema(t),
+  });
 
 // Combined notification channel schema using discriminated union
-export const notificationChannelSchema = z.discriminatedUnion("type", [
-  emailChannelSchema,
-  webhookChannelSchema,
-]);
+export const createNotificationChannelSchema = (t: (key: string) => string) =>
+  z.discriminatedUnion("type", [
+    createEmailChannelSchema(t),
+    createWebhookChannelSchema(t),
+  ]);
 
-export type NotificationChannelFormData = z.infer<typeof notificationChannelSchema>;
-export type EmailChannelFormData = z.infer<typeof emailChannelSchema>;
-export type WebhookChannelFormData = z.infer<typeof webhookChannelSchema>;
+export type NotificationChannelFormData = z.infer<
+  ReturnType<typeof createNotificationChannelSchema>
+>;
+export type EmailChannelFormData = z.infer<ReturnType<typeof createEmailChannelSchema>>;
+export type WebhookChannelFormData = z.infer<ReturnType<typeof createWebhookChannelSchema>>;
 
 // Type guards
 export function isEmailChannel(data: NotificationChannelFormData): data is EmailChannelFormData {

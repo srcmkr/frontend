@@ -2,6 +2,7 @@
 
 import { forwardRef, useState, useEffect, useRef, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ChevronRight, Folder, FolderOpen, GripVertical, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CSS, useSortable } from "@/components/dnd/dnd-provider";
@@ -32,17 +33,6 @@ interface ServiceTreeItemProps {
   onEditingChange?: (editing: boolean) => void;
 }
 
-const formatLastCheck = (date: string | null) => {
-  if (!date) return "Never";
-  const diff = Date.now() - new Date(date).getTime();
-  const seconds = Math.floor(diff / 1000);
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ago`;
-};
-
 export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
   function ServiceTreeItem(
     {
@@ -62,6 +52,19 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
     ref
   ) {
     const router = useRouter();
+    const t = useTranslations("monitors");
+    const tTime = useTranslations("monitors.time");
+
+    const formatLastCheck = (date: string | null) => {
+      if (!date) return tTime("never");
+      const diff = Date.now() - new Date(date).getTime();
+      const seconds = Math.floor(diff / 1000);
+      if (seconds < 60) return tTime("secondsAgo", { seconds });
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return tTime("minutesAgo", { minutes });
+      const hours = Math.floor(minutes / 60);
+      return tTime("hoursAgo", { hours });
+    };
     const [isEditingLocal, setIsEditingLocal] = useState(false);
     const [editName, setEditName] = useState(item.name);
     const [pendingEdit, setPendingEdit] = useState(false);
@@ -238,7 +241,7 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
               )}
               {isGroup && item.collapsed && childCount !== undefined && childCount > 0 && (
                 <span className="ml-2 text-xs text-muted-foreground">
-                  ({childCount} {childCount === 1 ? "Element" : "Elemente"})
+                  ({t("groups.elements", { count: childCount })})
                 </span>
               )}
             </>
@@ -276,14 +279,14 @@ export const ServiceTreeItem = forwardRef<HTMLDivElement, ServiceTreeItemProps>(
               <DropdownMenuContent align="end" onCloseAutoFocus={handleDropdownCloseAutoFocus}>
                 <DropdownMenuItem onSelect={() => setPendingEdit(true)}>
                   <Pencil className="h-4 w-4 mr-2" />
-                  Umbenennen
+                  {t("groups.rename")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => onDelete?.(item.id)}
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Löschen
+                  {t("detail.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

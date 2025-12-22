@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { MonitorCard } from "./monitor-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Monitor } from "@/types";
@@ -10,6 +11,8 @@ interface MonitorListProps {
 }
 
 export function MonitorList({ monitors, isLoading }: MonitorListProps) {
+  const t = useTranslations("monitors.emptyState");
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -23,9 +26,9 @@ export function MonitorList({ monitors, isLoading }: MonitorListProps) {
   if (monitors.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No monitors configured yet.</p>
+        <p className="text-muted-foreground">{t("title")}</p>
         <p className="text-sm text-muted-foreground mt-1">
-          Create your first monitor to start tracking uptime.
+          {t("description")}
         </p>
       </div>
     );
