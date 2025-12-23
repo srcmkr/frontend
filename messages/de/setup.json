@@ -1,0 +1,68 @@
+{
+  "steps": {
+    "welcome": "Willkommen",
+    "adminAccount": "Admin-Konto",
+    "branding": "Branding",
+    "completion": "Abschluss"
+  },
+  "welcome": {
+    "title": "Willkommen bei Status Monitor",
+    "subtitle": "Richten Sie Ihr Monitoring-System in wenigen Schritten ein",
+    "features": {
+      "title": "Was Sie erwartet:",
+      "monitoring": "Echtzeit-Überwachung mit anpassbaren Intervallen",
+      "incidents": "Incident-Management und Tracking",
+      "statusPages": "Öffentliche Statusseiten für Ihre Services",
+      "notifications": "Multi-Channel-Benachrichtigungen (E-Mail, Slack, Discord, etc.)"
+    },
+    "getStarted": "Los geht's"
+  },
+  "adminAccount": {
+    "title": "Admin-Konto erstellen",
+    "subtitle": "Dies wird Ihr primäres Administrator-Konto",
+    "fields": {
+      "fullName": "Vollständiger Name",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen"
+    },
+    "passwordHint": "Mindestens 8 Zeichen mit Groß-, Kleinbuchstaben und Ziffer",
+    "errors": {
+      "fullName": "Name muss mindestens 2 Zeichen lang sein",
+      "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+      "password": "Passwort erfüllt nicht die Anforderungen",
+      "passwordMismatch": "Passwörter stimmen nicht überein"
+    },
+    "back": "Zurück",
+    "continue": "Weiter"
+  },
+  "branding": {
+    "title": "System-Branding",
+    "subtitle": "Passen Sie Ihre Status Monitor-Instanz an (optional)",
+    "fields": {
+      "systemName": "Systemname",
+      "systemNamePlaceholder": "Mein Status Monitor",
+      "logoUrl": "Logo-URL"
+    },
+    "hints": {
+      "systemName": "Wird im Dashboard und auf Statusseiten angezeigt",
+      "logoUrl": "URL zu Ihrem Logo-Bild (optional)"
+    },
+    "errors": {
+      "logoUrl": "Bitte geben Sie eine gültige URL ein"
+    },
+    "back": "Zurück",
+    "complete": "Setup abschließen",
+    "completing": "Wird abgeschlossen..."
+  },
+  "completion": {
+    "title": "Setup abgeschlossen!",
+    "message": "Ihr Status Monitor ist nun konfiguriert und einsatzbereit.",
+    "redirecting": "Weiterleitung zum Dashboard...",
+    "nextSteps": "Sie können jetzt Monitore hinzufügen und Ihre Statusseiten konfigurieren."
+  },
+  "error": {
+    "submitFailed": "Setup fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "alreadyInitialized": "System wurde bereits initialisiert"
+  }
+}

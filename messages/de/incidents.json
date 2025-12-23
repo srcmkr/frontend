@@ -90,7 +90,12 @@
     "cmdEnterToSend": "Cmd+Enter zum Senden",
     "cmdEnterToSave": "Cmd+Enter zum Speichern, Escape zum Abbrechen",
     "system": "System",
-    "send": "Senden"
+    "send": "Senden",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "noIncidentsInPeriod": "Keine Incidents in diesem Zeitraum",
+    "for": "seit",
+    "duration": "Dauer"
   },
   "actions": {
     "resolve": "Beheben",
@@ -106,7 +111,30 @@
     "all": "Alle",
     "ongoing": "Aktiv",
     "resolved": "Behoben",
-    "scheduled": "Geplant"
+    "scheduled": "Geplant",
+    "searchPlaceholder": "Suchen...",
+    "active": "Aktiv",
+    "statusPlaceholder": "Status",
+    "severityLabel": "Schwere",
+    "severityAll": "Alle",
+    "critical": "Kritisch",
+    "major": "Mittel",
+    "minor": "Gering",
+    "info": "Info",
+    "typeLabel": "Typ",
+    "allTypes": "Alle Typen",
+    "incident": "Vorfall",
+    "maintenance": "Wartung",
+    "announcement": "Ankündigung",
+    "monitorLabel": "Monitor",
+    "allMonitors": "Alle Monitore",
+    "sortLabel": "Sortieren",
+    "sortNewest": "Neueste zuerst",
+    "sortOldest": "Älteste zuerst",
+    "sortSeverityHigh": "Schwere (hoch)",
+    "sortSeverityLow": "Schwere (niedrig)",
+    "sortDurationLong": "Dauer (lang)",
+    "sortDurationShort": "Dauer (kurz)"
   },
   "metrics": {
     "mttr": "MTTR",
@@ -164,33 +192,6 @@
     "createAnnouncement": "Ankündigung erstellen",
     "createIncident": "Neuen Vorfall erstellen"
   },
-  "filters": {
-    "searchPlaceholder": "Suchen...",
-    "all": "Alle",
-    "active": "Aktiv",
-    "resolved": "Behoben",
-    "statusPlaceholder": "Status",
-    "severityLabel": "Schwere",
-    "severityAll": "Alle",
-    "critical": "Kritisch",
-    "major": "Mittel",
-    "minor": "Gering",
-    "info": "Info",
-    "typeLabel": "Typ",
-    "allTypes": "Alle Typen",
-    "incident": "Vorfall",
-    "maintenance": "Wartung",
-    "announcement": "Ankündigung",
-    "monitorLabel": "Monitor",
-    "allMonitors": "Alle Monitore",
-    "sortLabel": "Sortieren",
-    "sortNewest": "Neueste zuerst",
-    "sortOldest": "Älteste zuerst",
-    "sortSeverityHigh": "Schwere (hoch)",
-    "sortSeverityLow": "Schwere (niedrig)",
-    "sortDurationLong": "Dauer (lang)",
-    "sortDurationShort": "Dauer (kurz)"
-  },
   "typeLabelsWithDescriptions": {
     "incident": "Vorfall",
     "incidentDescription": "Unerwartetes Problem",
@@ -244,13 +245,6 @@
     "yesterday": "gestern",
     "daysAgo": "vor {days}d",
     "since": "seit"
-  },
-  "timeline": {
-    "today": "Heute",
-    "yesterday": "Gestern",
-    "noIncidentsInPeriod": "Keine Incidents in diesem Zeitraum",
-    "for": "seit",
-    "duration": "Dauer"
   },
   "editDescriptions": {
     "editIncident": "Bearbeite die Details für \"{title}\"",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
   ArrowLeft,
@@ -112,6 +113,7 @@ export function IncidentDetailPanel({
   readonly = false,
   className,
 }: IncidentDetailPanelProps) {
+  const router = useRouter();
   const t = useTranslations("incidents");
   const locale = useLocale();
 
@@ -279,9 +281,11 @@ export function IncidentDetailPanel({
           <div className="space-y-2">
             {affectedMonitorObjects.length > 0 ? (
               affectedMonitorObjects.map((monitor) => (
-                <div
+                <button
                   key={monitor.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border bg-card"
+                  type="button"
+                  onClick={() => router.push(`/monitors/${monitor.id}`)}
+                  className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent transition-colors text-left w-full cursor-pointer"
                 >
                   <div
                     className={cn(
@@ -302,7 +306,7 @@ export function IncidentDetailPanel({
                   <span className="text-xs uppercase tracking-wide text-muted-foreground">
                     {monitor.type}
                   </span>
-                </div>
+                </button>
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
@@ -351,7 +355,7 @@ export function IncidentDetailPanel({
               {t("dialogs.deleteTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("dialogs.deleteDescription", { title: incident.title })}
+              {t("dialogs.deleteDescription", { name: incident.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

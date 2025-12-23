@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,14 @@ import { MonitorSplitView } from "@/components/monitors/monitor-split-view";
 import { useMonitors, useServiceGroups } from "@/features/monitors";
 
 export default function MonitorsPage() {
-  const searchParams = useSearchParams();
+  const params = useParams();
   const router = useRouter();
   const t = useTranslations("monitors");
 
-  const selectedMonitorId = searchParams.get("id");
+  // Extract monitor ID from slug parameter
+  // URL patterns: /monitors, /monitors/create, /monitors/[id]
+  const slug = params.slug as string[] | undefined;
+  const selectedMonitorId = slug?.[0] && slug[0] !== 'create' ? slug[0] : null;
 
   // Fetch monitors using React Query
   const {
@@ -28,13 +31,13 @@ export default function MonitorsPage() {
 
   // Handle creating new monitor
   const handleCreateClick = useCallback(() => {
-    router.push("/monitors?mode=create", { scroll: false });
+    router.push("/monitors/create", { scroll: false });
   }, [router]);
 
   const handleSelectMonitor = useCallback(
     (id: string | null) => {
       if (id) {
-        router.push(`/monitors?id=${id}`, { scroll: false });
+        router.push(`/monitors/${id}`, { scroll: false });
       } else {
         router.push("/monitors", { scroll: false });
       }

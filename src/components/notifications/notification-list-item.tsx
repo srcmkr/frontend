@@ -93,6 +93,46 @@ function formatDuration(seconds: number, t: ReturnType<typeof useTranslations<"n
   return t("duration.days", { count: days });
 }
 
+/**
+ * Parse and translate notification text that may contain translation keys
+ * Format: "notifications.mockData.key|{\"param\":\"value\"}"
+ */
+function translateNotificationText(
+  text: string,
+  t: ReturnType<typeof useTranslations<"notifications">>
+): string {
+  // Check if text contains translation key pattern
+  const match = text.match(/^(notifications\.mockData\.[^|]+)\|(.+)$/);
+
+  if (!match) {
+    // Not a translation key, return as-is
+    return text;
+  }
+
+  try {
+    const [, key, paramsJson] = match;
+    const params = JSON.parse(paramsJson);
+
+    // Extract the nested key (e.g., "mockData.monitorDown.title" from "notifications.mockData.monitorDown.title")
+    const nestedKey = key.replace('notifications.', '');
+
+    // Recursively translate nested keys in params
+    const translatedParams: Record<string, string> = {};
+    for (const [paramKey, paramValue] of Object.entries(params)) {
+      if (typeof paramValue === 'string' && paramValue.startsWith('notifications.mockData.')) {
+        translatedParams[paramKey] = translateNotificationText(paramValue, t);
+      } else {
+        translatedParams[paramKey] = paramValue as string;
+      }
+    }
+
+    return t(nestedKey, translatedParams);
+  } catch (error) {
+    console.error('Failed to parse notification translation:', text, error);
+    return text;
+  }
+}
+
 export function NotificationListItem({
   notification,
   isExpanded,
@@ -107,9 +147,9 @@ export function NotificationListItem({
 
   const handleNavigate = () => {
     if (notification.relatedMonitorId) {
-      router.push(`/monitors?id=${notification.relatedMonitorId}`);
+      router.push(`/monitors/${notification.relatedMonitorId}`);
     } else if (notification.relatedIncidentId) {
-      router.push(`/incidents?id=${notification.relatedIncidentId}`);
+      router.push(`/incidents/${notification.relatedIncidentId}`);
     }
     if (!notification.read) {
       onMarkAsRead();
@@ -143,7 +183,7 @@ export function NotificationListItem({
                 !notification.read && "font-semibold"
               )}
             >
-              {notification.title}
+              {translateNotificationText(notification.title, t)}
             </h4>
             {notification.severity && (
               <IncidentSeverityBadge
@@ -175,7 +215,7 @@ export function NotificationListItem({
       {isExpanded && (
         <div className="px-4 pb-4 pl-14">
           <p className="text-sm text-muted-foreground mb-4">
-            {notification.message}
+            {translateNotificationText(notification.message, t)}
           </p>
 
           {notification.metadata?.duration && (

@@ -65,7 +65,7 @@ export function CommandPalette() {
     {
       name: t("commandPalette.createMonitor"),
       icon: Plus,
-      action: () => router.push("/monitors/new"),
+      action: () => router.push("/monitors/create"),
       shortcut: "C",
     },
     {
@@ -76,7 +76,7 @@ export function CommandPalette() {
     {
       name: t("commandPalette.createIncident"),
       icon: AlertTriangle,
-      action: () => router.push("/incidents/new"),
+      action: () => router.push("/incidents/create?type=incident"),
     },
     {
       name: t("commandPalette.createStatusPage"),

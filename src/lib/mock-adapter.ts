@@ -57,6 +57,16 @@ const createRoutes = (
   mocks: Awaited<ReturnType<typeof getMocks>>
 ): Record<string, Record<string, RouteHandler>> => ({
   GET: {
+    // System
+    "/system/status": async () => {
+      await delay();
+      return {
+        isInitialized: true,
+        needsSetup: false,
+        version: "1.0.0",
+      };
+    },
+
     // Monitors
     "/monitors": async () => {
       await delay();
@@ -137,14 +147,56 @@ const createRoutes = (
       await delay(500); // Reports take longer
       const monitor = mocks.monitors.getMockMonitors().find((m) => m.id === monitorId);
       if (!monitor) throw new Error("Monitor not found");
+
+      const periodType = (query?.get("type") as ReportPeriod["type"]) ?? "month";
+      const year = parseInt(query?.get("year") ?? new Date().getFullYear().toString(), 10);
+      const value = parseInt(query?.get("value") ?? "1", 10);
+
+      // Calculate startDate and endDate based on period type
+      let startDate: string;
+      let endDate: string;
+      let label: string;
+
+      const MONTH_NAMES_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+
+      switch (periodType) {
+        case "year":
+          startDate = `${year}-01-01`;
+          endDate = `${year}-12-31`;
+          label = `${year}`;
+          break;
+        case "half-year":
+          startDate = `${year}-${value === 1 ? "01" : "07"}-01`;
+          endDate = `${year}-${value === 1 ? "06" : "12"}-${value === 1 ? "30" : "31"}`;
+          label = `H${value} ${year}`;
+          break;
+        case "quarter":
+          const startMonth = (value - 1) * 3 + 1;
+          const endMonth = value * 3;
+          const lastDay = new Date(year, endMonth, 0).getDate();
+          startDate = `${year}-${String(startMonth).padStart(2, "0")}-01`;
+          endDate = `${year}-${String(endMonth).padStart(2, "0")}-${lastDay}`;
+          label = `Q${value} ${year}`;
+          break;
+        case "month":
+          const lastDayOfMonth = new Date(year, value, 0).getDate();
+          startDate = `${year}-${String(value).padStart(2, "0")}-01`;
+          endDate = `${year}-${String(value).padStart(2, "0")}-${lastDayOfMonth}`;
+          label = `${MONTH_NAMES_DE[value - 1]} ${year}`;
+          break;
+        default:
+          throw new Error(`Unknown period type: ${periodType}`);
+      }
+
       const period: ReportPeriod = {
-        type: (query?.get("type") as ReportPeriod["type"]) ?? "month",
-        year: parseInt(query?.get("year") ?? new Date().getFullYear().toString(), 10),
-        value: parseInt(query?.get("value") ?? "1", 10),
-        label: "",
-        startDate: "",
-        endDate: "",
+        type: periodType,
+        year,
+        value,
+        label,
+        startDate,
+        endDate,
       };
+
       const slaTarget = query?.get("slaTarget")
         ? parseFloat(query.get("slaTarget")!)
         : undefined;
@@ -170,6 +222,23 @@ const createRoutes = (
   },
 
   POST: {
+    // System
+    "/system/setup": async (_, body) => {
+      await delay(500);
+      const request = body as {
+        email: string;
+        password: string;
+        fullName: string;
+        systemName?: string;
+        logoUrl?: string;
+      };
+      return {
+        token: "mock-jwt-token-" + Date.now(),
+        email: request.email,
+        fullName: request.fullName,
+      };
+    },
+
     // Monitors
     "/monitors": async (_, body) => {
       await delay(300);

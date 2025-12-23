@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,7 @@ export function MonitorSplitView({
   onSelectMonitor,
   className,
 }: MonitorSplitViewProps) {
+  const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const t = useTranslations("monitors.dialogs");
@@ -60,15 +61,19 @@ export function MonitorSplitView({
 
   // Handle URL params for create/edit mode
   useEffect(() => {
+    const slug = params.slug as string[] | undefined;
     const mode = searchParams.get("mode");
-    if (mode === "create") {
+
+    // Check if we're in create mode (/monitors/create)
+    if (slug?.[0] === "create") {
       setViewMode("create");
     } else if (mode === "edit" && selectedMonitorId) {
+      // Edit mode via query parameter (/monitors/[id]?mode=edit)
       setViewMode("edit");
     } else {
       setViewMode("view");
     }
-  }, [searchParams, selectedMonitorId]);
+  }, [params, searchParams, selectedMonitorId]);
 
   const selectedMonitor = useMemo(
     () => monitors.find((m) => m.id === selectedMonitorId) ?? null,
@@ -81,14 +86,14 @@ export function MonitorSplitView({
 
   const handleEdit = useCallback(
     (monitor: Monitor) => {
-      router.push(`/monitors?id=${monitor.id}&mode=edit`, { scroll: false });
+      router.push(`/monitors/${monitor.id}?mode=edit`, { scroll: false });
     },
     [router]
   );
 
   const handleCancelEdit = useCallback(() => {
     if (selectedMonitorId) {
-      router.push(`/monitors?id=${selectedMonitorId}`, { scroll: false });
+      router.push(`/monitors/${selectedMonitorId}`, { scroll: false });
     } else {
       router.push("/monitors", { scroll: false });
     }
@@ -98,7 +103,7 @@ export function MonitorSplitView({
     (monitorId: string | null, data: Partial<Monitor>) => {
       if (viewMode === "edit" && monitorId) {
         updateMonitor(monitorId, data);
-        router.push(`/monitors?id=${monitorId}`, { scroll: false });
+        router.push(`/monitors/${monitorId}`, { scroll: false });
       } else if (viewMode === "create") {
         createMonitor(data as CreateMonitorInput);
       }

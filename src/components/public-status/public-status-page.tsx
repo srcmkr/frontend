@@ -125,7 +125,10 @@ export function PublicStatusPage({
           )}
 
           {/* Footer */}
-          <PublicStatusFooter lastUpdated={statusPage.updatedAt} />
+          <PublicStatusFooter
+            lastUpdated={statusPage.updatedAt}
+            showPoweredByBranding={statusPage.showPoweredByBranding}
+          />
         </div>
       </div>
     </>

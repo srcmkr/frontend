@@ -1,0 +1,68 @@
+{
+  "steps": {
+    "welcome": "Welcome",
+    "adminAccount": "Admin Account",
+    "branding": "Branding",
+    "completion": "Complete"
+  },
+  "welcome": {
+    "title": "Welcome to Status Monitor",
+    "subtitle": "Let's set up your monitoring system in just a few steps",
+    "features": {
+      "title": "What you'll get:",
+      "monitoring": "Real-time monitoring with customizable intervals",
+      "incidents": "Incident management and tracking",
+      "statusPages": "Public status pages for your services",
+      "notifications": "Multi-channel notifications (Email, Slack, Discord, etc.)"
+    },
+    "getStarted": "Get Started"
+  },
+  "adminAccount": {
+    "title": "Create Admin Account",
+    "subtitle": "This will be your primary administrator account",
+    "fields": {
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password"
+    },
+    "passwordHint": "Must be at least 8 characters with uppercase, lowercase, and digit",
+    "errors": {
+      "fullName": "Name must be at least 2 characters",
+      "email": "Please enter a valid email address",
+      "password": "Password must meet requirements",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "back": "Back",
+    "continue": "Continue"
+  },
+  "branding": {
+    "title": "System Branding",
+    "subtitle": "Customize your Status Monitor instance (optional)",
+    "fields": {
+      "systemName": "System Name",
+      "systemNamePlaceholder": "My Status Monitor",
+      "logoUrl": "Logo URL"
+    },
+    "hints": {
+      "systemName": "This will appear in the dashboard and status pages",
+      "logoUrl": "URL to your logo image (optional)"
+    },
+    "errors": {
+      "logoUrl": "Please enter a valid URL"
+    },
+    "back": "Back",
+    "complete": "Complete Setup",
+    "completing": "Completing..."
+  },
+  "completion": {
+    "title": "Setup Complete!",
+    "message": "Your Status Monitor is now configured and ready to use.",
+    "redirecting": "Redirecting to dashboard...",
+    "nextSteps": "You can now add monitors and configure your status pages."
+  },
+  "error": {
+    "submitFailed": "Setup failed. Please try again.",
+    "alreadyInitialized": "System has already been initialized"
+  }
+}

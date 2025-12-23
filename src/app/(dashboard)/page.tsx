@@ -115,7 +115,7 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button
-          onClick={() => router.push("/monitors?mode=create")}
+          onClick={() => router.push("/monitors/create")}
           className="uppercase tracking-wide"
         >
           {t("addMonitor")}
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push("/incidents?mode=create&type=incident")
+                        router.push("/incidents/create?type=incident")
                       }
                     >
                       <AlertTriangle className="h-4 w-4 mr-2" />
@@ -252,7 +252,7 @@ export default function DashboardPage() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push("/incidents?mode=create&type=maintenance")
+                        router.push("/incidents/create?type=maintenance")
                       }
                     >
                       <Wrench className="h-4 w-4 mr-2" />
@@ -260,7 +260,7 @@ export default function DashboardPage() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push("/incidents?mode=create&type=announcement")
+                        router.push("/incidents/create?type=announcement")
                       }
                     >
                       <Megaphone className="h-4 w-4 mr-2" />
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                     <DropdownMenuItem
                       onClick={() =>
                         router.push(
-                          "/incidents?mode=create&type=incident&historical=true"
+                          "/incidents/create?type=incident&historical=true"
                         )
                       }
                     >
@@ -320,7 +320,7 @@ export default function DashboardPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() =>
-                            router.push(`/incidents?id=${incident.id}`)
+                            router.push(`/incidents/${incident.id}`)
                           }
                         >
                           <Eye className="h-4 w-4 mr-2" />
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                         <DropdownMenuItem
                           onClick={() =>
                             router.push(
-                              `/incidents?id=${incident.id}&mode=edit`
+                              `/incidents/${incident.id}?mode=edit`
                             )
                           }
                         >
@@ -340,7 +340,7 @@ export default function DashboardPage() {
                           className="text-destructive focus:text-destructive"
                           onClick={() =>
                             router.push(
-                              `/incidents?id=${incident.id}&mode=delete`
+                              `/incidents/${incident.id}?mode=delete`
                             )
                           }
                         >

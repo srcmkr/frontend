@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Plus, AlertTriangle, Wrench, Megaphone, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,14 @@ import { useMonitors } from "@/features/monitors";
 
 export default function IncidentsPage() {
   const t = useTranslations("incidents");
+  const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const selectedIncidentId = searchParams.get("id");
+  // Extract incident ID from slug parameter
+  // URL patterns: /incidents, /incidents/create, /incidents/[id]
+  const slug = params.slug as string[] | undefined;
+  const selectedIncidentId = slug?.[0] && slug[0] !== 'create' ? slug[0] : null;
 
   // Fetch incidents using React Query
   const {
@@ -35,26 +39,26 @@ export default function IncidentsPage() {
 
   // Handlers for creating different incident types from dropdown (via URL)
   const handleCreateIncident = useCallback(() => {
-    router.push("/incidents?mode=create&type=incident", { scroll: false });
+    router.push("/incidents/create?type=incident", { scroll: false });
   }, [router]);
 
   const handleCreateMaintenance = useCallback(() => {
-    router.push("/incidents?mode=create&type=maintenance", { scroll: false });
+    router.push("/incidents/create?type=maintenance", { scroll: false });
   }, [router]);
 
   const handleCreateAnnouncement = useCallback(() => {
-    router.push("/incidents?mode=create&type=announcement", { scroll: false });
+    router.push("/incidents/create?type=announcement", { scroll: false });
   }, [router]);
 
   const handleCreateHistorical = useCallback(() => {
-    router.push("/incidents?mode=create&type=incident&historical=true", { scroll: false });
+    router.push("/incidents/create?type=incident&historical=true", { scroll: false });
   }, [router]);
 
   // Handle selecting an incident
   const handleSelectIncident = useCallback(
     (id: string | null) => {
       if (id) {
-        router.push(`/incidents?id=${id}`, { scroll: false });
+        router.push(`/incidents/${id}`, { scroll: false });
       } else {
         router.push("/incidents", { scroll: false });
       }

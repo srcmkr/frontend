@@ -73,6 +73,7 @@ const defaultFormData: StatusPageFormData = {
   announcements: [],
   scheduledMaintenances: [],
   showMaintenanceCalendar: true,
+  showPoweredByBranding: true,
 };
 
 function getAnnouncementTypeConfig(t: ReturnType<typeof useTranslations<"statusPages">>): Record<AnnouncementType, { label: string; icon: React.ReactNode; className: string }> {
@@ -620,6 +621,39 @@ export function StatusPageEditPanel({
                 <p className="text-xs text-muted-foreground mt-2">
                   {t("branding.customCssHint")}
                 </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("branding.poweredByBranding")}</CardTitle>
+                <CardDescription>
+                  {t("branding.poweredByBrandingDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="showPoweredByBranding">
+                      {t("branding.showPoweredByBranding")}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {formData.showPoweredByBranding
+                        ? t("branding.poweredByBrandingVisible")
+                        : t("branding.poweredByBrandingHidden")}
+                    </p>
+                  </div>
+                  <Switch
+                    id="showPoweredByBranding"
+                    checked={formData.showPoweredByBranding}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        showPoweredByBranding: checked,
+                      }))
+                    }
+                  />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

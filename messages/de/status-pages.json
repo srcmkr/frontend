@@ -145,7 +145,12 @@
     "themeKiwiDescription": "Kiwi-Grün Akzente",
     "customCss": "Custom CSS",
     "customCssDescription": "Eigenes CSS für erweiterte Anpassungen",
-    "customCssHint": "CSS wird auf der öffentlichen Statusseite angewendet"
+    "customCssHint": "CSS wird auf der öffentlichen Statusseite angewendet",
+    "poweredByBranding": "Powered By Branding",
+    "poweredByBrandingDescription": "Zeige Attribution im Footer deiner Statusseite",
+    "showPoweredByBranding": "\"Powered by Kiwi Status\" anzeigen",
+    "poweredByBrandingVisible": "Footer zeigt \"Powered by Kiwi Status\"",
+    "poweredByBrandingHidden": "Footer-Branding ist ausgeblendet"
   },
   "access": {
     "visibility": "Sichtbarkeit",

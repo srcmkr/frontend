@@ -122,3 +122,46 @@ export const apiClient = {
   delete: <T>(endpoint: string) =>
     request<T>(endpoint, { method: "DELETE" }),
 };
+
+// =============================================================================
+// System API Types & Methods
+// =============================================================================
+
+export interface SystemStatusDto {
+  isInitialized: boolean;
+  needsSetup: boolean;
+  version: string;
+}
+
+export interface SetupRequest {
+  // Admin Account
+  email: string;
+  password: string;
+  fullName: string;
+
+  // System Branding (optional)
+  systemName?: string;
+  logoUrl?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  email: string;
+  fullName: string;
+}
+
+/**
+ * Get system initialization status
+ */
+export async function getSystemStatus(): Promise<SystemStatusDto> {
+  return apiClient.get<SystemStatusDto>("/system/status");
+}
+
+/**
+ * Setup initial admin account and complete system initialization
+ */
+export async function setupAdmin(
+  request: SetupRequest
+): Promise<LoginResponse> {
+  return apiClient.post<LoginResponse>("/system/setup", request);
+}

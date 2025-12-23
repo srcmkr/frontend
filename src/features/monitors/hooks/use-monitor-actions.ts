@@ -46,7 +46,7 @@ export function useMonitorActions() {
       createMutation.mutate(data, {
         onSuccess: (newMonitor) => {
           if (options?.navigateOnSuccess !== false) {
-            router.push(`/monitors?id=${newMonitor.id}`, { scroll: false });
+            router.push(`/monitors/${newMonitor.id}`, { scroll: false });
           }
         },
       }),

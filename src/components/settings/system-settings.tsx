@@ -171,16 +171,22 @@ export function SystemSettings() {
             {t("system.aboutLicense")}
           </p>
           <div className="pt-2 flex gap-4">
-            <Button variant="link" className="h-auto p-0 text-sm" asChild>
-              <a href="https://github.com/AMNAU-GmbH/kiwistatus" target="_blank" rel="noopener noreferrer">
-                {t("system.github")} →
-              </a>
-            </Button>
-            <Button variant="link" className="h-auto p-0 text-sm" asChild>
-              <a href="https://kiwistatus.com" target="_blank" rel="noopener noreferrer">
-                {t("system.website")} →
-              </a>
-            </Button>
+            <a
+              href="https://github.com/AMNAU-GmbH/kiwistatus"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline underline-offset-4 transition-colors"
+            >
+              {t("system.github")} →
+            </a>
+            <a
+              href="https://kiwistatus.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline underline-offset-4 transition-colors"
+            >
+              {t("system.website")} →
+            </a>
           </div>
         </div>
       </div>

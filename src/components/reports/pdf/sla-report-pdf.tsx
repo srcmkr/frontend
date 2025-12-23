@@ -255,10 +255,12 @@ interface SLAReportPDFProps {
 export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAReportPDFProps) {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString(locale, {
+    return date.toLocaleString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -321,8 +323,8 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
               <Text style={styles.statValue}>{report.executiveSummary.totalDowntimeFormatted}</Text>
             </View>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.statLabel}>{t.trendVsPrevious} </Text>
+          <View style={[styles.row, { alignItems: "center", gap: 8 }]}>
+            <Text style={styles.statLabel}>{t.trendVsPrevious}</Text>
             <Text style={report.executiveSummary.trendVsPreviousPeriod >= 0 ? styles.statValueGreen : styles.statValueRed}>
               {report.executiveSummary.trendVsPreviousPeriod > 0 ? "+" : ""}
               {report.executiveSummary.trendVsPreviousPeriod.toFixed(2)}%
@@ -377,9 +379,9 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
                   <Text style={[styles.tableCell, styles.col2, getUptimeStyle(week.uptime)]}>
                     {week.uptime.toFixed(2)}%
                   </Text>
-                  <Text style={[styles.tableCell, styles.col3]}>{week.totalChecks}</Text>
+                  <Text style={[styles.tableCell, styles.col3]}>{week.totalChecks.toLocaleString(locale)}</Text>
                   <Text style={[styles.tableCell, styles.col4, styles.statValueRed]}>
-                    {week.failedChecks}
+                    {week.failedChecks.toLocaleString(locale)}
                   </Text>
                 </View>
               ))}
@@ -387,9 +389,14 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
           )}
         </View>
 
-        <Text style={styles.footer}>
-          {t.generatedAt} {formatDate(report.generatedAt)} | {report.monitorUrl}
-        </Text>
+        <View style={styles.footer}>
+          <Text>
+            {t.generatedAt} {formatDate(report.generatedAt)} | {report.monitorUrl}
+          </Text>
+          <Text style={{ marginTop: 4 }}>
+            Generated with Kiwi Status • kiwistatus.com
+          </Text>
+        </View>
         <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
       </Page>
 
@@ -398,8 +405,8 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
         {/* Performance */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t.performance.title}</Text>
-          <View style={styles.row}>
-            <Text style={styles.statLabel}>{t.performance.maxResponseTimeSla} </Text>
+          <View style={[styles.row, { alignItems: "center", gap: 8 }]}>
+            <Text style={styles.statLabel}>{t.performance.maxResponseTimeSla}</Text>
             <Text style={styles.slaRequirementValue}>{report.maxResponseTime}ms</Text>
             <Text style={[
               styles.slaRequirementValue,
@@ -435,8 +442,8 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
               </Text>
             </View>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.statLabel}>{t.performance.minMax} </Text>
+          <View style={[styles.row, { alignItems: "center", gap: 8 }]}>
+            <Text style={styles.statLabel}>{t.performance.minMax}</Text>
             <Text style={styles.tableCell}>
               {report.performance.minResponseTime}ms / {report.performance.maxResponseTime}ms
             </Text>
@@ -539,9 +546,14 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
           </View>
         </View>
 
-        <Text style={styles.footer}>
-          {t.generatedAt} {formatDate(report.generatedAt)} | {report.monitorUrl}
-        </Text>
+        <View style={styles.footer}>
+          <Text>
+            {t.generatedAt} {formatDate(report.generatedAt)} | {report.monitorUrl}
+          </Text>
+          <Text style={{ marginTop: 4 }}>
+            Generated with Kiwi Status • kiwistatus.com
+          </Text>
+        </View>
         <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
       </Page>
     </Document>

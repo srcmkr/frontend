@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { IncidentListPanel } from "./incident-list-panel";
 import { IncidentDetailPanel } from "./incident-detail-panel";
@@ -31,6 +31,7 @@ export function IncidentSplitView({
   onSelectIncident,
   className,
 }: IncidentSplitViewProps) {
+  const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -46,22 +47,25 @@ export function IncidentSplitView({
 
   // Handle URL params for create/edit mode
   useEffect(() => {
+    const slug = params.slug as string[] | undefined;
     const mode = searchParams.get("mode");
     const type = searchParams.get("type") as IncidentType | null;
     const historical = searchParams.get("historical") === "true";
 
-    if (mode === "create") {
+    // Check if we're in create mode (/incidents/create)
+    if (slug?.[0] === "create") {
       setViewMode("create");
       setCreateConfig({
         type: type || "incident",
         isHistorical: historical,
       });
     } else if (mode === "edit" && selectedIncidentId) {
+      // Edit mode via query parameter (/incidents/[id]?mode=edit)
       setViewMode("edit");
     } else {
       setViewMode("view");
     }
-  }, [searchParams, selectedIncidentId]);
+  }, [params, searchParams, selectedIncidentId]);
 
   const selectedIncident = useMemo(
     () => incidents.find((i) => i.id === selectedIncidentId) ?? null,
@@ -74,14 +78,14 @@ export function IncidentSplitView({
 
   const handleEditClick = useCallback(
     (incident: ExtendedIncident) => {
-      router.push(`/incidents?id=${incident.id}&mode=edit`, { scroll: false });
+      router.push(`/incidents/${incident.id}?mode=edit`, { scroll: false });
     },
     [router]
   );
 
   const handleCancelEdit = useCallback(() => {
     if (selectedIncidentId) {
-      router.push(`/incidents?id=${selectedIncidentId}`, { scroll: false });
+      router.push(`/incidents/${selectedIncidentId}`, { scroll: false });
     } else {
       router.push("/incidents", { scroll: false });
     }
@@ -109,7 +113,7 @@ export function IncidentSplitView({
           ...formData,
           resolvedAt: formData.resolvedAt ?? null,
         });
-        router.push(`/incidents?id=${selectedIncident.id}`, { scroll: false });
+        router.push(`/incidents/${selectedIncident.id}`, { scroll: false });
       } else if (viewMode === "create") {
         // Create new - hook handles mutation and navigation
         createIncident(formData);

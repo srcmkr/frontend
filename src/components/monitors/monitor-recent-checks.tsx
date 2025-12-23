@@ -190,54 +190,85 @@ export function MonitorRecentChecks({
         </Select>
       </div>
 
-      {/* Check list */}
-      <div className="space-y-1">
-        {paginatedChecks.map((check) => {
-          const { date, time } = formatShortDateTime(check.checkedAt);
+      {/* Check table */}
+      <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 whitespace-nowrap">
+                  {t("date")}
+                </th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 whitespace-nowrap">
+                  {t("time")}
+                </th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 whitespace-nowrap">
+                  {t("status")}
+                </th>
+                <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 whitespace-nowrap">
+                  {t("responseTime")}
+                </th>
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">
+                  {t("details")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedChecks.map((check, index) => {
+                const { date, time } = formatShortDateTime(check.checkedAt);
 
-          return (
-            <button
-              key={check.id}
-              onClick={() => handleCheckClick(check)}
-              className={cn(
-                "w-full flex items-center gap-3 py-2 px-2 text-sm rounded-md transition-colors",
-                "hover:bg-muted/50 cursor-pointer"
-              )}
-            >
-              {/* Date/Time */}
-              <div className="flex items-center gap-2 text-muted-foreground font-mono text-xs shrink-0">
-                <span className="w-12">{date}</span>
-                <span className="w-16">{time}</span>
-              </div>
-
-              {/* Status */}
-              <StatusIndicator
-                status={check.status === "up" ? "up" : "down"}
-                size="sm"
-              />
-
-              {/* Response time */}
-              <span
-                className={cn(
-                  "font-mono text-xs w-14 text-right",
-                  check.status === "down" ? "text-red-600" : "text-muted-foreground"
-                )}
-              >
-                {formatResponseTime(check.responseTime)}
-              </span>
-
-              {/* Status code + message */}
-              <span
-                className={cn(
-                  "text-xs flex-1 text-left truncate",
-                  check.status === "down" ? "text-red-600" : "text-muted-foreground"
-                )}
-              >
-                {check.statusCode} {check.message}
-              </span>
-            </button>
-          );
-        })}
+                return (
+                  <tr
+                    key={check.id}
+                    onClick={() => handleCheckClick(check)}
+                    className={cn(
+                      "border-b last:border-b-0 hover:bg-muted/30 cursor-pointer transition-colors",
+                      index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                    )}
+                  >
+                    <td className="px-4 py-3 text-sm font-mono text-muted-foreground whitespace-nowrap">
+                      {date}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-mono text-muted-foreground whitespace-nowrap">
+                      {time}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <StatusIndicator
+                          status={check.status === "up" ? "up" : "down"}
+                          size="sm"
+                        />
+                        <span className={cn(
+                          "text-xs font-medium",
+                          check.status === "up" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                        )}>
+                          {check.status === "up" ? t("successful") : t("failed")}
+                        </span>
+                      </div>
+                    </td>
+                    <td className={cn(
+                      "px-4 py-3 text-sm font-mono text-right whitespace-nowrap",
+                      check.status === "down" ? "text-red-600 dark:text-red-400 font-semibold" : "text-foreground"
+                    )}>
+                      {formatResponseTime(check.responseTime)}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <div className={cn(
+                        "truncate",
+                        check.status === "down" ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
+                      )}>
+                        {check.statusCode && (
+                          <span className="font-mono mr-2">{check.statusCode}</span>
+                        )}
+                        {check.message}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}

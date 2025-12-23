@@ -19,7 +19,7 @@ export default getRequestConfig(async () => {
   }
 
   // Load all namespace files for the locale
-  const [common, monitors, incidents, statusPages, notifications, settings, login, errors, publicStatus, reports, validations] = await Promise.all([
+  const [common, monitors, incidents, statusPages, notifications, settings, login, errors, publicStatus, reports, validations, setup] = await Promise.all([
     import(`../../messages/${locale}/common.json`),
     import(`../../messages/${locale}/monitors.json`),
     import(`../../messages/${locale}/incidents.json`),
@@ -31,6 +31,7 @@ export default getRequestConfig(async () => {
     import(`../../messages/${locale}/public-status.json`),
     import(`../../messages/${locale}/reports.json`),
     import(`../../messages/${locale}/validations.json`),
+    import(`../../messages/${locale}/setup.json`),
   ]);
 
   return {
@@ -47,6 +48,7 @@ export default getRequestConfig(async () => {
       publicStatus: publicStatus.default,
       reports: reports.default,
       validations: validations.default,
+      setup: setup.default,
     },
   };
 });

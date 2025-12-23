@@ -43,7 +43,7 @@ export function useIncidentActions() {
       createMutation.mutate(data, {
         onSuccess: (newIncident) => {
           if (options?.navigateOnSuccess !== false) {
-            router.push(`/incidents?id=${newIncident.id}`, { scroll: false });
+            router.push(`/incidents/${newIncident.id}`, { scroll: false });
           }
         },
       }),

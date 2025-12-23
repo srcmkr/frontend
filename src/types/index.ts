@@ -1,6 +1,6 @@
 // Monitor Types
 export type MonitorType = "http" | "tcp" | "ping" | "dns";
-export type MonitorStatus = "up" | "down" | "pending" | "paused";
+export type MonitorStatus = "pending" | "up" | "down" | "degraded" | "paused" | "maintenance";
 
 // Segment for hourly uptime visualization
 export interface UptimeSegment {
@@ -278,6 +278,7 @@ export interface StatusPage {
   announcements: StatusPageAnnouncement[];
   scheduledMaintenances: StatusPageMaintenance[];
   showMaintenanceCalendar: boolean; // Wartungskalender anzeigen
+  showPoweredByBranding: boolean; // Show "Powered by Kiwi Status" footer
   createdAt: string;
   updatedAt: string;
 }
@@ -306,6 +307,7 @@ export interface StatusPageFormData {
   announcements: StatusPageAnnouncement[];
   scheduledMaintenances: StatusPageMaintenance[];
   showMaintenanceCalendar: boolean;
+  showPoweredByBranding: boolean;
 }
 
 // Maintenance Window Types
