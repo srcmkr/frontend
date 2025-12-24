@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusPageGroupEditor } from "./status-page-group-editor";
-import { generateSlug } from "@/mocks/status-pages";
+import { generateSlug } from "@/lib/slug-utils";
 import type { StatusPage, StatusPageGroup, StatusPageFormData, Monitor, StatusPageAnnouncement, StatusPageMaintenance, AnnouncementType, StatusPageTheme } from "@/types";
 
 interface StatusPageEditPanelProps {
@@ -175,6 +175,7 @@ export function StatusPageEditPanel({
         announcements: statusPage.announcements,
         scheduledMaintenances: statusPage.scheduledMaintenances,
         showMaintenanceCalendar: statusPage.showMaintenanceCalendar,
+        showPoweredByBranding: statusPage.showPoweredByBranding,
       });
       setSlugManuallyEdited(true);
     } else {

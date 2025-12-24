@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { CheckCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,13 @@ import {
   NotificationFilters,
   NotificationEmptyState,
 } from "@/components/notifications";
+import { useNotifications } from "@/features/notifications/api/queries";
 import {
-  getMockNotifications,
-  markAsRead,
-  markAllAsRead,
-  deleteNotification,
-} from "@/mocks/notifications";
-import type { SystemNotification, NotificationFilterState } from "@/types";
+  useMarkAsRead,
+  useMarkAllAsRead,
+  useDeleteNotification,
+} from "@/features/notifications/api/mutations";
+import type { NotificationFilterState } from "@/types";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -27,9 +27,15 @@ const defaultFilters: NotificationFilterState = {
 
 export default function NotificationsPage() {
   const t = useTranslations("notifications");
-  const [notifications, setNotifications] = useState<SystemNotification[]>(
-    () => getMockNotifications()
-  );
+
+  // Fetch notifications
+  const { data: notifications = [], isLoading } = useNotifications();
+
+  // Mutations
+  const markAsReadMutation = useMarkAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
+  const deleteNotificationMutation = useDeleteNotification();
+
   const [filters, setFilters] =
     useState<NotificationFilterState>(defaultFilters);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -101,23 +107,18 @@ export default function NotificationsPage() {
     return filteredNotifications.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredNotifications, validCurrentPage]);
 
-  const handleMarkAllAsRead = useCallback(() => {
-    markAllAsRead();
-    setNotifications(getMockNotifications());
-  }, []);
+  const handleMarkAllAsRead = () => {
+    markAllAsReadMutation.mutate();
+  };
 
-  const handleMarkAsRead = useCallback((id: string) => {
-    markAsRead(id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  }, []);
+  const handleMarkAsRead = (id: string) => {
+    markAsReadMutation.mutate(id);
+  };
 
-  const handleDelete = useCallback((id: string) => {
-    deleteNotification(id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  const handleDelete = (id: string) => {
+    deleteNotificationMutation.mutate(id);
     setExpandedId(null);
-  }, []);
+  };
 
   return (
     <div className="space-y-4">
@@ -146,7 +147,11 @@ export default function NotificationsPage() {
       <NotificationFilters filters={filters} onFiltersChange={setFilters} />
 
       {/* Content */}
-      {filteredNotifications.length === 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">{t("loading")}</p>
+        </div>
+      ) : filteredNotifications.length === 0 ? (
         <NotificationEmptyState hasFilters={hasActiveFilters} />
       ) : (
         <>

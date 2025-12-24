@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusPageGroupEditor } from "./status-page-group-editor";
-import { generateSlug } from "@/mocks/status-pages";
+import { generateSlug } from "@/lib/slug-utils";
 import type { StatusPage, StatusPageGroup, StatusPageFormData, Monitor } from "@/types";
 
 interface StatusPageEditDialogProps {
@@ -48,6 +48,7 @@ const defaultFormData: StatusPageFormData = {
   announcements: [],
   scheduledMaintenances: [],
   showMaintenanceCalendar: false,
+  showPoweredByBranding: true,
 };
 
 function FieldError({ message }: { message?: string }) {
@@ -97,6 +98,7 @@ export function StatusPageEditDialog({
           announcements: statusPage.announcements,
           scheduledMaintenances: statusPage.scheduledMaintenances,
           showMaintenanceCalendar: statusPage.showMaintenanceCalendar,
+          showPoweredByBranding: statusPage.showPoweredByBranding,
         });
         setSlugManuallyEdited(true);
       } else {

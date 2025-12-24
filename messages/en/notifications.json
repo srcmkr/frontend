@@ -55,48 +55,5 @@
     "hours": "{hours}h",
     "hoursMinutes": "{hours}h {minutes}m",
     "days": "{count, plural, one {# day} other {# days}}"
-  },
-
-  "mockData": {
-    "monitorDown": {
-      "title": "Monitor \"{monitorName}\" is offline",
-      "message": "The {monitorName} is no longer responding on port {port}. Connection was refused."
-    },
-    "incidentCreated": {
-      "title": "New Incident: {incidentTitle}",
-      "message": "The response times of the {monitorName} are significantly increased. Average latency over {latency}ms."
-    },
-    "incidentUpdated": {
-      "title": "Incident Update: {incidentTitle}",
-      "message": "Cause identified: {cause}. Fix is being prepared."
-    },
-    "maintenanceStarted": {
-      "title": "Maintenance started: {title}",
-      "message": "The scheduled maintenance for the {monitorName} has started. Deployment of version {version}."
-    },
-    "monitorUp": {
-      "title": "Monitor \"{monitorName}\" is back online",
-      "message": "The {monitorName} is reachable again. Connection has been restored."
-    },
-    "incidentResolved": {
-      "title": "Incident resolved: \"{incidentTitle}\"",
-      "message": "The incident has been successfully resolved. {details} and all systems are functioning normally."
-    },
-    "maintenanceScheduled": {
-      "title": "Maintenance scheduled: {title}",
-      "message": "Maintenance has been scheduled for {monitorName}. {details} on {date}."
-    },
-    "maintenanceCompleted": {
-      "title": "Maintenance completed: {title}",
-      "message": "The {details} has been successfully completed. All services are available again."
-    },
-    "causes": {
-      "connectionRefused": "Connection refused on port {port}",
-      "firewallBlocking": "Firewall rule blocks incoming connections",
-      "cacheRestored": "Cache has been restored",
-      "serverRestarted": "Web server has been restarted",
-      "plannedCertRenewal": "Scheduled certificate renewal",
-      "databaseMigration": "database migration"
-    }
   }
 }

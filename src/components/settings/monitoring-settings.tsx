@@ -18,7 +18,7 @@ import {
   createMonitoringSettingsSchema,
   type MonitoringSettingsFormData,
 } from "@/lib/validations/settings";
-import { defaultMonitoringSettings, intervalOptions } from "@/mocks/settings";
+import { DEFAULT_MONITORING_SETTINGS, INTERVAL_OPTIONS } from "@/lib/settings-defaults";
 
 export function MonitoringSettings() {
   const t = useTranslations("settings");
@@ -34,7 +34,7 @@ export function MonitoringSettings() {
     formState: { errors, isDirty },
   } = useForm<MonitoringSettingsFormData>({
     resolver: zodResolver(monitoringSettingsSchema),
-    defaultValues: defaultMonitoringSettings,
+    defaultValues: DEFAULT_MONITORING_SETTINGS,
   });
 
   const currentInterval = watch("defaultInterval");
@@ -66,7 +66,7 @@ export function MonitoringSettings() {
               <SelectValue placeholder={t("monitoring.selectInterval")} />
             </SelectTrigger>
             <SelectContent>
-              {intervalOptions.map((option) => (
+              {INTERVAL_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>

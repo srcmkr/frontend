@@ -1,13 +1,11 @@
 /**
- * API Client with Mock/Real switching
+ * API Client
  *
  * This client provides a unified interface for all API calls.
- * In development, it routes requests through the mock adapter.
- * In production, it makes real HTTP requests to the backend.
+ * It makes HTTP requests to the backend API.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api";
-const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 /**
  * Custom error class for API errors with status code and optional error code
@@ -40,7 +38,7 @@ export class ApiError extends Error {
 }
 
 /**
- * Core request function that handles both mock and real API calls
+ * Core request function that handles API calls
  */
 async function request<T>(
   endpoint: string,
@@ -61,13 +59,7 @@ async function request<T>(
     }
   }
 
-  // Mock mode: delegate to mock adapter
-  if (USE_MOCKS) {
-    const { mockAdapter } = await import("./mock-adapter");
-    return mockAdapter.handle<T>(url, options);
-  }
-
-  // Real API request
+  // API request
   const response = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers: {

@@ -648,3 +648,31 @@ export interface User {
   createdAt: string;
   lastLoginAt: string | null;
 }
+
+// ============================================
+// API Key Types
+// ============================================
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  keyPreview: string; // e.g., "sk_live_abc***...xyz"
+  createdAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+}
+
+export interface CreateApiKeyRequest {
+  name: string;
+  expiresAt?: string | null;
+}
+
+export interface CreateApiKeyResponse {
+  id: string;
+  name: string;
+  key: string; // Full API key - shown only once!
+  keyPreview: string;
+  createdAt: string;
+  expiresAt: string | null;
+}

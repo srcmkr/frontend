@@ -10,7 +10,6 @@ import { MonitorUptimeStats } from "./monitor-uptime-stats";
 import { MonitorRecentChecks } from "./monitor-recent-checks";
 import { ResponseTimeChart } from "./response-time-chart";
 import { SLAReportDialog } from "@/components/reports";
-import { generateMockCheckResults, loadCheckDetails } from "@/mocks/monitors";
 import type { Monitor } from "@/types";
 
 interface MonitorDetailPanelProps {
@@ -34,16 +33,23 @@ export function MonitorDetailPanel({
   // Report dialog state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
-  // Generate mock check results for the selected monitor (24 hours)
-  const checkResults = useMemo(() => {
-    if (!monitor) return [];
-    return generateMockCheckResults(monitor.id, 24);
-  }, [monitor]);
+  // TODO: Fetch check results from API endpoint GET /api/monitors/:id/checks
+  // const checkResults = useMemo(() => {
+  //   if (!monitor) return [];
+  //   return generateMockCheckResults(monitor.id, 24);
+  // }, [monitor]);
+  const checkResults = useMemo(() => [], []);
 
-  // Callback to load check details on demand
-  const handleLoadDetails = useCallback(async (checkId: string) => {
-    return loadCheckDetails(checkId);
-  }, []);
+  // TODO: Implement loading check details from API
+  // const handleLoadDetails = useCallback(async (checkId: string) => {
+  //   return loadCheckDetails(checkId);
+  // }, []);
+  const handleLoadDetails = useCallback(
+    async (_checkId: string) => {
+      return null;
+    },
+    []
+  );
 
   // Open report dialog
   const handleGenerateReport = useCallback(() => {

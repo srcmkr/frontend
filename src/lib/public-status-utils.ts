@@ -257,7 +257,8 @@ export function formatMaintenanceTime(
 }
 
 /**
- * Generate mock daily uptime data for visualization
+ * Daily uptime data for visualization
+ * TODO: Fetch real historical uptime data from backend API
  */
 export interface DayUptimeData {
   date: string;
@@ -269,46 +270,27 @@ export function generateDailyUptimeData(
   monitor: Monitor,
   days: number
 ): DayUptimeData[] {
+  // TODO: Replace with API call to GET /api/monitors/:id/uptime-history?days=N
+  // This should return real historical uptime data from the backend
+
+  // For now, return only today's data based on current monitor status
+  // No mock historical data
   const data: DayUptimeData[] = [];
   const now = new Date();
+  now.setHours(0, 0, 0, 0);
 
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    date.setHours(0, 0, 0, 0);
+  // Only show today's actual status
+  const uptime = monitor.status === "up" ? 100 : monitor.status === "down" ? 0 : 50;
+  const status: DayUptimeData["status"] =
+    monitor.status === "up" ? "up" :
+    monitor.status === "down" ? "down" :
+    "partial";
 
-    // Generate mock uptime based on monitor's current stats
-    // In production, this would come from historical data
-    let uptime: number;
-    let status: DayUptimeData["status"];
-
-    if (i === 0) {
-      // Today - use current status
-      uptime = monitor.status === "up" ? 100 : monitor.status === "down" ? 0 : 50;
-      status = monitor.status === "up" ? "up" : monitor.status === "down" ? "down" : "partial";
-    } else {
-      // Historical - simulate based on monitor's uptime stats
-      const baseUptime = monitor.uptime30d;
-      const variance = (Math.random() - 0.5) * 5; // +/- 2.5%
-      uptime = Math.max(0, Math.min(100, baseUptime + variance));
-
-      if (uptime >= 99.9) {
-        status = "up";
-      } else if (uptime >= 95) {
-        status = "partial";
-      } else if (uptime > 0) {
-        status = "down";
-      } else {
-        status = "no-data";
-      }
-    }
-
-    data.push({
-      date: date.toISOString(),
-      uptime: Math.round(uptime * 100) / 100,
-      status,
-    });
-  }
+  data.push({
+    date: now.toISOString(),
+    uptime,
+    status,
+  });
 
   return data;
 }

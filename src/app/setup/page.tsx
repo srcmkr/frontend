@@ -51,7 +51,7 @@ export default function SetupPage() {
 
       // Auto-redirect after 2 seconds
       setTimeout(() => {
-        router.push('/');
+        router.push('/dashboard');
       }, 2000);
     } catch (error: any) {
       if (error.status === 409) {

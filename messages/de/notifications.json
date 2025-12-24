@@ -55,48 +55,5 @@
     "hours": "{hours}h",
     "hoursMinutes": "{hours}h {minutes}m",
     "days": "{count, plural, one {# Tag} other {# Tage}}"
-  },
-
-  "mockData": {
-    "monitorDown": {
-      "title": "Monitor \"{monitorName}\" ist offline",
-      "message": "Der {monitorName} antwortet nicht mehr auf Port {port}. Verbindung wurde verweigert."
-    },
-    "incidentCreated": {
-      "title": "Neuer Incident: {incidentTitle}",
-      "message": "Die Antwortzeiten der {monitorName} sind deutlich erhöht. Durchschnittliche Latenz über {latency}ms."
-    },
-    "incidentUpdated": {
-      "title": "Incident Update: {incidentTitle}",
-      "message": "Ursache identifiziert: {cause}. Fix wird vorbereitet."
-    },
-    "maintenanceStarted": {
-      "title": "Wartung gestartet: {title}",
-      "message": "Die geplante Wartung für die {monitorName} hat begonnen. Deployment der Version {version}."
-    },
-    "monitorUp": {
-      "title": "Monitor \"{monitorName}\" ist wieder online",
-      "message": "Der {monitorName} ist wieder erreichbar. Verbindung wurde wiederhergestellt."
-    },
-    "incidentResolved": {
-      "title": "Incident behoben: \"{incidentTitle}\"",
-      "message": "Der Incident wurde erfolgreich behoben. {details} und alle Systeme funktionieren normal."
-    },
-    "maintenanceScheduled": {
-      "title": "Wartung geplant: {title}",
-      "message": "Eine Wartung wurde für die {monitorName} geplant. {details} am {date}."
-    },
-    "maintenanceCompleted": {
-      "title": "Wartung abgeschlossen: {title}",
-      "message": "Die {details} wurde erfolgreich abgeschlossen. Alle Dienste sind wieder verfügbar."
-    },
-    "causes": {
-      "connectionRefused": "Verbindung auf Port {port} verweigert",
-      "firewallBlocking": "Firewall-Regel blockiert eingehende Verbindungen",
-      "cacheRestored": "Cache wurde wiederhergestellt",
-      "serverRestarted": "Webserver wurde neugestartet",
-      "plannedCertRenewal": "Planmäßige Erneuerung des SSL-Zertifikats",
-      "databaseMigration": "Datenbank-Migration"
-    }
   }
 }

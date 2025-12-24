@@ -22,7 +22,7 @@ import {
   type NotificationChannelFormData,
   type EmailChannelFormData,
 } from "@/lib/validations/notification-channel";
-import type { NotificationChannel, EmailConfig, WebhookConfig } from "@/mocks/settings";
+import type { NotificationChannel, EmailConfig, WebhookConfig } from "@/types";
 
 interface NotificationChannelDialogProps {
   open: boolean;

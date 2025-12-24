@@ -38,11 +38,8 @@ import {
   createNotificationSettingsSchema,
   type NotificationSettingsFormData,
 } from "@/lib/validations/settings";
-import {
-  defaultNotificationSettings,
-  mockNotificationChannels,
-  type NotificationChannel,
-} from "@/mocks/settings";
+import { DEFAULT_NOTIFICATION_SETTINGS } from "@/lib/settings-defaults";
+import type { NotificationChannel } from "@/types";
 import { NotificationChannelDialog } from "./notification-channel-dialog";
 import type { NotificationChannelFormData } from "@/lib/validations/notification-channel";
 
@@ -50,7 +47,8 @@ export function NotificationSettings() {
   const t = useTranslations("settings");
   const tValidation = useTranslations();
   const notificationSettingsSchema = createNotificationSettingsSchema(tValidation as unknown as (key: string) => string);
-  const [channels, setChannels] = useState<NotificationChannel[]>(mockNotificationChannels);
+  // TODO: Fetch channels from API
+  const [channels, setChannels] = useState<NotificationChannel[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingChannel, setEditingChannel] = useState<NotificationChannel | undefined>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -62,7 +60,7 @@ export function NotificationSettings() {
     formState: { errors, isDirty },
   } = useForm<NotificationSettingsFormData>({
     resolver: zodResolver(notificationSettingsSchema),
-    defaultValues: defaultNotificationSettings,
+    defaultValues: DEFAULT_NOTIFICATION_SETTINGS,
   });
 
   const onSubmit = (data: NotificationSettingsFormData) => {

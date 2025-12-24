@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { generateReportPeriods } from "@/mocks/monitors";
+import { generateReportPeriods } from "@/lib/report-utils";
 import type { ReportPeriod, ReportPeriodType } from "@/types";
 
 interface SLAReportPeriodSelectorProps {

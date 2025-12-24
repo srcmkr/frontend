@@ -1,10 +1,5 @@
 import { notFound } from "next/navigation";
-import { getStatusPageBySlug } from "@/mocks/status-pages";
 import { ProtectedStatusPage } from "@/components/public-status/protected-status-page";
-import {
-  getStatusPageMetadata,
-  getStatusPageData,
-} from "@/lib/public-status-api";
 import type { Metadata } from "next";
 
 interface StatusPageProps {
@@ -15,41 +10,30 @@ export async function generateMetadata({
   params,
 }: StatusPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const statusPage = getStatusPageBySlug(slug);
-
-  if (!statusPage) {
-    return {
-      title: "Status Page Not Found",
-    };
-  }
+  // TODO: Fetch from API
+  // const statusPage = await fetch(`/api/status-pages/slug/${slug}`).then(r => r.json());
 
   return {
-    title: statusPage.title,
-    description: statusPage.description,
+    title: "Status Page", // TODO: Use real title
+    description: undefined, // TODO: Use real description
   };
 }
 
 export default async function StatusPage({ params }: StatusPageProps) {
   const { slug } = await params;
 
-  // Get metadata - safe for all pages
-  const metadata = getStatusPageMetadata(slug);
+  // TODO: Implement server-side API call to GET /api/status-pages/slug/:slug
+  // Backend must handle password protection server-side!
 
-  if (!metadata) {
-    notFound();
-  }
+  // Placeholder metadata until API is implemented
+  const metadata = {
+    slug,
+    passwordProtection: false,
+  };
 
-  // For non-protected pages, also get the full data server-side
-  // For protected pages, data will be fetched client-side after auth
-  let initialData = null;
-
-  if (!metadata.passwordProtection) {
-    initialData = getStatusPageData(slug);
-  }
-
-  // Count groups for skeleton (safe metadata)
-  const statusPage = getStatusPageBySlug(slug);
-  const groupCount = statusPage?.groups.length ?? 3;
+  // TODO: Fetch real data from backend
+  const initialData = null;
+  const groupCount = 3;
 
   return (
     <ProtectedStatusPage

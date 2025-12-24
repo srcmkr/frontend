@@ -3,8 +3,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSyncExternalStore } from "react";
 import type { StatusPage, Monitor, ExtendedIncident, StatusPageTheme } from "@/types";
-import type { PublicStatusPageMetadata } from "@/lib/public-status-api";
-import { isAuthenticated, setAuthenticated } from "@/lib/public-status-utils";
+
+// TODO: Replace with proper server-side password protection
+interface PublicStatusPageMetadata {
+  slug: string;
+  passwordProtection: boolean;
+}
+
+// TODO: Implement proper server-side authentication
+const isAuthenticated = (_slug: string) => false;
+const setAuthenticated = (_slug: string, _value: boolean) => {};
 import { PublicStatusPage } from "./public-status-page";
 import { PublicStatusSkeleton } from "./public-status-skeleton";
 import { PasswordProtectionDialog } from "./password-protection-dialog";

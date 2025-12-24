@@ -12,7 +12,7 @@ import {
   createStatusPageSettingsSchema,
   type StatusPageSettingsFormData,
 } from "@/lib/validations/settings";
-import { defaultStatusPageSettings } from "@/mocks/settings";
+import { DEFAULT_STATUS_PAGE_SETTINGS } from "@/lib/settings-defaults";
 
 export function StatusPageSettings() {
   const t = useTranslations("settings");
@@ -26,7 +26,7 @@ export function StatusPageSettings() {
     formState: { errors, isDirty },
   } = useForm<StatusPageSettingsFormData>({
     resolver: zodResolver(statusPageSettingsSchema),
-    defaultValues: defaultStatusPageSettings,
+    defaultValues: DEFAULT_STATUS_PAGE_SETTINGS,
   });
 
   const currentColor = watch("defaultPrimaryColor");

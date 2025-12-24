@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./status-badge";
 import { formatResponseTime, formatLastCheck } from "@/lib/format-utils";
-import { generateMonitorDetailedStats } from "@/mocks/monitors";
 import type { Monitor, MonitorDetailedStats } from "@/types";
 
 interface MonitorDetailHeaderProps {
@@ -82,8 +81,21 @@ export function MonitorDetailHeader({
   const t = useTranslations("monitors.detail");
   const isPaused = monitor.status === "paused";
 
-  // Generate detailed stats (memoized)
-  const stats = useMemo(() => generateMonitorDetailedStats(monitor), [monitor]);
+  // TODO: Fetch detailed stats from API endpoint GET /api/monitors/:id/stats
+  // const stats = useMemo(() => generateMonitorDetailedStats(monitor), [monitor]);
+  const stats = useMemo(
+    () => ({
+      lastCheck: monitor.lastCheck || new Date().toISOString(),
+      lastResponseTime: 0,
+      currentIpAddress: null,
+      certificateDaysLeft: null,
+      avgResponseTime24h: 0,
+      p95ResponseTime: 0,
+      totalIncidents30d: 0,
+      mttr: 0,
+    }),
+    [monitor]
+  );
 
   const certWarning = stats.certificateDaysLeft !== null && stats.certificateDaysLeft < 30;
 

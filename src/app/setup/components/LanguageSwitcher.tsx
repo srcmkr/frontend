@@ -18,12 +18,16 @@ export default function LanguageSwitcher() {
     { code: 'de', label: 'Deutsch' },
   ];
 
+  const currentLanguage = languages.find((lang) => lang.code === language);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Globe className="h-5 w-5" />
-          <span className="sr-only">Change language</span>
+        <Button variant="ghost" className="gap-2">
+          <Globe className="h-4 w-4" />
+          <span className="text-sm font-medium">
+            {currentLanguage?.code.toUpperCase() || 'EN'}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

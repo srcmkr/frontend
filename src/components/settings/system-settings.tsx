@@ -20,10 +20,9 @@ import {
   type SystemSettingsFormData,
 } from "@/lib/validations/settings";
 import {
-  defaultSystemSettings,
-  commonTimezones,
-  mockSystemInfo,
-} from "@/mocks/settings";
+  DEFAULT_SYSTEM_SETTINGS,
+  COMMON_TIMEZONES,
+} from "@/lib/settings-defaults";
 
 export function SystemSettings() {
   const t = useTranslations("settings");
@@ -36,7 +35,7 @@ export function SystemSettings() {
     formState: { isDirty },
   } = useForm<SystemSettingsFormData>({
     resolver: zodResolver(systemSettingsSchema),
-    defaultValues: defaultSystemSettings,
+    defaultValues: DEFAULT_SYSTEM_SETTINGS,
   });
 
   const currentTimezone = watch("timezone");
@@ -68,7 +67,7 @@ export function SystemSettings() {
               <SelectValue placeholder={t("system.selectTimezone")} />
             </SelectTrigger>
             <SelectContent>
-              {commonTimezones.map((tz) => (
+              {COMMON_TIMEZONES.map((tz) => (
                 <SelectItem key={tz.value} value={tz.value}>
                   {tz.label}
                 </SelectItem>
@@ -102,7 +101,7 @@ export function SystemSettings() {
                   <Server className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold">{mockSystemInfo.version}</p>
+                  <p className="text-lg font-bold">1.0.0-beta</p>
                   <p className="text-xs text-muted-foreground">{t("system.version")}</p>
                 </div>
               </div>
@@ -116,7 +115,7 @@ export function SystemSettings() {
                   <Calendar className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold">{mockSystemInfo.buildDate}</p>
+                  <p className="text-lg font-bold">{new Date().toISOString().split('T')[0]}</p>
                   <p className="text-xs text-muted-foreground">{t("system.buildDate")}</p>
                 </div>
               </div>
@@ -130,7 +129,7 @@ export function SystemSettings() {
                   <Code className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold">Node {mockSystemInfo.nodeVersion}</p>
+                  <p className="text-lg font-bold">Node {process.version}</p>
                   <p className="text-xs text-muted-foreground">{t("system.runtime")}</p>
                 </div>
               </div>
@@ -144,7 +143,7 @@ export function SystemSettings() {
                   <FileText className="h-5 w-5 text-orange-500" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold">{mockSystemInfo.license}</p>
+                  <p className="text-lg font-bold">Elastic License 2.0</p>
                   <p className="text-xs text-muted-foreground">{t("system.license")}</p>
                 </div>
               </div>

@@ -21,11 +21,9 @@ import {
   type DataSettingsFormData,
 } from "@/lib/validations/settings";
 import {
-  defaultDataSettings,
-  retentionOptions,
-  mockDatabaseStats,
-} from "@/mocks/settings";
-import { mockMonitors } from "@/mocks/monitors";
+  DEFAULT_DATA_SETTINGS,
+  RETENTION_OPTIONS,
+} from "@/lib/settings-defaults";
 
 // Estimated bytes per check record in PostgreSQL/TimescaleDB:
 // - id (UUID): 16 bytes
@@ -53,19 +51,18 @@ export function DataSettings() {
     formState: { isDirty },
   } = useForm<DataSettingsFormData>({
     resolver: zodResolver(dataSettingsSchema),
-    defaultValues: defaultDataSettings,
+    defaultValues: DEFAULT_DATA_SETTINGS,
   });
 
   const currentRetention = watch("retentionDays");
 
-  // Calculate estimated storage based on actual monitors and their intervals
+  // Calculate estimated storage based on retention period
+  // TODO: Fetch actual monitor count and intervals from API
   const { estimatedStorage, checksPerDay } = useMemo(() => {
-    // Calculate checks per day based on actual monitor intervals
-    let totalChecksPerDay = 0;
-    mockMonitors.forEach((monitor) => {
-      const checksPerDayForMonitor = (24 * 60 * 60) / monitor.interval;
-      totalChecksPerDay += checksPerDayForMonitor;
-    });
+    // Estimate based on average of 6 monitors with 60s interval
+    const avgMonitors = 6;
+    const avgInterval = 60;
+    const totalChecksPerDay = (avgMonitors * 24 * 60 * 60) / avgInterval;
 
     const totalChecks = totalChecksPerDay * currentRetention;
     const bytes = totalChecks * BYTES_PER_CHECK;
@@ -126,7 +123,7 @@ export function DataSettings() {
                   <Activity className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{formatNumber(mockDatabaseStats.totalChecks)}</p>
+                  <p className="text-2xl font-bold">TODO</p>
                   <p className="text-xs text-muted-foreground">{t("data.totalChecks")}</p>
                 </div>
               </div>
@@ -140,7 +137,7 @@ export function DataSettings() {
                   <Database className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{mockDatabaseStats.databaseSize}</p>
+                  <p className="text-2xl font-bold">TODO</p>
                   <p className="text-xs text-muted-foreground">{t("data.storageUsage")}</p>
                 </div>
               </div>
@@ -154,7 +151,7 @@ export function DataSettings() {
                   <AlertTriangle className="h-5 w-5 text-orange-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{mockDatabaseStats.totalIncidents}</p>
+                  <p className="text-2xl font-bold">TODO</p>
                   <p className="text-xs text-muted-foreground">{t("data.totalIncidents")}</p>
                 </div>
               </div>
@@ -168,7 +165,7 @@ export function DataSettings() {
                   <Calendar className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{formatDate(mockDatabaseStats.oldestRecord)}</p>
+                  <p className="text-2xl font-bold">TODO</p>
                   <p className="text-xs text-muted-foreground">{t("data.oldestRecord")}</p>
                 </div>
               </div>
@@ -197,7 +194,7 @@ export function DataSettings() {
                 <SelectValue placeholder={t("data.selectPeriod")} />
               </SelectTrigger>
               <SelectContent>
-                {retentionOptions.map((option) => (
+                {RETENTION_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={String(option.value)}>
                     {option.label}
                   </SelectItem>
@@ -221,7 +218,7 @@ export function DataSettings() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              {t("data.estimatedStorageHint", { monitors: mockMonitors.length, checks: checksPerDay.toLocaleString(locale) })}
+              {t("data.estimatedStorageHint", { monitors: 6, checks: checksPerDay.toLocaleString(locale) })}
             </p>
           </div>
         </div>

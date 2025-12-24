@@ -38,7 +38,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { createApiKeySchema, type ApiKeyFormData } from "@/lib/validations/settings";
-import { useApiKeys, type ApiKey } from "@/features/settings";
+import { useApiKeys } from "@/features/api-keys/api/queries";
+import { useCreateApiKey, useDeleteApiKey } from "@/features/api-keys/api/mutations";
+import type { ApiKey } from "@/types";
 
 export function ApiSettings() {
   const t = useTranslations("settings");
@@ -46,11 +48,9 @@ export function ApiSettings() {
   const locale = useLocale();
 
   // Fetch API keys using React Query
-  const { data: fetchedKeys = [], isLoading } = useApiKeys();
-
-  // Local state for optimistic updates (until we have mutations)
-  const [localKeys, setLocalKeys] = useState<ApiKey[] | null>(null);
-  const keys = localKeys ?? fetchedKeys;
+  const { data: keys = [], isLoading } = useApiKeys();
+  const createMutation = useCreateApiKey();
+  const deleteMutation = useDeleteApiKey();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null);
@@ -87,29 +87,20 @@ export function ApiSettings() {
     return formatDate(dateString);
   };
 
-  const generateApiKey = () => {
-    // Generate a mock API key
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let key = "sk_live_";
-    for (let i = 0; i < 32; i++) {
-      key += chars.charAt(Math.floor(Math.random() * chars.length));
+  const onCreateKey = async (data: ApiKeyFormData) => {
+    try {
+      const result = await createMutation.mutateAsync({
+        name: data.name,
+        expiresAt: null,
+      });
+
+      setNewKeyValue(result.key);
+      setIsCreateOpen(false);
+      reset();
+      toast.success(t("api.toast.created"));
+    } catch (error) {
+      toast.error(t("api.toast.createError"));
     }
-    return key;
-  };
-
-  const onCreateKey = (data: ApiKeyFormData) => {
-    const fullKey = generateApiKey();
-    const newKey: ApiKey = {
-      id: `key-${Date.now()}`,
-      name: data.name,
-      keyPreview: `${fullKey.substring(0, 12)}****...${fullKey.substring(fullKey.length - 4)}`,
-      createdAt: new Date().toISOString(),
-      lastUsed: null,
-    };
-
-    setLocalKeys((prev) => [...(prev ?? fetchedKeys), newKey]);
-    setNewKeyValue(fullKey);
-    reset();
   };
 
   const handleCopyKey = () => {
@@ -124,11 +115,15 @@ export function ApiSettings() {
     setIsCreateOpen(false);
   };
 
-  const handleDeleteKey = () => {
+  const handleDeleteKey = async () => {
     if (deleteKeyId) {
-      setLocalKeys((prev) => (prev ?? fetchedKeys).filter((k) => k.id !== deleteKeyId));
-      toast.success(t("api.toast.deleted"));
-      setDeleteKeyId(null);
+      try {
+        await deleteMutation.mutateAsync(deleteKeyId);
+        toast.success(t("api.toast.deleted"));
+        setDeleteKeyId(null);
+      } catch (error) {
+        toast.error(t("api.toast.deleteError"));
+      }
     }
   };
 
@@ -279,7 +274,7 @@ export function ApiSettings() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-sm">{formatRelativeTime(key.lastUsed)}</span>
+                      <span className="text-sm">{formatRelativeTime(key.lastUsedAt)}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
