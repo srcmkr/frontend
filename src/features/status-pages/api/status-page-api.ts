@@ -50,4 +50,17 @@ export const statusPageApi = {
    */
   generateSlug: (name: string) =>
     apiClient.post<{ slug: string }>("/status-pages/generate-slug", { name }),
+
+  /**
+   * Update groups and monitors for a status page
+   */
+  updateGroups: (
+    id: string,
+    groups: Array<{
+      id?: string;
+      name: string;
+      sortOrder: number;
+      monitorIds: string[];
+    }>
+  ) => apiClient.put<void>(`/status-pages/${id}/groups`, { groups }),
 };

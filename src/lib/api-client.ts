@@ -29,12 +29,25 @@ export class ApiError extends Error {
   }
 
   get isAuthError() {
-    return this.status === 401 || this.status === 403;
+    return this.status === 401; // Only 401 Unauthorized redirects to login, not 403 Forbidden
+  }
+
+  get isForbidden() {
+    return this.status === 403;
   }
 
   get isServerError() {
     return this.status >= 500;
   }
+}
+
+/**
+ * Get auth token from cookie
+ */
+function getAuthToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
+  return match ? match[1] : null;
 }
 
 /**
@@ -59,13 +72,22 @@ async function request<T>(
     }
   }
 
+  // Get auth token from cookie
+  const authToken = getAuthToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...options?.headers,
+  };
+
+  // Add Authorization header if token exists
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+
   // API request
   const response = await fetch(`${API_BASE}${url}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+    headers,
     credentials: "include",
   });
 
@@ -136,6 +158,11 @@ export interface SetupRequest {
   logoUrl?: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
 export interface LoginResponse {
   token: string;
   email: string;
@@ -147,6 +174,13 @@ export interface LoginResponse {
  */
 export async function getSystemStatus(): Promise<SystemStatusDto> {
   return apiClient.get<SystemStatusDto>("/system/status");
+}
+
+/**
+ * Login with email and password
+ */
+export async function login(request: LoginRequest): Promise<LoginResponse> {
+  return apiClient.post<LoginResponse>("/auth/login", request);
 }
 
 /**

@@ -27,10 +27,10 @@ export interface Monitor {
   uptime30d: number;
   uptimeHistory?: UptimeSegment[]; // 24h hourly segments
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
   // SLA Configuration
-  slaTarget: number; // Target uptime percentage (e.g., 99.9)
-  maxResponseTime: number; // Maximum acceptable response time in ms
+  slaTarget: number | null; // Target uptime percentage (e.g., 99.9)
+  maxResponseTime: number | null; // Maximum acceptable response time in ms
 }
 
 // HTTP Methods
@@ -152,7 +152,7 @@ export interface ExtendedIncident extends Incident {
   type: IncidentType;
   title: string;
   description?: string;
-  affectedMonitors: string[];
+  affectedMonitorIds: string[];
   updates: IncidentUpdate[];
   acknowledgedAt?: string | null;
   acknowledgedBy?: string | null;
@@ -185,7 +185,7 @@ export interface IncidentFormData {
   severity: IncidentSeverity;
   cause: string;
   description?: string;
-  affectedMonitors: string[];
+  affectedMonitorIds: string[];
   status: IncidentStatus;
   startedAt: string;
   resolvedAt?: string;

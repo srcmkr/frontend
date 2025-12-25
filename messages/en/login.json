@@ -11,6 +11,8 @@
   "noAccount": "Don't have an account?",
   "signUp": "Sign up",
   "invalidCredentials": "Invalid email or password",
+  "accountDisabled": "Your account has been disabled. Please contact support.",
+  "loginFailed": "Login failed. Please try again.",
   "resetPassword": {
     "title": "Reset password",
     "description": "Enter your email address and we'll send you a link to reset your password",

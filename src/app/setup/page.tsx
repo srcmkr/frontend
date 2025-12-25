@@ -44,14 +44,16 @@ export default function SetupPage() {
       const response = await setupAdmin(completeData);
 
       // Store token in cookie
-      document.cookie = `auth_token=${response.token}; path=/; max-age=604800; SameSite=Strict; Secure`;
+      // Use Secure only on HTTPS (production), allow HTTP for local development
+      const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      document.cookie = `auth_token=${response.token}; path=/; max-age=604800; SameSite=Strict${isSecure ? '; Secure' : ''}`;
 
       // Move to completion step
       setCurrentStep(4);
 
       // Auto-redirect after 2 seconds
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/');
       }, 2000);
     } catch (error: any) {
       if (error.status === 409) {

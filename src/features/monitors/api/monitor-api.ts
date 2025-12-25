@@ -11,6 +11,7 @@ import type {
   UptimeSegment,
   MonitorDetailedStats,
   ServiceGroup,
+  CheckResult,
 } from "@/types";
 
 // Extended monitor type with uptime history
@@ -28,11 +29,18 @@ export interface BasicCheckResult {
 // Input type for creating a monitor
 export interface CreateMonitorInput {
   name: string;
+  description?: string;
   type: Monitor["type"];
   url: string;
-  interval?: number;
-  timeout?: number;
-  retries?: number;
+  checkIntervalSeconds?: number;
+  timeoutSeconds?: number;
+  maxRetries?: number;
+  httpConfig?: {
+    method?: string;
+    headers?: Record<string, string>;
+    body?: string;
+    expectedStatusCode?: number;
+  };
   slaTarget?: number;
   maxResponseTime?: number;
 }
@@ -76,8 +84,15 @@ export const monitorApi = {
   /**
    * Get check results for a monitor
    */
-  getCheckResults: (id: string, hours = 24) =>
-    apiClient.get<BasicCheckResult[]>(`/monitors/${id}/checks`, { hours }),
+  getCheckResults: (id: string, hours = 24) => {
+    const to = new Date();
+    const from = new Date(to.getTime() - hours * 60 * 60 * 1000);
+    return apiClient.get<CheckResult[]>(`/monitors/${id}/checks`, {
+      from: from.toISOString(),
+      to: to.toISOString(),
+      limit: 1000,
+    });
+  },
 
   /**
    * Get detailed statistics for a monitor
@@ -99,5 +114,5 @@ export const serviceGroupApi = {
    * Update all service groups (replaces entire tree)
    */
   update: (groups: ServiceGroup[]) =>
-    apiClient.put<ServiceGroup[]>("/service-groups", groups),
+    apiClient.put<ServiceGroup[]>("/service-groups", { groups }),
 };

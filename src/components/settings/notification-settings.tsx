@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Plus, Mail, Webhook, MoreHorizontal, Trash2, Pencil } from "lucide-react";
+import { Plus, Mail, Webhook, MoreHorizontal, Trash2, Pencil, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -42,11 +43,20 @@ import { DEFAULT_NOTIFICATION_SETTINGS } from "@/lib/settings-defaults";
 import type { NotificationChannel } from "@/types";
 import { NotificationChannelDialog } from "./notification-channel-dialog";
 import type { NotificationChannelFormData } from "@/lib/validations/notification-channel";
+import { useNotificationSettings } from "@/features/settings/api/queries";
+import { useUpdateNotificationSettings } from "@/features/settings/api/mutations";
 
 export function NotificationSettings() {
   const t = useTranslations("settings");
   const tValidation = useTranslations();
   const notificationSettingsSchema = createNotificationSettingsSchema(tValidation as unknown as (key: string) => string);
+
+  // Fetch current settings
+  const { data, isLoading, error } = useNotificationSettings();
+
+  // Mutation for updating settings
+  const updateMutation = useUpdateNotificationSettings();
+
   // TODO: Fetch channels from API
   const [channels, setChannels] = useState<NotificationChannel[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,16 +67,30 @@ export function NotificationSettings() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isDirty },
   } = useForm<NotificationSettingsFormData>({
     resolver: zodResolver(notificationSettingsSchema),
     defaultValues: DEFAULT_NOTIFICATION_SETTINGS,
   });
 
-  const onSubmit = (data: NotificationSettingsFormData) => {
-    // TODO: API call
-    console.log("Saving notification settings:", data);
-    toast.success(t("notificationSettings.saved"));
+  // Populate form when data loads
+  useEffect(() => {
+    if (data) {
+      reset(data, { keepDirtyValues: true });
+    }
+  }, [data, reset]);
+
+  const onSubmit = (formData: NotificationSettingsFormData) => {
+    updateMutation.mutate(formData, {
+      onSuccess: () => {
+        reset(formData);
+        toast.success(t("notificationSettings.saved"));
+      },
+      onError: (error: any) => {
+        toast.error(`${t("notificationSettings.saveFailed")}: ${error.message}`);
+      },
+    });
   };
 
   const handleOpenDeleteDialog = (channel: NotificationChannel) => {
@@ -137,6 +161,37 @@ export function NotificationSettings() {
       toast.success(t("notificationSettings.channelCreated"));
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <Skeleton className="h-40" />
+        <div className="border-t pt-6">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-20" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 border border-destructive/50 rounded-lg bg-destructive/10">
+        <h3 className="font-semibold text-destructive mb-2">
+          {t("errors.loadFailed")}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {error.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -250,8 +305,15 @@ export function NotificationSettings() {
         </div>
 
         <div className="flex justify-end pt-4 border-t">
-          <Button type="submit" disabled={!isDirty}>
-            {t("notificationSettings.save")}
+          <Button type="submit" disabled={!isDirty || updateMutation.isPending}>
+            {updateMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("notificationSettings.saving")}
+              </>
+            ) : (
+              t("notificationSettings.save")
+            )}
           </Button>
         </div>
       </form>

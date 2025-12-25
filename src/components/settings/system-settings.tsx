@@ -1,13 +1,15 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Server, Code, FileText, Calendar } from "lucide-react";
+import { Server, Code, FileText, Calendar, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -23,28 +25,87 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   COMMON_TIMEZONES,
 } from "@/lib/settings-defaults";
+import { useSystemSettings } from "@/features/settings/api/queries";
+import { useUpdateSystemSettings } from "@/features/settings/api/mutations";
 
 export function SystemSettings() {
   const t = useTranslations("settings");
   const tValidation = useTranslations();
   const systemSettingsSchema = createSystemSettingsSchema(tValidation as unknown as (key: string) => string);
+
+  // Fetch current settings
+  const { data, isLoading, error } = useSystemSettings();
+
+  // Mutation for updating settings
+  const updateMutation = useUpdateSystemSettings();
+
   const {
     setValue,
     watch,
     handleSubmit,
+    reset,
     formState: { isDirty },
   } = useForm<SystemSettingsFormData>({
     resolver: zodResolver(systemSettingsSchema),
     defaultValues: DEFAULT_SYSTEM_SETTINGS,
   });
 
+  // Populate form when data loads
+  useEffect(() => {
+    if (data) {
+      reset(data, { keepDirtyValues: true });
+    }
+  }, [data, reset]);
+
   const currentTimezone = watch("timezone");
 
-  const onSubmit = (data: SystemSettingsFormData) => {
-    // TODO: API call
-    console.log("Saving system settings:", data);
-    toast.success(t("system.saved"));
+  const onSubmit = (formData: SystemSettingsFormData) => {
+    updateMutation.mutate(formData, {
+      onSuccess: () => {
+        reset(formData);
+        toast.success(t("system.saved"));
+      },
+      onError: (error: any) => {
+        toast.error(`${t("system.saveFailed")}: ${error.message}`);
+      },
+    });
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <Skeleton className="h-20 max-w-sm" />
+        <div className="border-t pt-6">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 border border-destructive/50 rounded-lg bg-destructive/10">
+        <h3 className="font-semibold text-destructive mb-2">
+          {t("errors.loadFailed")}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {error.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -80,8 +141,15 @@ export function SystemSettings() {
         </div>
 
         <div className="flex justify-end pt-4 border-t">
-          <Button type="submit" disabled={!isDirty}>
-            {t("system.save")}
+          <Button type="submit" disabled={!isDirty || updateMutation.isPending}>
+            {updateMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("system.saving")}
+              </>
+            ) : (
+              t("system.save")
+            )}
           </Button>
         </div>
       </form>

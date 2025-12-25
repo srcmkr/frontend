@@ -20,7 +20,25 @@ export function useCreateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: StatusPageFormData) => statusPageApi.create(data),
+    mutationFn: async (data: StatusPageFormData) => {
+      // Create the status page first
+      const newStatusPage = await statusPageApi.create(data);
+
+      // Then update groups if there are any
+      if (data.groups && data.groups.length > 0) {
+        await statusPageApi.updateGroups(
+          newStatusPage.id,
+          data.groups.map((g) => ({
+            id: g.id,
+            name: g.name,
+            sortOrder: g.order, // Frontend uses "order", backend expects "sortOrder"
+            monitorIds: g.monitors.filter((id): id is string => id != null), // monitors is already string[]
+          }))
+        );
+      }
+
+      return newStatusPage;
+    },
     onSuccess: (newStatusPage) => {
       queryClient.invalidateQueries({ queryKey: statusPageKeys.lists() });
       toast.success(`Statusseite "${newStatusPage.title}" erstellt`);
@@ -38,14 +56,39 @@ export function useUpdateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<StatusPage> }) =>
-      statusPageApi.update(id, data),
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<StatusPage>;
+    }) => {
+      // Update the status page first
+      const updatedStatusPage = await statusPageApi.update(id, data);
+
+      // Then update groups if provided
+      if (data.groups !== undefined) {
+        await statusPageApi.updateGroups(
+          id,
+          data.groups.map((g) => ({
+            id: g.id,
+            name: g.name,
+            sortOrder: g.order, // Frontend uses "order", backend expects "sortOrder"
+            monitorIds: g.monitors.filter((id): id is string => id != null), // monitors is already string[]
+          }))
+        );
+      }
+
+      return updatedStatusPage;
+    },
 
     // Optimistic update for instant UI feedback
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: statusPageKeys.detail(id) });
 
-      const previousStatusPage = queryClient.getQueryData(statusPageKeys.detail(id));
+      const previousStatusPage = queryClient.getQueryData(
+        statusPageKeys.detail(id)
+      );
 
       if (previousStatusPage) {
         queryClient.setQueryData(statusPageKeys.detail(id), (old: unknown) => ({
@@ -59,7 +102,10 @@ export function useUpdateStatusPage() {
 
     onError: (err, { id }, context) => {
       if (context?.previousStatusPage) {
-        queryClient.setQueryData(statusPageKeys.detail(id), context.previousStatusPage);
+        queryClient.setQueryData(
+          statusPageKeys.detail(id),
+          context.previousStatusPage
+        );
       }
       toast.error(`Fehler beim Aktualisieren: ${err.message}`);
     },

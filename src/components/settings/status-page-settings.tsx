@@ -1,56 +1,97 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Upload, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   createStatusPageSettingsSchema,
   type StatusPageSettingsFormData,
 } from "@/lib/validations/settings";
 import { DEFAULT_STATUS_PAGE_SETTINGS } from "@/lib/settings-defaults";
+import { useStatusPageSettings } from "@/features/settings/api/queries";
+import { useUpdateStatusPageSettings } from "@/features/settings/api/mutations";
 
 export function StatusPageSettings() {
   const t = useTranslations("settings");
   const tValidation = useTranslations();
   const statusPageSettingsSchema = createStatusPageSettingsSchema(tValidation as unknown as (key: string) => string);
+
+  // Fetch current settings
+  const { data, isLoading, error } = useStatusPageSettings();
+
+  // Mutation for updating settings
+  const updateMutation = useUpdateStatusPageSettings();
+
   const {
     register,
     handleSubmit,
     watch,
-    setValue,
+    reset,
     formState: { errors, isDirty },
   } = useForm<StatusPageSettingsFormData>({
     resolver: zodResolver(statusPageSettingsSchema),
     defaultValues: DEFAULT_STATUS_PAGE_SETTINGS,
   });
 
-  const currentColor = watch("defaultPrimaryColor");
-  const currentLogo = watch("defaultLogo");
-
-  const onSubmit = (data: StatusPageSettingsFormData) => {
-    // TODO: API call
-    console.log("Saving status page settings:", data);
-    toast.success(t("statusPageSettings.saved"));
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // TODO: Upload file and get URL
-      const mockUrl = URL.createObjectURL(file);
-      setValue("defaultLogo", mockUrl, { shouldDirty: true });
-      toast.success(t("statusPageSettings.logoUploaded"));
+  // Populate form when data loads
+  useEffect(() => {
+    if (data) {
+      reset(data, { keepDirtyValues: true });
     }
+  }, [data, reset]);
+
+  const currentColor = watch("defaultPrimaryColor");
+
+  const onSubmit = (formData: StatusPageSettingsFormData) => {
+    updateMutation.mutate(formData, {
+      onSuccess: () => {
+        reset(formData);
+        toast.success(t("statusPageSettings.saved"));
+      },
+      onError: (error: any) => {
+        toast.error(`${t("statusPageSettings.saveFailed")}: ${error.message}`);
+      },
+    });
   };
 
-  const handleRemoveLogo = () => {
-    setValue("defaultLogo", undefined, { shouldDirty: true });
-  };
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 border border-destructive/50 rounded-lg bg-destructive/10">
+        <h3 className="font-semibold text-destructive mb-2">
+          {t("errors.loadFailed")}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {error.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -62,74 +103,32 @@ export function StatusPageSettings() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        {/* Default Logo */}
+        {/* Default Logo (URL Input) */}
         <div className="sm:col-span-2 space-y-2">
-          <Label>{t("statusPageSettings.defaultLogo")}</Label>
-          <div className="flex items-start gap-4">
-            {currentLogo ? (
-              <div className="relative">
-                <img
-                  src={currentLogo}
-                  alt="Logo Preview"
-                  className="h-16 w-auto object-contain rounded border"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="absolute -top-2 -right-2 h-6 w-6"
-                  onClick={handleRemoveLogo}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <div className="h-16 w-32 border-2 border-dashed rounded flex items-center justify-center text-muted-foreground">
-                {t("statusPageSettings.noLogo")}
-              </div>
-            )}
-            <div>
-              <input
-                type="file"
-                id="logo-upload"
-                accept="image/*"
-                className="hidden"
-                onChange={handleLogoUpload}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => document.getElementById("logo-upload")?.click()}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                {t("statusPageSettings.uploadLogo")}
-              </Button>
-              <p className="text-xs text-muted-foreground mt-1">
-                {t("statusPageSettings.logoHint")}
-              </p>
-            </div>
-          </div>
+          <Label htmlFor="defaultLogo">{t("statusPageSettings.defaultLogo")}</Label>
+          <Input
+            id="defaultLogo"
+            type="url"
+            placeholder="https://example.com/logo.png"
+            {...register("defaultLogo")}
+          />
+          {errors.defaultLogo && (
+            <p className="text-sm text-destructive">{errors.defaultLogo.message}</p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t("statusPageSettings.logoHint")}
+          </p>
         </div>
 
         {/* Default Primary Color */}
         <div className="space-y-2">
           <Label htmlFor="defaultPrimaryColor">{t("statusPageSettings.defaultPrimaryColor")}</Label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              id="color-picker"
-              value={currentColor || "#10b981"}
-              onChange={(e) => setValue("defaultPrimaryColor", e.target.value, { shouldDirty: true })}
-              className="h-10 w-14 rounded border cursor-pointer"
-            />
-            <Input
-              id="defaultPrimaryColor"
-              placeholder="#10b981"
-              {...register("defaultPrimaryColor")}
-              className="flex-1 font-mono"
-            />
-          </div>
+          <Input
+            id="defaultPrimaryColor"
+            placeholder="#10b981"
+            {...register("defaultPrimaryColor")}
+            className="font-mono"
+          />
           {errors.defaultPrimaryColor && (
             <p className="text-sm text-destructive">{errors.defaultPrimaryColor.message}</p>
           )}
@@ -183,8 +182,15 @@ export function StatusPageSettings() {
       </div>
 
       <div className="flex justify-end pt-4 border-t">
-        <Button type="submit" disabled={!isDirty}>
-          {t("statusPageSettings.save")}
+        <Button type="submit" disabled={!isDirty || updateMutation.isPending}>
+          {updateMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("statusPageSettings.saving")}
+            </>
+          ) : (
+            t("statusPageSettings.save")
+          )}
         </Button>
       </div>
     </form>

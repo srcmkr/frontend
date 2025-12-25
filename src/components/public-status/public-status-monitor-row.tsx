@@ -23,7 +23,8 @@ export function PublicStatusMonitorRow({
   uptimeHistoryDays,
   showUptimeHistory,
 }: PublicStatusMonitorRowProps) {
-  const uptime = monitor.uptime30d;
+  // Use uptimePercentage from API, fallback to uptime30d, or default to 0
+  const uptime = monitor.uptimePercentage ?? monitor.uptime30d ?? 0;
 
   const getUptimeColor = (value: number) => {
     if (value >= 99.9) return "text-green-600";

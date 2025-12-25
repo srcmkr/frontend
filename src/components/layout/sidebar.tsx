@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,6 +18,37 @@ import {
 import { cn } from "@/lib/utils";
 import { UserMenu } from "./user-menu";
 
+interface UserData {
+  fullName: string;
+  email: string;
+  initials: string;
+}
+
+function getUserFromToken(): UserData | null {
+  if (typeof document === 'undefined') return null;
+
+  const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
+  if (!match) return null;
+
+  try {
+    const token = match[1];
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    const fullName = payload.full_name || 'User';
+    const email = payload.email || '';
+    const initials = fullName
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    return { fullName, email, initials };
+  } catch {
+    return null;
+  }
+}
+
 interface SidebarProps {
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -25,6 +57,11 @@ interface SidebarProps {
 export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("common");
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    setUser(getUserFromToken());
+  }, []);
 
   const navigation = [
     { name: t("navigation.dashboard"), href: "/", icon: LayoutDashboard },
@@ -182,8 +219,8 @@ function UserMenuSidebar({ collapsed }: { collapsed: boolean }) {
     <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-sidebar-accent/50">
       <UserMenu />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-sidebar-foreground truncate">John Doe</p>
-        <p className="text-xs text-sidebar-foreground/60 truncate">john@example.com</p>
+        <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.fullName || 'User'}</p>
+        <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email || ''}</p>
       </div>
     </div>
   );

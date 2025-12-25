@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { Download, Database, Activity, AlertTriangle, Calendar, HardDrive } from "lucide-react";
+import { Download, Database, Activity, AlertTriangle, Calendar, HardDrive, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,8 @@ import {
   DEFAULT_DATA_SETTINGS,
   RETENTION_OPTIONS,
 } from "@/lib/settings-defaults";
+import { useDataSettings } from "@/features/settings/api/queries";
+import { useUpdateDataSettings } from "@/features/settings/api/mutations";
 
 // Estimated bytes per check record in PostgreSQL/TimescaleDB:
 // - id (UUID): 16 bytes
@@ -44,15 +47,29 @@ export function DataSettings() {
 
   const dataSettingsSchema = createDataSettingsSchema();
 
+  // Fetch current settings
+  const { data, isLoading, error } = useDataSettings();
+
+  // Mutation for updating settings
+  const updateMutation = useUpdateDataSettings();
+
   const {
     setValue,
     watch,
     handleSubmit,
+    reset,
     formState: { isDirty },
   } = useForm<DataSettingsFormData>({
     resolver: zodResolver(dataSettingsSchema),
     defaultValues: DEFAULT_DATA_SETTINGS,
   });
+
+  // Populate form when data loads
+  useEffect(() => {
+    if (data) {
+      reset(data, { keepDirtyValues: true });
+    }
+  }, [data, reset]);
 
   const currentRetention = watch("retentionDays");
 
@@ -83,10 +100,16 @@ export function DataSettings() {
     };
   }, [currentRetention]);
 
-  const onSubmit = (data: DataSettingsFormData) => {
-    // TODO: API call
-    console.log("Saving data settings:", data);
-    toast.success(t("data.saved"));
+  const onSubmit = (formData: DataSettingsFormData) => {
+    updateMutation.mutate(formData, {
+      onSuccess: () => {
+        reset(formData);
+        toast.success(t("data.saved"));
+      },
+      onError: (error: any) => {
+        toast.error(`${t("data.saveFailed")}: ${error.message}`);
+      },
+    });
   };
 
   const handleExport = (format: "csv" | "json") => {
@@ -105,6 +128,42 @@ export function DataSettings() {
       year: "numeric",
     });
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+        </div>
+        <div className="border-t pt-6">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-20" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 border border-destructive/50 rounded-lg bg-destructive/10">
+        <h3 className="font-semibold text-destructive mb-2">
+          {t("errors.loadFailed")}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {error.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -224,8 +283,15 @@ export function DataSettings() {
         </div>
 
         <div className="flex justify-end pt-4 border-t">
-          <Button type="submit" disabled={!isDirty}>
-            {t("data.save")}
+          <Button type="submit" disabled={!isDirty || updateMutation.isPending}>
+            {updateMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t("data.saving")}
+              </>
+            ) : (
+              t("data.save")
+            )}
           </Button>
         </div>
       </form>

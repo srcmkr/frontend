@@ -230,7 +230,7 @@ export function monitorToFormValues(monitor: Monitor): MonitorFormValues {
  */
 export function formValuesToMonitorUpdate(
   values: MonitorFormValues
-): Partial<Monitor> {
+): any {
   let url = values.url;
 
   // Build URL from type-specific config
@@ -252,15 +252,21 @@ export function formValuesToMonitorUpdate(
       break;
   }
 
+  // Convert to API format with correct field names
   return {
     name: values.name,
     type: values.type,
     url,
-    interval: values.interval,
-    timeout: values.timeout,
-    retries: values.retries,
-    slaTarget: values.slaTarget,
+    checkIntervalSeconds: values.interval,
+    timeoutSeconds: values.timeout,
+    maxRetries: values.retries,
+    slaTarget: values.slaTarget, // Backend accepts decimal values (e.g., 99.5, 99.9)
     maxResponseTime: values.maxResponseTime,
-    status: values.enabled ? "up" : "paused",
+    httpConfig: values.type === 'http' && values.config?.http ? {
+      method: values.config.http.method,
+      headers: values.config.http.headers,
+      body: values.config.http.body || undefined,
+      expectedStatusCode: parseInt(values.config.http.expectedStatusCodes.split(',')[0]) || 200,
+    } : undefined,
   };
 }

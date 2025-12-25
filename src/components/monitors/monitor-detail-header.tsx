@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./status-badge";
 import { formatResponseTime, formatLastCheck } from "@/lib/format-utils";
+import { useMonitorDetailedStats } from "@/features/monitors/api/queries";
 import type { Monitor, MonitorDetailedStats } from "@/types";
 
 interface MonitorDetailHeaderProps {
@@ -81,20 +82,22 @@ export function MonitorDetailHeader({
   const t = useTranslations("monitors.detail");
   const isPaused = monitor.status === "paused";
 
-  // TODO: Fetch detailed stats from API endpoint GET /api/monitors/:id/stats
-  // const stats = useMemo(() => generateMonitorDetailedStats(monitor), [monitor]);
+  // Fetch detailed stats from API endpoint GET /api/monitors/:id/stats
+  const { data: statsData } = useMonitorDetailedStats(monitor.id);
+
+  // Use real stats if available, otherwise use fallback values
   const stats = useMemo(
     () => ({
-      lastCheck: monitor.lastCheck || new Date().toISOString(),
-      lastResponseTime: 0,
-      currentIpAddress: null,
-      certificateDaysLeft: null,
-      avgResponseTime24h: 0,
-      p95ResponseTime: 0,
-      totalIncidents30d: 0,
-      mttr: 0,
+      lastCheck: statsData?.lastCheck || monitor.lastCheck || new Date().toISOString(),
+      lastResponseTime: statsData?.lastResponseTime ?? 0,
+      currentIpAddress: statsData?.currentIpAddress ?? null,
+      certificateDaysLeft: statsData?.certificateDaysLeft ?? null,
+      avgResponseTime24h: statsData?.avgResponseTime24h ?? 0,
+      p95ResponseTime: statsData?.p95ResponseTime ?? 0,
+      totalIncidents30d: statsData?.totalIncidents30d ?? 0,
+      mttr: statsData?.mttr ?? 0,
     }),
-    [monitor]
+    [monitor, statsData]
   );
 
   const certWarning = stats.certificateDaysLeft !== null && stats.certificateDaysLeft < 30;

@@ -15,7 +15,7 @@ export type OverallStatus =
  * Calculate the overall status from monitors and maintenances
  */
 export function calculateOverallStatus(
-  monitors: Monitor[],
+  monitors: Monitor[] | undefined,
   maintenances: StatusPageMaintenance[]
 ): OverallStatus {
   // Check if any maintenance is in progress
@@ -26,7 +26,7 @@ export function calculateOverallStatus(
     return "maintenance";
   }
 
-  if (monitors.length === 0) {
+  if (!monitors || monitors.length === 0) {
     return "operational";
   }
 

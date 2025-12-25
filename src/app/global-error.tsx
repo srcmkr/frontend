@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
 
 export default function GlobalError({
   error,
@@ -10,8 +9,6 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const t = useTranslations("errors");
-
   useEffect(() => {
     console.error("Global error:", error);
   }, [error]);
@@ -57,10 +54,10 @@ export default function GlobalError({
               </svg>
             </div>
             <h2 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>
-              {t("global.title")}
+              Application Error
             </h2>
             <p style={{ color: "#666", marginBottom: "16px" }}>
-              {t("global.message")}
+              Something went wrong. Please try again.
             </p>
             <button
               onClick={reset}
@@ -73,7 +70,7 @@ export default function GlobalError({
                 fontSize: "14px",
               }}
             >
-              {t("generic.tryAgain")}
+              Try Again
             </button>
           </div>
         </div>

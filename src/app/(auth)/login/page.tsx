@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguageStore } from "@/lib/stores";
+import { login, ApiError } from "@/lib/api-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,18 +34,31 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    // TODO: Replace with actual API call when backend is ready
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      // Call login API
+      const response = await login({ email, password });
 
-    // Mock login - accept any valid-looking credentials
-    if (email && password.length >= 1) {
+      // Store token in cookie with same attributes as setup
+      const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      document.cookie = `auth_token=${response.token}; path=/; max-age=604800; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+
+      // Redirect to dashboard
       router.push("/");
-    } else {
-      setError(t("invalidCredentials"));
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.isAuthError) {
+          setError(t("invalidCredentials"));
+        } else if (err.isForbidden) {
+          setError(t("accountDisabled"));
+        } else {
+          setError(t("loginFailed"));
+        }
+      } else {
+        setError(t("loginFailed"));
+      }
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

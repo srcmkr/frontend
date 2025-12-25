@@ -19,10 +19,46 @@ import { cn } from "@/lib/utils";
 import { UserMenu } from "./user-menu";
 import { Button } from "@/components/ui/button";
 
+interface UserData {
+  fullName: string;
+  email: string;
+  initials: string;
+}
+
+function getUserFromToken(): UserData | null {
+  if (typeof document === 'undefined') return null;
+
+  const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
+  if (!match) return null;
+
+  try {
+    const token = match[1];
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    const fullName = payload.full_name || 'User';
+    const email = payload.email || '';
+    const initials = fullName
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    return { fullName, email, initials };
+  } catch {
+    return null;
+  }
+}
+
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
   const pathname = usePathname();
   const t = useTranslations("common");
+
+  useEffect(() => {
+    setUser(getUserFromToken());
+  }, []);
 
   // Close menu on route change
   useEffect(() => {
@@ -133,12 +169,12 @@ export function MobileNav() {
           <div className="pt-4 border-t border-border">
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/50">
               <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-medium">
-                JD
+                {user?.initials || 'U'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">John Doe</p>
+                <p className="font-medium truncate">{user?.fullName || 'User'}</p>
                 <p className="text-sm text-muted-foreground truncate">
-                  john@example.com
+                  {user?.email || ''}
                 </p>
               </div>
             </div>

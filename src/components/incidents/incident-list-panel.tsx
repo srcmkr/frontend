@@ -67,7 +67,7 @@ function filterAndSortIncidents(
   // Monitor filter
   if (filters.monitorId !== "all") {
     result = result.filter((i) =>
-      i.affectedMonitors.includes(filters.monitorId)
+      i.affectedMonitorIds.includes(filters.monitorId)
     );
   }
 

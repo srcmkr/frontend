@@ -101,7 +101,7 @@ export function IncidentSplitView({
         severity: data.severity,
         cause: data.cause,
         description: data.description,
-        affectedMonitors: data.affectedMonitors,
+        affectedMonitorIds: data.affectedMonitorIds,
         status: data.status,
         startedAt: data.startedAt,
         resolvedAt: data.resolvedAt,

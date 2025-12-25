@@ -14,6 +14,12 @@ import { monitorApi, serviceGroupApi, type CreateMonitorInput, type UpdateMonito
 import type { ServiceGroup } from "@/types";
 
 /**
+ * Special ID for the default "All Services" group
+ * Uses a well-known UUID that's easy to recognize
+ */
+const DEFAULT_GROUP_ID = "00000000-0000-0000-0000-000000000001";
+
+/**
  * Create a new monitor
  */
 export function useCreateMonitor() {
@@ -21,9 +27,36 @@ export function useCreateMonitor() {
 
   return useMutation({
     mutationFn: (data: CreateMonitorInput) => monitorApi.create(data),
-    onSuccess: (newMonitor) => {
+    onSuccess: async (newMonitor) => {
       // Invalidate list to refetch with new monitor
       queryClient.invalidateQueries({ queryKey: monitorKeys.lists() });
+
+      // Check if service groups exist
+      const serviceGroups = queryClient.getQueryData<ServiceGroup[]>(serviceGroupKeys.list()) || [];
+
+      // If no groups exist, create default group with the new monitor
+      if (serviceGroups.length === 0) {
+        const defaultGroup: ServiceGroup = {
+          id: DEFAULT_GROUP_ID,
+          name: "All Services",
+          type: "group",
+          children: [
+            {
+              id: newMonitor.id,
+              name: newMonitor.name,
+              type: "monitor",
+            }
+          ],
+        };
+
+        try {
+          await serviceGroupApi.update([defaultGroup]);
+          queryClient.invalidateQueries({ queryKey: serviceGroupKeys.list() });
+        } catch (error) {
+          console.error("Failed to create default group:", error);
+        }
+      }
+
       toast.success(`Monitor "${newMonitor.name}" erstellt`);
     },
     onError: (error) => {
@@ -95,6 +128,8 @@ export function useDeleteMonitor() {
       queryClient.removeQueries({ queryKey: monitorKeys.detail(id) });
       // Invalidate list
       queryClient.invalidateQueries({ queryKey: monitorKeys.lists() });
+      // Invalidate service groups (they contain monitor references)
+      queryClient.invalidateQueries({ queryKey: serviceGroupKeys.list() });
       toast.success("Monitor gelöscht");
     },
 

@@ -107,7 +107,7 @@ export function PublicStatusIncidents({
 
                       {/* Affected monitors */}
                       <p className="text-xs text-muted-foreground mt-1.5">
-                        {t("affectedServices")}: {getMonitorNames(incident.affectedMonitors)}
+                        {t("affectedServices")}: {getMonitorNames(incident.affectedMonitorIds)}
                       </p>
 
                       {/* Time and duration */}

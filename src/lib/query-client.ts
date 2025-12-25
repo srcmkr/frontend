@@ -10,6 +10,15 @@ export function makeQueryClient() {
   return new QueryClient({
     queryCache: new QueryCache({
       onError: (error, query) => {
+        // Handle auth errors globally
+        if (error instanceof ApiError && error.isAuthError) {
+          // Redirect to login
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          return;
+        }
+
         // Only show toast for queries that have already succeeded before
         // (background refetch failures)
         if (query.state.data !== undefined) {

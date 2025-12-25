@@ -37,9 +37,9 @@ export const createIncidentFormSchema = (t: (key: string) => string) =>
         .max(2000, t("validations.incident.descriptionMaxLength"))
         .optional(),
 
-      affectedMonitors: z
+      affectedMonitorIds: z
         .array(z.string())
-        .min(1, t("validations.incident.affectedMonitorsMin")),
+        .min(1, t("validations.incident.affectedMonitorIdsMin")),
 
       status: z.enum(["ongoing", "resolved"] as const),
 
@@ -73,7 +73,7 @@ export const defaultIncidentFormValues: IncidentFormValues = {
   severity: "major",
   cause: "",
   description: "",
-  affectedMonitors: [],
+  affectedMonitorIds: [],
   status: "ongoing",
   startedAt: new Date().toISOString(),
   resolvedAt: undefined,
@@ -95,7 +95,7 @@ export function incidentToFormValues(
     severity: incident.severity,
     cause: incident.cause,
     description: incident.description ?? "",
-    affectedMonitors: incident.affectedMonitors,
+    affectedMonitorIds: incident.affectedMonitorIds,
     status: incident.status,
     startedAt: incident.startedAt,
     resolvedAt: incident.resolvedAt ?? undefined,
@@ -114,7 +114,7 @@ export function formValuesToIncidentUpdate(
     severity: values.severity,
     cause: values.cause,
     description: values.description || undefined,
-    affectedMonitors: values.affectedMonitors,
+    affectedMonitorIds: values.affectedMonitorIds,
     status: values.status,
     startedAt: values.startedAt,
     resolvedAt: values.resolvedAt || null,

@@ -117,7 +117,7 @@ export function IncidentEditPanel({
 
   const watchedType = watch("type");
   const watchedSeverity = watch("severity");
-  const watchedAffectedMonitors = watch("affectedMonitors");
+  const watchedAffectedMonitors = watch("affectedMonitorIds");
   const watchedStatus = watch("status");
 
   // Reset form when panel opens or incident changes
@@ -158,12 +158,12 @@ export function IncidentEditPanel({
       const current = watchedAffectedMonitors || [];
       if (current.includes(monitorId)) {
         setValue(
-          "affectedMonitors",
+          "affectedMonitorIds",
           current.filter((id) => id !== monitorId),
           { shouldDirty: true }
         );
       } else {
-        setValue("affectedMonitors", [...current, monitorId], {
+        setValue("affectedMonitorIds", [...current, monitorId], {
           shouldDirty: true,
         });
       }
@@ -173,14 +173,14 @@ export function IncidentEditPanel({
 
   const selectAllMonitors = useCallback(() => {
     setValue(
-      "affectedMonitors",
+      "affectedMonitorIds",
       monitors.map((m) => m.id),
       { shouldDirty: true }
     );
   }, [monitors, setValue]);
 
   const deselectAllMonitors = useCallback(() => {
-    setValue("affectedMonitors", [], { shouldDirty: true });
+    setValue("affectedMonitorIds", [], { shouldDirty: true });
   }, [setValue]);
 
   const selectedCount = (watchedAffectedMonitors || []).length;
@@ -195,7 +195,7 @@ export function IncidentEditPanel({
   };
 
   const hasGeneralErrors = !!(errors.type || errors.severity);
-  const hasMonitorErrors = !!errors.affectedMonitors;
+  const hasMonitorErrors = !!errors.affectedMonitorIds;
   const hasDetailsErrors = !!(errors.title || errors.cause || errors.description);
   const hasTimeErrors = !!(errors.startedAt || errors.resolvedAt || errors.status);
 
@@ -350,9 +350,9 @@ export function IncidentEditPanel({
           <TabsContent value="monitors" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t("form.affectedMonitors")}</CardTitle>
+                <CardTitle>{t("form.affectedMonitorIds")}</CardTitle>
                 <CardDescription>
-                  {t("form.affectedMonitorsHint")}
+                  {t("form.affectedMonitorIdsHint")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -437,7 +437,7 @@ export function IncidentEditPanel({
                     })
                   )}
                 </div>
-                <FieldError message={errors.affectedMonitors?.message} />
+                <FieldError message={errors.affectedMonitorIds?.message} />
               </CardContent>
             </Card>
           </TabsContent>

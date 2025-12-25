@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -19,14 +19,53 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLanguageStore, useThemeStore } from "@/lib/stores";
 
+interface UserData {
+  fullName: string;
+  email: string;
+  initials: string;
+}
+
+function getUserFromToken(): UserData | null {
+  if (typeof document === 'undefined') return null;
+
+  const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
+  if (!match) return null;
+
+  try {
+    const token = match[1];
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    const fullName = payload.full_name || 'User';
+    const email = payload.email || '';
+    const initials = fullName
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    return { fullName, email, initials };
+  } catch {
+    return null;
+  }
+}
+
 export function UserMenu() {
   const router = useRouter();
   const t = useTranslations("common");
   const { language, setLanguage } = useLanguageStore();
   const { theme, setTheme } = useThemeStore();
+  const [user, setUser] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    setUser(getUserFromToken());
+  }, []);
 
   const handleLogout = () => {
-    // TODO: Clear auth state/tokens when backend is ready
+    // Clear auth token cookie with same attributes as when it was set
+    // Must match the attributes used in setup/page.tsx for proper deletion
+    const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    document.cookie = `auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict${isSecure ? '; Secure' : ''}`;
     router.push("/login");
   };
 
@@ -46,7 +85,7 @@ export function UserMenu() {
         <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
           <Avatar className="h-8 w-8 cursor-pointer">
             <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-              JD
+              {user?.initials || 'U'}
             </AvatarFallback>
           </Avatar>
         </button>
@@ -54,8 +93,8 @@ export function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium">John Doe</p>
-            <p className="text-xs text-muted-foreground">john@example.com</p>
+            <p className="text-sm font-medium">{user?.fullName || 'User'}</p>
+            <p className="text-xs text-muted-foreground">{user?.email || ''}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

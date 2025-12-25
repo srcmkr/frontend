@@ -60,7 +60,7 @@ export function SetupGuard({ children }: SetupGuardProps) {
         if (isOnSetupPage) {
           console.log('[SetupGuard] Defensive redirect: setup page accessed when initialized');
           setShouldRedirect(true);
-          router.replace('/dashboard');
+          router.replace('/');
         } else {
           console.log('[SetupGuard] System initialized, on correct page');
           setShouldRedirect(false);

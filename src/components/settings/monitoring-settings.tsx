@@ -1,12 +1,15 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -19,6 +22,8 @@ import {
   type MonitoringSettingsFormData,
 } from "@/lib/validations/settings";
 import { DEFAULT_MONITORING_SETTINGS, INTERVAL_OPTIONS } from "@/lib/settings-defaults";
+import { useMonitoringSettings } from "@/features/settings/api/queries";
+import { useUpdateMonitoringSettings } from "@/features/settings/api/mutations";
 
 export function MonitoringSettings() {
   const t = useTranslations("settings");
@@ -26,24 +31,76 @@ export function MonitoringSettings() {
 
   const monitoringSettingsSchema = createMonitoringSettingsSchema(tValidation as unknown as (key: string) => string);
 
+  // Fetch current settings
+  const { data, isLoading, error } = useMonitoringSettings();
+
+  // Mutation for updating settings
+  const updateMutation = useUpdateMonitoringSettings();
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isDirty },
   } = useForm<MonitoringSettingsFormData>({
     resolver: zodResolver(monitoringSettingsSchema),
     defaultValues: DEFAULT_MONITORING_SETTINGS,
   });
 
+  // Populate form when data loads
+  useEffect(() => {
+    if (data) {
+      reset(data, { keepDirtyValues: true });
+    }
+  }, [data, reset]);
+
   const currentInterval = watch("defaultInterval");
 
-  const onSubmit = (data: MonitoringSettingsFormData) => {
-    // TODO: API call
-    console.log("Saving monitoring settings:", data);
-    toast.success(t("monitoring.saved"));
+  const onSubmit = (formData: MonitoringSettingsFormData) => {
+    updateMutation.mutate(formData, {
+      onSuccess: () => {
+        reset(formData);
+        toast.success(t("monitoring.saved"));
+      },
+      onError: (error: any) => {
+        toast.error(`${t("monitoring.saveFailed")}: ${error.message}`);
+      },
+    });
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 border border-destructive/50 rounded-lg bg-destructive/10">
+        <h3 className="font-semibold text-destructive mb-2">
+          {t("errors.loadFailed")}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {error.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -136,8 +193,15 @@ export function MonitoringSettings() {
       </div>
 
       <div className="flex justify-end pt-4 border-t">
-        <Button type="submit" disabled={!isDirty}>
-          {t("monitoring.save")}
+        <Button type="submit" disabled={!isDirty || updateMutation.isPending}>
+          {updateMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t("monitoring.saving")}
+            </>
+          ) : (
+            t("monitoring.save")
+          )}
         </Button>
       </div>
     </form>

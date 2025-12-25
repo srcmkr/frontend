@@ -137,7 +137,7 @@ export function IncidentDetailPanel({
 
   const affectedMonitorObjects = useMemo(() => {
     if (!incident) return [];
-    return monitors.filter((m) => incident.affectedMonitors.includes(m.id));
+    return monitors.filter((m) => incident.affectedMonitorIds.includes(m.id));
   }, [incident, monitors]);
 
   const handleDelete = () => {

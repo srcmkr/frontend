@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { MonitorUptimeStats } from "./monitor-uptime-stats";
 import { MonitorRecentChecks } from "./monitor-recent-checks";
 import { ResponseTimeChart } from "./response-time-chart";
 import { SLAReportDialog } from "@/components/reports";
+import { useMonitorCheckResults } from "@/features/monitors/api/queries";
 import type { Monitor } from "@/types";
 
 interface MonitorDetailPanelProps {
@@ -33,22 +34,16 @@ export function MonitorDetailPanel({
   // Report dialog state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
-  // TODO: Fetch check results from API endpoint GET /api/monitors/:id/checks
-  // const checkResults = useMemo(() => {
-  //   if (!monitor) return [];
-  //   return generateMockCheckResults(monitor.id, 24);
-  // }, [monitor]);
-  const checkResults = useMemo(() => [], []);
+  // Fetch check results from API
+  const { data: checkResults = [] } = useMonitorCheckResults(monitor?.id ?? null, 24);
 
-  // TODO: Implement loading check details from API
-  // const handleLoadDetails = useCallback(async (checkId: string) => {
-  //   return loadCheckDetails(checkId);
-  // }, []);
+  // Load check details from the checkResults array
   const handleLoadDetails = useCallback(
-    async (_checkId: string) => {
-      return null;
+    async (checkId: string) => {
+      const check = checkResults.find((c) => c.id === checkId);
+      return check ?? null;
     },
-    []
+    [checkResults]
   );
 
   // Open report dialog

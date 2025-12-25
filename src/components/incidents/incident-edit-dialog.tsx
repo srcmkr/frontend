@@ -94,7 +94,7 @@ export function IncidentEditDialog({
 
   const watchedType = watch("type");
   const watchedSeverity = watch("severity");
-  const watchedAffectedMonitors = watch("affectedMonitors");
+  const watchedAffectedMonitors = watch("affectedMonitorIds");
 
   // Reset form when dialog opens/closes or incident changes
   useEffect(() => {
@@ -148,12 +148,12 @@ export function IncidentEditDialog({
       const current = watchedAffectedMonitors || [];
       if (current.includes(monitorId)) {
         setValue(
-          "affectedMonitors",
+          "affectedMonitorIds",
           current.filter((id) => id !== monitorId),
           { shouldDirty: true }
         );
       } else {
-        setValue("affectedMonitors", [...current, monitorId], {
+        setValue("affectedMonitorIds", [...current, monitorId], {
           shouldDirty: true,
         });
       }
@@ -293,7 +293,7 @@ export function IncidentEditDialog({
               {/* Affected Monitors with Search */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>{tForm("affectedMonitors")}</Label>
+                  <Label>{tForm("affectedMonitorIds")}</Label>
                   {selectedCount > 0 && (
                     <span className="text-xs text-muted-foreground">
                       {tForm("selectedCount", { selected: selectedCount })}
@@ -358,7 +358,7 @@ export function IncidentEditDialog({
                     })
                   )}
                 </div>
-                <FieldError message={errors.affectedMonitors?.message} />
+                <FieldError message={errors.affectedMonitorIds?.message} />
               </div>
             </div>
 
