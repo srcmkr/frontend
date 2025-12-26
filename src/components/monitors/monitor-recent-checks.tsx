@@ -254,9 +254,11 @@ export function MonitorRecentChecks({
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <div className={cn(
-                        "truncate",
+                        "truncate max-w-[300px]",
                         check.status === "down" ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
-                      )}>
+                      )}
+                      title={check.message}
+                      >
                         {check.statusCode && (
                           <span className="font-mono mr-2">{check.statusCode}</span>
                         )}
@@ -307,7 +309,7 @@ export function MonitorRecentChecks({
 
       {/* Details Modal */}
       <Dialog open={!!selectedCheck} onOpenChange={(open) => !open && handleCloseModal()}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <StatusIndicator
@@ -332,7 +334,7 @@ export function MonitorRecentChecks({
                 <div>
                   <span className="text-muted-foreground block text-xs">{t("status")}</span>
                   <span className={cn(
-                    "font-medium",
+                    "font-medium break-words",
                     selectedCheck.status === "up" ? "text-green-600" : "text-red-600"
                   )}>
                     {selectedCheck.statusCode} {selectedCheck.message}
@@ -446,7 +448,7 @@ export function MonitorRecentChecks({
 
               {/* Error details for failed checks */}
               {selectedCheck.status === "down" && selectedCheck.message && (
-                <div className="bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded-md p-3 text-sm">
+                <div className="bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded-md p-3 text-sm break-words">
                   <span className="font-medium">{t("error")}: </span>
                   {selectedCheck.message}
                 </div>

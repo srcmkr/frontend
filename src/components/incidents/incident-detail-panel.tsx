@@ -384,6 +384,7 @@ export function IncidentDetailPanel({
             </DialogDescription>
           </DialogHeader>
           <Textarea
+            id="resolve-message"
             placeholder={t("resolveDialog.messagePlaceholder")}
             value={resolveMessage}
             onChange={(e) => setResolveMessage(e.target.value)}

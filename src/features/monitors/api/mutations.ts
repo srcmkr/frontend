@@ -34,27 +34,74 @@ export function useCreateMonitor() {
       // Check if service groups exist
       const serviceGroups = queryClient.getQueryData<ServiceGroup[]>(serviceGroupKeys.list()) || [];
 
-      // If no groups exist, create default group with the new monitor
-      if (serviceGroups.length === 0) {
-        const defaultGroup: ServiceGroup = {
-          id: DEFAULT_GROUP_ID,
-          name: "All Services",
-          type: "group",
-          children: [
-            {
-              id: newMonitor.id,
-              name: newMonitor.name,
-              type: "monitor",
-            }
-          ],
-        };
+      // Find or create "All Services" group and add the new monitor
+      let updatedGroups: ServiceGroup[];
 
-        try {
-          await serviceGroupApi.update([defaultGroup]);
-          queryClient.invalidateQueries({ queryKey: serviceGroupKeys.list() });
-        } catch (error) {
-          console.error("Failed to create default group:", error);
+      if (serviceGroups.length === 0) {
+        // Create default group with the new monitor
+        updatedGroups = [
+          {
+            id: DEFAULT_GROUP_ID,
+            name: "All Services",
+            type: "group",
+            children: [
+              {
+                id: newMonitor.id,
+                name: newMonitor.name,
+                type: "service",
+                monitorId: newMonitor.id,
+              }
+            ],
+          }
+        ];
+      } else {
+        // Add monitor to existing "All Services" group (or first group if not found)
+        updatedGroups = serviceGroups.map(group => {
+          if (group.id === DEFAULT_GROUP_ID || group.name === "All Services") {
+            return {
+              ...group,
+              children: [
+                ...(group.children || []),
+                {
+                  id: newMonitor.id,
+                  name: newMonitor.name,
+                  type: "service" as const,
+                  monitorId: newMonitor.id,
+                }
+              ]
+            };
+          }
+          return group;
+        });
+
+        // If "All Services" group doesn't exist, add monitor to first group
+        const allServicesExists = updatedGroups.some(
+          g => g.id === DEFAULT_GROUP_ID || g.name === "All Services"
+        );
+
+        if (!allServicesExists && updatedGroups.length > 0) {
+          updatedGroups[0] = {
+            ...updatedGroups[0],
+            children: [
+              ...(updatedGroups[0].children || []),
+              {
+                id: newMonitor.id,
+                name: newMonitor.name,
+                type: "service" as const,
+                monitorId: newMonitor.id,
+              }
+            ]
+          };
         }
+      }
+
+      try {
+        await serviceGroupApi.update(updatedGroups);
+        queryClient.invalidateQueries({ queryKey: serviceGroupKeys.list() });
+      } catch (error) {
+        console.error("Failed to update service groups:", error);
+        // Still invalidate to show the monitor in the list
+        queryClient.invalidateQueries({ queryKey: serviceGroupKeys.list() });
       }
 
       toast.success(`Monitor "${newMonitor.name}" erstellt`);

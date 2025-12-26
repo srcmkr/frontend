@@ -350,9 +350,9 @@ export function IncidentEditPanel({
           <TabsContent value="monitors" className="mt-0 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t("form.affectedMonitorIds")}</CardTitle>
+                <CardTitle>{t("form.affectedMonitors")}</CardTitle>
                 <CardDescription>
-                  {t("form.affectedMonitorIdsHint")}
+                  {t("form.affectedMonitorsHint")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

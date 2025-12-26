@@ -23,6 +23,19 @@ import { TreeItemContent, useDndTree } from "./tree-item";
 import { findItemDeep, countDescendants } from "@/lib/tree-utils";
 import type { Monitor, ServiceGroup, FlattenedServiceGroup } from "@/types";
 
+// Fallback UUID generator for browsers that don't support crypto.randomUUID()
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  // Fallback implementation
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 interface MonitorListPanelProps {
   monitors: Monitor[];
   serviceGroups: ServiceGroup[];
@@ -43,6 +56,14 @@ export function MonitorListPanel({
   const t = useTranslations("monitors");
   const [search, setSearch] = useState("");
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [pendingGroups, setPendingGroups] = useState<ServiceGroup[]>([]);
+
+  // Combine saved groups with pending (unsaved) groups for display
+  const allGroups = useMemo(() => {
+    const combined = [...serviceGroups, ...pendingGroups];
+    console.log('[MonitorListPanel] Combining groups - saved:', serviceGroups.length, 'pending:', pendingGroups.length, 'total:', combined.length);
+    return combined;
+  }, [serviceGroups, pendingGroups]);
 
   // DnD tree hook - handles all drag-and-drop logic
   const {
@@ -58,7 +79,7 @@ export function MonitorListPanel({
     handleDragCancel,
     getItemDepth,
   } = useDndTree({
-    serviceGroups,
+    serviceGroups: allGroups,
     onServiceGroupsChange,
     disabled: !!search, // Disable DnD during search
   });
@@ -102,8 +123,8 @@ export function MonitorListPanel({
         return sum;
       }, 0);
     };
-    return count(serviceGroups);
-  }, [serviceGroups]);
+    return count(allGroups);
+  }, [allGroups]);
 
   // Toggle collapse state
   const toggleGroup = useCallback(
@@ -119,65 +140,116 @@ export function MonitorListPanel({
           return item;
         });
       };
-      onServiceGroupsChange?.(toggleInTree(serviceGroups));
+
+      // Check if group is pending or saved
+      const isPending = pendingGroups.some((g) => g.id === groupId);
+
+      if (isPending) {
+        // Update in pending groups (local state only)
+        setPendingGroups((prev) => toggleInTree(prev));
+      } else {
+        // Update in saved groups (via backend)
+        onServiceGroupsChange?.(toggleInTree(serviceGroups));
+      }
     },
-    [serviceGroups, onServiceGroupsChange]
+    [serviceGroups, pendingGroups, onServiceGroupsChange]
   );
 
   // Add new group at root level
   const handleAddGroup = useCallback(() => {
-    const newGroupId = `group-${Date.now()}`;
-    const newGroup: ServiceGroup = {
-      id: newGroupId,
-      name: t("groups.newGroup"),
-      type: "group",
-      children: [],
-    };
-    onServiceGroupsChange?.([...serviceGroups, newGroup]);
-    setEditingGroupId(newGroupId);
-  }, [serviceGroups, onServiceGroupsChange, t]);
+    try {
+      console.log('[MonitorListPanel] handleAddGroup called');
+
+      const newGroupId = generateUUID();
+      console.log('[MonitorListPanel] Generated ID:', newGroupId);
+
+      const newGroup: ServiceGroup = {
+        id: newGroupId,
+        name: t("groups.newGroup"),
+        type: "group",
+        children: [],
+      };
+      console.log('[MonitorListPanel] Creating new group:', newGroup);
+
+      // Add to pending groups (local state) - don't call backend yet
+      // The rename handler will save it to backend when user finishes editing
+      setPendingGroups((prev) => {
+        const updated = [...prev, newGroup];
+        console.log('[MonitorListPanel] Updated pendingGroups:', updated);
+        return updated;
+      });
+      setEditingGroupId(newGroupId);
+      console.log('[MonitorListPanel] Set editingGroupId to:', newGroupId);
+    } catch (error) {
+      console.error('[MonitorListPanel] Error in handleAddGroup:', error);
+    }
+  }, [t]);
 
   // Rename a group
   const handleRenameGroup = useCallback(
     (groupId: string, newName: string) => {
-      const renameInTree = (items: ServiceGroup[]): ServiceGroup[] => {
-        return items.map((item) => {
-          if (item.id === groupId) {
-            return { ...item, name: newName };
-          }
-          if (item.children?.length) {
-            return { ...item, children: renameInTree(item.children) };
-          }
-          return item;
-        });
-      };
-      onServiceGroupsChange?.(renameInTree(serviceGroups));
+      // Check if this is a pending (unsaved) group
+      const isPending = pendingGroups.some((g) => g.id === groupId);
+
+      if (isPending) {
+        // For pending groups: rename and save to backend (moving from pending to saved)
+        const pendingGroup = pendingGroups.find((g) => g.id === groupId);
+        if (pendingGroup) {
+          const renamedGroup = { ...pendingGroup, name: newName };
+          // Remove from pending and add to saved groups via backend
+          setPendingGroups((prev) => prev.filter((g) => g.id !== groupId));
+          onServiceGroupsChange?.([...serviceGroups, renamedGroup]);
+        }
+      } else {
+        // For saved groups: just rename via backend
+        const renameInTree = (items: ServiceGroup[]): ServiceGroup[] => {
+          return items.map((item) => {
+            if (item.id === groupId) {
+              return { ...item, name: newName };
+            }
+            if (item.children?.length) {
+              return { ...item, children: renameInTree(item.children) };
+            }
+            return item;
+          });
+        };
+        onServiceGroupsChange?.(renameInTree(serviceGroups));
+      }
     },
-    [serviceGroups, onServiceGroupsChange]
+    [serviceGroups, pendingGroups, onServiceGroupsChange]
   );
 
   // Delete a group
   const handleDeleteGroup = useCallback(
     (groupId: string) => {
-      const deleteFromTree = (items: ServiceGroup[]): ServiceGroup[] => {
-        return items
-          .filter((item) => item.id !== groupId)
-          .map((item) => {
-            if (item.children?.length) {
-              return { ...item, children: deleteFromTree(item.children) };
-            }
-            return item;
-          });
-      };
-      onServiceGroupsChange?.(deleteFromTree(serviceGroups));
+      // Check if this is a pending (unsaved) group
+      const isPending = pendingGroups.some((g) => g.id === groupId);
+
+      if (isPending) {
+        // For pending groups: just remove from local state (no backend call)
+        setPendingGroups((prev) => prev.filter((g) => g.id !== groupId));
+      } else {
+        // For saved groups: delete via backend
+        const deleteFromTree = (items: ServiceGroup[]): ServiceGroup[] => {
+          return items
+            .filter((item) => item.id !== groupId)
+            .map((item) => {
+              if (item.children?.length) {
+                return { ...item, children: deleteFromTree(item.children) };
+              }
+              return item;
+            });
+        };
+        onServiceGroupsChange?.(deleteFromTree(serviceGroups));
+      }
     },
-    [serviceGroups, onServiceGroupsChange]
+    [serviceGroups, pendingGroups, onServiceGroupsChange]
   );
 
   // Add subgroup to a parent group
   const handleAddSubgroup = useCallback(
     (parentId: string) => {
-      const newGroupId = `group-${Date.now()}`;
+      const newGroupId = generateUUID();
       const newGroup: ServiceGroup = {
         id: newGroupId,
         name: t("groups.newGroup"),
@@ -201,20 +273,32 @@ export function MonitorListPanel({
         });
       };
 
-      onServiceGroupsChange?.(addToTree(serviceGroups));
+      // Check if parent is pending or saved
+      const isPending = pendingGroups.some((g) => g.id === parentId);
+
+      if (isPending) {
+        // Add to pending parent (local state only)
+        setPendingGroups((prev) => addToTree(prev));
+      } else {
+        // Add to saved parent (via backend)
+        // Note: The new subgroup itself won't be saved until renamed
+        // For now, add it directly and save immediately
+        onServiceGroupsChange?.(addToTree(serviceGroups));
+      }
+
       setEditingGroupId(newGroupId);
     },
-    [serviceGroups, onServiceGroupsChange]
+    [serviceGroups, pendingGroups, onServiceGroupsChange, t]
   );
 
   // Filter flattenedItems for search
   const visibleItems = useMemo(() => {
     if (!search) return flattenedItems;
     return flattenedItems.filter((item) => {
-      const original = findItemDeep(serviceGroups, item.id);
+      const original = findItemDeep(allGroups, item.id);
       return original && matchesSearch(original);
     });
-  }, [flattenedItems, search, serviceGroups, matchesSearch]);
+  }, [flattenedItems, search, allGroups, matchesSearch]);
 
   const canDrag = !!onServiceGroupsChange && !search;
 
@@ -269,7 +353,7 @@ export function MonitorListPanel({
               {visibleItems.map((item) => {
                 const monitor = getMonitor(item.monitorId);
                 const childCount = countDescendants(
-                  findItemDeep(serviceGroups, item.id) || item
+                  findItemDeep(allGroups, item.id) || item
                 );
 
                 return (
@@ -306,7 +390,7 @@ export function MonitorListPanel({
                     monitor={getMonitor(activeItem.monitorId)}
                     selectedMonitorId={selectedMonitorId}
                     childCount={countDescendants(
-                      findItemDeep(serviceGroups, activeItem.id) || activeItem
+                      findItemDeep(allGroups, activeItem.id) || activeItem
                     )}
                     clone
                   />

@@ -164,6 +164,7 @@ export function useDndTree({
 
       // Rebuild tree from flattened items
       const newTree = buildTreeFromFlattened(newFlattenedItems, serviceGroups);
+
       onServiceGroupsChange(newTree);
     },
     [flattenedItems, offsetLeft, serviceGroups, onServiceGroupsChange, resetDragState]
