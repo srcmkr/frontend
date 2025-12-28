@@ -13,6 +13,7 @@ import {
   Check,
   ExternalLink,
   Trash2,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ interface NotificationListItemProps {
 }
 
 const TYPE_CONFIG: Record<
-  SystemNotificationType,
+  SystemNotificationType | "webhook",
   {
     icon: React.ElementType;
     color: string;
@@ -76,6 +77,11 @@ const TYPE_CONFIG: Record<
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-50 dark:bg-green-950/20",
   },
+  webhook: {
+    icon: ExternalLink,
+    color: "text-blue-600 dark:text-blue-400",
+    bgColor: "bg-blue-50 dark:bg-blue-950/20",
+  },
 };
 
 function formatDuration(seconds: number, t: ReturnType<typeof useTranslations<"notifications">>): string {
@@ -102,7 +108,21 @@ export function NotificationListItem({
 }: NotificationListItemProps) {
   const router = useRouter();
   const t = useTranslations("notifications");
-  const config = TYPE_CONFIG[notification.type];
+
+  // Fallback config for unknown notification types
+  const fallbackConfig = {
+    icon: Bell,
+    color: "text-blue-600 dark:text-blue-400",
+    bgColor: "bg-blue-50 dark:bg-blue-950/20",
+  };
+
+  const config = TYPE_CONFIG[notification.type] ?? fallbackConfig;
+
+  // Log warning if unknown type
+  if (!TYPE_CONFIG[notification.type]) {
+    console.warn(`Unknown notification type: ${notification.type}`, notification);
+  }
+
   const Icon = config.icon;
 
   const handleNavigate = () => {

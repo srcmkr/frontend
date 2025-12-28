@@ -15,21 +15,21 @@ export const notificationApi = {
   /**
    * Get all notifications
    */
-  getAll: () => apiClient.get<SystemNotification[]>("/notifications"),
+  getAll: () => apiClient.get<SystemNotification[]>("/system-notifications"),
 
   /**
    * Mark a notification as read
    */
   markAsRead: (id: string) =>
-    apiClient.patch<void>(`/notifications/${id}/read`, {}),
+    apiClient.patch<void>(`/system-notifications/${id}/read`, {}),
 
   /**
    * Mark all notifications as read
    */
-  markAllAsRead: () => apiClient.post<void>("/notifications/read-all", {}),
+  markAllAsRead: () => apiClient.post<void>("/system-notifications/read-all", {}),
 
   /**
    * Delete a notification
    */
-  delete: (id: string) => apiClient.delete<void>(`/notifications/${id}`),
+  delete: (id: string) => apiClient.delete<void>(`/system-notifications/${id}`),
 };

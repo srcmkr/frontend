@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { useCommandPalette } from "@/lib/stores";
 import { UserMenu } from "./user-menu";
 
-export function FloatingNav() {
+export const FloatingNav = memo(function FloatingNav() {
   const pathname = usePathname();
   const t = useTranslations("common");
   const { setOpen: openCommandPalette } = useCommandPalette();
@@ -46,10 +46,11 @@ export function FloatingNav() {
     { name: t("navigation.statusPages"), href: "/status-pages", icon: Globe },
   ];
 
-  const isActive = (href: string) => {
+  // Memoize isActive to prevent unnecessary recalculations
+  const isActive = useCallback((href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
-  };
+  }, [pathname]);
 
   return (
     <>
@@ -238,4 +239,4 @@ export function FloatingNav() {
       <div className="h-20 lg:h-24" />
     </>
   );
-}
+});

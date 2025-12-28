@@ -47,7 +47,8 @@
     "incident_resolved": "Incident",
     "maintenance_scheduled": "Wartung",
     "maintenance_started": "Wartung",
-    "maintenance_completed": "Wartung"
+    "maintenance_completed": "Wartung",
+    "webhook": "Webhook"
   },
 
   "duration": {

@@ -32,7 +32,7 @@ export function SetupGuard({ children }: SetupGuardProps) {
   } | null>(null);
 
   const checkSetupStatus = async () => {
-    console.log('[SetupGuard] Checking setup status, pathname:', pathname);
+    console.log('[SetupGuard] Checking setup status on mount');
     setError(null);
     setIsChecking(true);
 
@@ -40,45 +40,38 @@ export function SetupGuard({ children }: SetupGuardProps) {
       const status = await getSystemStatus();
       console.log('[SetupGuard] System status:', status);
       setSystemStatus(status);
-
-      // Gate logic: Redirect based on system status and current path
-      const isOnSetupPage = pathname?.startsWith('/setup');
-      console.log('[SetupGuard] isOnSetupPage:', isOnSetupPage);
-
-      if (status.needsSetup) {
-        // System needs setup → force to /setup
-        if (!isOnSetupPage) {
-          console.log('[SetupGuard] Redirecting to /setup');
-          setShouldRedirect(true);
-          router.replace('/setup');
-        } else {
-          console.log('[SetupGuard] Already on setup page, no redirect');
-          setShouldRedirect(false);
-        }
-      } else {
-        // System initialized → block /setup access
-        if (isOnSetupPage) {
-          console.log('[SetupGuard] Defensive redirect: setup page accessed when initialized');
-          setShouldRedirect(true);
-          router.replace('/');
-        } else {
-          console.log('[SetupGuard] System initialized, on correct page');
-          setShouldRedirect(false);
-        }
-      }
     } catch (error) {
       console.error('[SetupGuard] Failed to check setup status:', error);
       setError('Unable to reach the API. Please check your connection.');
-      setShouldRedirect(false);
     } finally {
       console.log('[SetupGuard] Setting isChecking=false');
       setIsChecking(false);
     }
   };
 
+  // Check setup status only on mount, not on every route change
   useEffect(() => {
     checkSetupStatus();
-  }, [pathname, router]);
+  }, []);
+
+  // Handle route-based redirects without API calls
+  useEffect(() => {
+    if (!systemStatus || isChecking) return;
+
+    const isOnSetupPage = pathname?.startsWith('/setup');
+
+    if (systemStatus.needsSetup && !isOnSetupPage) {
+      console.log('[SetupGuard] Redirecting to /setup');
+      setShouldRedirect(true);
+      router.replace('/setup');
+    } else if (!systemStatus.needsSetup && isOnSetupPage) {
+      console.log('[SetupGuard] Defensive redirect: setup page accessed when initialized');
+      setShouldRedirect(true);
+      router.replace('/');
+    } else {
+      setShouldRedirect(false);
+    }
+  }, [pathname, systemStatus, isChecking, router]);
 
   // Show error message if API is unreachable
   if (error) {
