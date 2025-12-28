@@ -7,7 +7,7 @@ import type { Monitor, MonitorType, HttpMethod, DnsRecordType, AuthType } from "
 
 const createHttpConfigSchema = () =>
   z.object({
-    method: z.enum(["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"] as const),
+    method: z.enum(["get", "post", "head", "put", "patch", "delete"] as const),
     expectedStatusCodes: z.string(),
     headers: z.record(z.string(), z.string()),
     body: z.string(),
@@ -116,7 +116,7 @@ export type MonitorFormValues = z.infer<ReturnType<typeof createMonitorFormSchem
 // ============================================
 
 export const defaultHttpConfig = {
-  method: "GET" as HttpMethod,
+  method: "get" as HttpMethod,
   expectedStatusCodes: "200",
   headers: {} as Record<string, string>,
   body: "",
@@ -190,19 +190,50 @@ export function monitorToFormValues(monitor: Monitor): MonitorFormValues {
     interval: monitor.interval,
     timeout: monitor.timeout,
     retries: monitor.retries,
-    slaTarget: monitor.slaTarget,
-    maxResponseTime: monitor.maxResponseTime,
+    slaTarget: monitor.slaTarget ?? 99.9,
+    maxResponseTime: monitor.maxResponseTime ?? 500,
     enabled: monitor.status !== "paused",
     config: {},
   };
 
-  // Parse type-specific config from URL or defaults
+  // Parse type-specific config from Monitor or use defaults
   switch (monitor.type) {
-    case "http":
+    case "http": {
+      // Merge defaults with actual config from backend
+      const httpConfig = monitor.httpConfig || {};
+
+      // Convert backend ValidStatusCodes (int[]) to frontend format (string)
+      const expectedStatusCodes =
+        httpConfig.validStatusCodes && httpConfig.validStatusCodes.length > 0
+          ? httpConfig.validStatusCodes.join(',')
+          : defaultHttpConfig.expectedStatusCodes;
+
+      // Determine auth type from available credentials
+      let authType: AuthType = "none";
+      if (httpConfig.authToken) {
+        authType = "bearer";
+      } else if (httpConfig.authUsername || httpConfig.authPassword) {
+        authType = "basic";
+      }
+
       baseValues.config = {
-        http: { ...defaultHttpConfig },
+        http: {
+          method: httpConfig.method || defaultHttpConfig.method,
+          expectedStatusCodes,
+          headers: httpConfig.headers || {},
+          body: httpConfig.body || "",
+          checkKeyword: httpConfig.checkKeyword || "",
+          verifyCertificate: httpConfig.validateSsl ?? defaultHttpConfig.verifyCertificate,
+          certExpiryWarningDays: defaultHttpConfig.certExpiryWarningDays,
+          authType,
+          authUsername: httpConfig.authUsername || "",
+          authPassword: httpConfig.authPassword || "",
+          authToken: httpConfig.authToken || "",
+          followRedirects: httpConfig.followRedirects ?? defaultHttpConfig.followRedirects,
+        },
       };
       break;
+    }
     case "tcp": {
       const { host, port } = parseTcpUrl(monitor.url);
       baseValues.config = {
@@ -253,7 +284,7 @@ export function formValuesToMonitorUpdate(
   }
 
   // Convert to API format with correct field names
-  return {
+  const update: any = {
     name: values.name,
     type: values.type,
     url,
@@ -262,11 +293,37 @@ export function formValuesToMonitorUpdate(
     maxRetries: values.retries,
     slaTarget: values.slaTarget, // Backend accepts decimal values (e.g., 99.5, 99.9)
     maxResponseTime: values.maxResponseTime,
-    httpConfig: values.type === 'http' && values.config?.http ? {
-      method: values.config.http.method,
-      headers: values.config.http.headers,
-      body: values.config.http.body || undefined,
-      expectedStatusCode: parseInt(values.config.http.expectedStatusCodes.split(',')[0]) || 200,
-    } : undefined,
   };
+
+  // Add HTTP config if monitor type is HTTP
+  if (values.type === 'http' && values.config?.http) {
+    const httpFormConfig = values.config.http;
+
+    // Parse expectedStatusCodes string to int array
+    // Format: "200" or "200,201,301" → [200] or [200, 201, 301]
+    const validStatusCodes = httpFormConfig.expectedStatusCodes
+      .split(',')
+      .map(code => parseInt(code.trim(), 10))
+      .filter(code => !isNaN(code) && code >= 100 && code < 600);
+
+    // Ensure at least one valid status code
+    if (validStatusCodes.length === 0) {
+      validStatusCodes.push(200);
+    }
+
+    update.httpConfig = {
+      method: httpFormConfig.method || 'get',
+      headers: httpFormConfig.headers || {},
+      body: httpFormConfig.body || undefined,
+      checkKeyword: httpFormConfig.checkKeyword || undefined,
+      validStatusCodes,  // Backend expects int[]
+      authUsername: httpFormConfig.authType === 'basic' ? httpFormConfig.authUsername : undefined,
+      authPassword: httpFormConfig.authType === 'basic' ? httpFormConfig.authPassword : undefined,
+      authToken: httpFormConfig.authType === 'bearer' ? httpFormConfig.authToken : undefined,
+      followRedirects: httpFormConfig.followRedirects ?? true,
+      validateSsl: httpFormConfig.verifyCertificate ?? true,
+    };
+  }
+
+  return update;
 }

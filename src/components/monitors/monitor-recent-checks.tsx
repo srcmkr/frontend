@@ -17,10 +17,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { StatusIndicator } from "./status-indicator";
 import { formatResponseTime } from "@/lib/format-utils";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Trash2 } from "lucide-react";
 import type { CheckResult } from "@/types";
+import { useDeleteCheck } from "@/features/monitors/api/mutations";
 
 // Separate type for detailed check data (loaded on demand)
 export interface CheckDetails {
@@ -68,6 +79,9 @@ export function MonitorRecentChecks({
   const [selectedCheck, setSelectedCheck] = useState<BasicCheckResult | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [detailsCache, setDetailsCache] = useState<Record<string, CheckDetails>>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [checkToDelete, setCheckToDelete] = useState<BasicCheckResult | null>(null);
+  const deleteCheckMutation = useDeleteCheck();
 
   // Filter and sort checks (newest first)
   const filteredChecks = useMemo(() => {
@@ -154,6 +168,23 @@ export function MonitorRecentChecks({
 
   const handleCloseModal = () => {
     setSelectedCheck(null);
+  };
+
+  const handleDeleteClick = (check: BasicCheckResult) => {
+    setCheckToDelete(check);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (checkToDelete) {
+      await deleteCheckMutation.mutateAsync({
+        monitorId: checkToDelete.monitorId,
+        checkId: checkToDelete.id,
+      });
+      setSelectedCheck(null);
+      setDeleteDialogOpen(false);
+      setCheckToDelete(null);
+    }
   };
 
   const selectedDetails = selectedCheck ? detailsCache[selectedCheck.id] : null;
@@ -340,11 +371,21 @@ export function MonitorRecentChecks({
                     {selectedCheck.statusCode} {selectedCheck.message}
                   </span>
                 </div>
-                <div>
-                  <span className="text-muted-foreground block text-xs">{t("responseTime")}</span>
-                  <span className="font-mono">
-                    {formatResponseTime(selectedCheck.responseTime)}
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-muted-foreground block text-xs">{t("responseTime")}</span>
+                    <span className="font-mono">
+                      {formatResponseTime(selectedCheck.responseTime)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteClick(selectedCheck)}
+                    disabled={deleteCheckMutation.isPending}
+                    className="text-xs text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4 inline mr-1" />
+                    {t("delete")}
+                  </button>
                 </div>
               </div>
 
@@ -457,6 +498,37 @@ export function MonitorRecentChecks({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Check Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteCheckTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteCheckDescription", {
+                timestamp: checkToDelete ? formatDateTime(checkToDelete.checkedAt).date : "",
+                time: checkToDelete ? formatDateTime(checkToDelete.checkedAt).time : "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteCheckMutation.isPending}
+            >
+              {deleteCheckMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {t("deleting")}
+                </>
+              ) : (
+                t("delete")
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

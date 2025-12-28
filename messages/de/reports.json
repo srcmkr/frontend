@@ -20,7 +20,8 @@
     "maxResponseLabel": "Max. Antwortzeit (ms)",
     "errorLoading": "Fehler beim Laden des Reports: {message}",
     "noPeriodSelected": "Wählen Sie einen Zeitraum aus",
-    "generatedAt": "Report generiert am"
+    "generatedAt": "Report generiert am",
+    "refreshTooltip": "Report neu generieren (Cache leeren)"
   },
   "executiveSummary": {
     "title": "Zusammenfassung",
@@ -39,7 +40,10 @@
     "title": "Verfügbarkeit",
     "uptime": "Uptime",
     "available": "Verfügbar",
+    "totalUptime": "Gesamte Betriebszeit",
     "downtime": "Ausfallzeit",
+    "totalDowntime": "Gesamte Ausfallzeit",
+    "allowedDowntime": "Erlaubt bei {sla}%: {allowed}",
     "slaBreaches": "SLA-Verletzungen",
     "viewMode": {
       "daily": "Täglich",
@@ -158,6 +162,7 @@
     "downtime": "Ausfallzeit",
     "trendVsPrevious": "Trend vs. Vorperiode:",
     "available": "Verfügbar",
+    "allowedDowntime": "Erlaubt bei {sla}%: {allowed}",
     "slaBreaches": "SLA-Verletzungen",
     "table": {
       "week": "Woche",

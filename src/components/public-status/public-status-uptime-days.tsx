@@ -33,9 +33,67 @@ export function PublicStatusUptimeDays({
     [monitor, days]
   );
 
-  // Responsive: show fewer days on mobile
-  // We'll show all days but let CSS handle visibility
-  const displayDays = uptimeData.slice(-Math.min(days, 90));
+  // Show all configured days (up to 365)
+  const displayDays = uptimeData.slice(-Math.min(days, 365));
+
+  // Calculate dynamic bar sizing and rows based on number of days
+  const { barSizing, rows } = useMemo(() => {
+    const dayCount = displayDays.length;
+
+    // Helper function to split array into chunks
+    const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
+      const chunks: T[][] = [];
+      for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+      }
+      return chunks;
+    };
+
+    // Mobile: max 20 days per row, fixed height
+    const mobileDaysPerRow = 20;
+    const mobileRows = chunkArray(displayDays, mobileDaysPerRow);
+
+    // Desktop: calculate days per row and bar width based on total days
+    let desktopDaysPerRow: number;
+    let desktopBarWidth: string;
+    let desktopGap: string;
+
+    if (dayCount <= 30) {
+      desktopDaysPerRow = 30;
+      desktopBarWidth = "w-3";
+      desktopGap = "gap-1";
+    } else if (dayCount <= 60) {
+      desktopDaysPerRow = 30;
+      desktopBarWidth = "w-2";
+      desktopGap = "gap-0.5";
+    } else if (dayCount <= 90) {
+      desktopDaysPerRow = 30;
+      desktopBarWidth = "w-1.5";
+      desktopGap = "gap-0.5";
+    } else if (dayCount <= 180) {
+      desktopDaysPerRow = 45;
+      desktopBarWidth = "w-1.5";
+      desktopGap = "gap-0.5";
+    } else {
+      // 181-365 days: smaller bars
+      desktopDaysPerRow = 60;
+      desktopBarWidth = "w-1";
+      desktopGap = "gap-[1px]";
+    }
+
+    const desktopRows = chunkArray(displayDays, desktopDaysPerRow);
+
+    return {
+      barSizing: {
+        mobile: { width: "w-1.5", height: "h-7", gap: "gap-0.5" },
+        desktop: { width: desktopBarWidth, height: "h-7", gap: desktopGap },
+      },
+      rows: {
+        mobile: mobileRows,
+        desktop: desktopRows,
+      },
+    };
+  }, [displayDays]);
 
   const getBarColor = (data: DayUptimeData) => {
     if (data.status === "no-data") return "bg-muted";
@@ -72,37 +130,61 @@ export function PublicStatusUptimeDays({
   const hoveredData = hoveredIndex !== null ? displayDays[hoveredIndex] : null;
 
   return (
-    <div className={cn("flex items-center", className)}>
-      {/* Mobile: show only 30 days */}
-      <div className="flex gap-[1px] sm:hidden">
-        {displayDays.slice(-30).map((data, index) => (
-          <div
-            key={index}
-            className={cn(
-              "w-[3px] h-3 rounded-[1px] cursor-default transition-all",
-              getBarColor(data),
-              hoveredIndex === index + (displayDays.length - 30) && "ring-1 ring-foreground/50 scale-110"
-            )}
-            onMouseEnter={(e) => handleMouseEnter(index + (displayDays.length - 30), e)}
-            onMouseLeave={handleMouseLeave}
-          />
-        ))}
+    <div className={cn("flex flex-col", className)}>
+      {/* Mobile: multi-row layout with max 20 days per row */}
+      <div className="flex flex-col gap-1 sm:hidden">
+        {rows.mobile.map((rowData, rowIndex) => {
+          const rowStartIndex = rowIndex * 20;
+          return (
+            <div key={rowIndex} className={cn("flex", barSizing.mobile.gap)}>
+              {rowData.map((data, colIndex) => {
+                const globalIndex = rowStartIndex + colIndex;
+                return (
+                  <div
+                    key={globalIndex}
+                    className={cn(
+                      barSizing.mobile.width,
+                      barSizing.mobile.height,
+                      "rounded-sm cursor-pointer transition-all hover:scale-110",
+                      getBarColor(data),
+                      hoveredIndex === globalIndex && "ring-2 ring-foreground/50 scale-110"
+                    )}
+                    onMouseEnter={(e) => handleMouseEnter(globalIndex, e)}
+                    onMouseLeave={handleMouseLeave}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Desktop: show all days (up to 90) */}
-      <div className="hidden sm:flex gap-[1px]">
-        {displayDays.map((data, index) => (
-          <div
-            key={index}
-            className={cn(
-              "w-[2px] h-3 rounded-[1px] cursor-default transition-all",
-              getBarColor(data),
-              hoveredIndex === index && "ring-1 ring-foreground/50 scale-110"
-            )}
-            onMouseEnter={(e) => handleMouseEnter(index, e)}
-            onMouseLeave={handleMouseLeave}
-          />
-        ))}
+      {/* Desktop: multi-row layout with dynamic days per row */}
+      <div className="hidden sm:flex sm:flex-col sm:gap-1.5">
+        {rows.desktop.map((rowData, rowIndex) => {
+          const rowStartIndex = rowIndex * rowData.length;
+          return (
+            <div key={rowIndex} className={cn("flex", barSizing.desktop.gap)}>
+              {rowData.map((data, colIndex) => {
+                const globalIndex = rowIndex === 0 ? colIndex : rows.desktop.slice(0, rowIndex).reduce((sum, row) => sum + row.length, 0) + colIndex;
+                return (
+                  <div
+                    key={globalIndex}
+                    className={cn(
+                      barSizing.desktop.width,
+                      barSizing.desktop.height,
+                      "rounded-sm cursor-pointer transition-all hover:scale-110 hover:shadow-sm",
+                      getBarColor(data),
+                      hoveredIndex === globalIndex && "ring-2 ring-foreground/50 scale-110"
+                    )}
+                    onMouseEnter={(e) => handleMouseEnter(globalIndex, e)}
+                    onMouseLeave={handleMouseLeave}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
 
       {/* Tooltip via Portal */}

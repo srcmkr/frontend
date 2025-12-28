@@ -22,7 +22,11 @@ export function SLAReportContent({ report }: SLAReportContentProps) {
       <Separator />
 
       {/* Availability */}
-      <AvailabilitySection data={report.availability} />
+      <AvailabilitySection
+        data={report.availability}
+        period={report.period}
+        slaTarget={report.slaTarget}
+      />
 
       <Separator />
 

@@ -26,7 +26,7 @@ export const statusPageApi = {
    * Get a status page by its slug (for public view)
    */
   getBySlug: (slug: string) =>
-    apiClient.get<StatusPage>(`/status-pages/slug/${slug}`),
+    apiClient.get<StatusPage>(`/status-pages/${slug}`),
 
   /**
    * Create a new status page
@@ -63,4 +63,9 @@ export const statusPageApi = {
       monitorIds: string[];
     }>
   ) => apiClient.put<void>(`/status-pages/${id}/groups`, { groups }),
+
+  /**
+   * Get client IP address (for testing IP whitelist)
+   */
+  getClientIp: () => apiClient.get<{ ipAddress: string }>("/status-pages/client-ip"),
 };

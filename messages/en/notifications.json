@@ -3,6 +3,7 @@
   "subtitle": "System events and status updates",
   "unreadCount": "({count} unread)",
   "markAllAsRead": "Mark all as read",
+  "loading": "Loading notifications...",
 
   "pagination": {
     "previous": "Previous",

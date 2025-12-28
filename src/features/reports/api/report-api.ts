@@ -34,4 +34,21 @@ export const reportApi = {
       slaTarget,
       maxResponseTime,
     }),
+
+  /**
+   * Refresh SLA report (invalidate cache and regenerate)
+   */
+  refreshSLAReport: (
+    monitorId: string,
+    period: ReportPeriod,
+    slaTarget?: number,
+    maxResponseTime?: number
+  ) =>
+    apiClient.post<SLAReport>(`/reports/sla/${monitorId}/refresh`, undefined, {
+      type: period.type,
+      year: period.year,
+      value: period.value,
+      slaTarget,
+      maxResponseTime,
+    }),
 };

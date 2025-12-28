@@ -13,10 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { AvailabilityMetrics } from "@/types";
+import type { AvailabilityMetrics, ReportPeriod } from "@/types";
 
 interface AvailabilitySectionProps {
   data: AvailabilityMetrics;
+  period: ReportPeriod;
+  slaTarget: number;
   className?: string;
 }
 
@@ -24,10 +26,41 @@ type ViewMode = "daily" | "weekly" | "monthly";
 
 export function AvailabilitySection({
   data,
+  period,
+  slaTarget,
   className,
 }: AvailabilitySectionProps) {
   const t = useTranslations("reports.availability");
   const [viewMode, setViewMode] = useState<ViewMode>("daily");
+
+  /**
+   * Calculate total hours in the reporting period
+   */
+  const calculatePeriodHours = () => {
+    const start = new Date(period.startDate);
+    const end = new Date(period.endDate);
+    const now = new Date();
+
+    // Use actual end time if period is not yet complete
+    const actualEnd = end > now ? now : end;
+    const diffMs = actualEnd.getTime() - start.getTime();
+    return diffMs / (1000 * 60 * 60);
+  };
+
+  /**
+   * Calculate allowed downtime based on SLA target and period
+   * SLA 99.9% = 0.1% allowed downtime
+   */
+  const calculateAllowedDowntime = () => {
+    const periodHours = calculatePeriodHours();
+    const allowedDowntimePercent = 100 - slaTarget;
+    const allowedDowntimeHours = (periodHours * allowedDowntimePercent) / 100;
+    return allowedDowntimeHours;
+  };
+
+  const allowedDowntimeHours = calculateAllowedDowntime();
+  const actualDowntimeHours = data.downtimeHours + data.downtimeMinutes / 60;
+  const isWithinSla = actualDowntimeHours <= allowedDowntimeHours;
 
   const getUptimeColor = (uptime: number) => {
     if (uptime >= 99.9) return "text-green-600";
@@ -35,6 +68,39 @@ export function AvailabilitySection({
     return "text-red-600";
   };
 
+  /**
+   * Format duration in a human-readable way
+   * - Less than 1 hour: show only minutes (e.g., "45m")
+   * - 1-24 hours: show hours and minutes (e.g., "2h 30m")
+   * - More than 24 hours: show days and hours (e.g., "3d 5h")
+   */
+  const formatDuration = (hours: number, minutes: number) => {
+    const totalMinutes = Math.round(hours * 60 + minutes);
+
+    if (totalMinutes < 1) {
+      return "< 1m";
+    }
+
+    if (totalMinutes < 60) {
+      return `${totalMinutes}m`;
+    }
+
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    if (totalHours < 24) {
+      return remainingMinutes > 0
+        ? `${totalHours}h ${remainingMinutes}m`
+        : `${totalHours}h`;
+    }
+
+    const days = Math.floor(totalHours / 24);
+    const remainingHours = totalHours % 24;
+
+    return remainingHours > 0
+      ? `${days}d ${remainingHours}h`
+      : `${days}d`;
+  };
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -49,15 +115,24 @@ export function AvailabilitySection({
           </p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">{t("available")}</p>
-          <p className="text-2xl font-bold font-mono">
-            {data.uptimeHours}h {data.uptimeMinutes}m
+          <p className="text-xs text-muted-foreground mb-1">{t("totalUptime")}</p>
+          <p className="text-2xl font-bold font-mono text-green-600">
+            {formatDuration(data.uptimeHours, 0)}
           </p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs text-muted-foreground mb-1">{t("downtime")}</p>
-          <p className="text-2xl font-bold font-mono text-red-600">
-            {data.downtimeHours}h {data.downtimeMinutes}m
+          <p className="text-xs text-muted-foreground mb-1">{t("totalDowntime")}</p>
+          <p className={cn(
+            "text-2xl font-bold font-mono",
+            data.downtimeMinutes > 0 ? "text-red-600" : "text-green-600"
+          )}>
+            {formatDuration(data.downtimeHours, 0)}
+          </p>
+          <p className={cn(
+            "text-xs mt-1",
+            isWithinSla ? "text-muted-foreground" : "text-red-600"
+          )}>
+            {t("allowedDowntime", { allowed: formatDuration(allowedDowntimeHours, 0), sla: slaTarget })}
           </p>
         </div>
         <div className="bg-muted/50 rounded-lg p-4">

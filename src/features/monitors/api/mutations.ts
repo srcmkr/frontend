@@ -208,6 +208,30 @@ export function useToggleMonitorPause() {
 }
 
 /**
+ * Delete a check result
+ */
+export function useDeleteCheck() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ monitorId, checkId }: { monitorId: string; checkId: string }) =>
+      monitorApi.deleteCheck(monitorId, checkId),
+
+    onSuccess: (_, { monitorId }) => {
+      // Invalidate check queries to trigger refetch
+      queryClient.invalidateQueries({ queryKey: monitorKeys.checks(monitorId) });
+      queryClient.invalidateQueries({ queryKey: monitorKeys.detail(monitorId) });
+
+      toast.success("Check gelöscht");
+    },
+
+    onError: (error) => {
+      toast.error(`Fehler beim Löschen: ${error.message}`);
+    },
+  });
+}
+
+/**
  * Update service groups (persists tree structure changes)
  */
 export function useUpdateServiceGroups() {

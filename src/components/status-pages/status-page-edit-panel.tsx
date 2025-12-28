@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useClientIp } from "@/features/status-pages/api/queries";
 import {
   ChevronLeft,
   Loader2,
@@ -145,6 +146,9 @@ export function StatusPageEditPanel({
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const { data: clientIpData } = useClientIp();
+  const clientIp = clientIpData?.ipAddress;
+
   const isEditing = !!statusPage;
   const announcementTypeConfig = getAnnouncementTypeConfig(t);
   const maintenanceStatusConfig = getMaintenanceStatusConfig(t);
@@ -165,9 +169,9 @@ export function StatusPageEditPanel({
         primaryColor: statusPage.primaryColor,
         theme: statusPage.theme,
         showUptimeHistory: statusPage.showUptimeHistory,
-        uptimeHistoryDays: statusPage.uptimeHistoryDays,
+        uptimeHistoryDays: statusPage.uptimeHistoryDays ?? 90,
         showIncidents: statusPage.showIncidents,
-        incidentHistoryDays: statusPage.incidentHistoryDays,
+        incidentHistoryDays: statusPage.incidentHistoryDays ?? 90,
         passwordProtection: statusPage.passwordProtection,
         password: statusPage.password,
         ipWhitelistEnabled: statusPage.ipWhitelistEnabled,
@@ -216,8 +220,21 @@ export function StatusPageEditPanel({
       newErrors.incidentHistoryDays = t("display.incidentHistoryDaysError");
     }
 
-    if (formData.passwordProtection && (!formData.password || formData.password.length < 4)) {
-      newErrors.password = t("access.passwordRequired");
+    // Password is only required when:
+    // 1. Creating a new status page with passwordProtection enabled, OR
+    // 2. User has entered a password (then it must be valid)
+    const isCreating = !statusPage; // No statusPage means we're creating
+    const passwordEntered = formData.password && formData.password.length > 0;
+
+    if (formData.passwordProtection) {
+      // When creating, password is required
+      if (isCreating && !passwordEntered) {
+        newErrors.password = t("access.passwordRequired");
+      }
+      // When editing or creating, if password is entered, it must be valid (min 4 chars)
+      else if (passwordEntered && formData.password!.length < 4) {
+        newErrors.password = t("access.passwordMinLength");
+      }
     }
 
     if (formData.ipWhitelistEnabled && formData.ipWhitelist.length === 0) {
@@ -745,7 +762,15 @@ export function StatusPageEditPanel({
 
                 {formData.passwordProtection && (
                   <div className="space-y-2 pt-2 border-t">
-                    <Label htmlFor="password">{t("access.password")}</Label>
+                    <Label htmlFor="password">
+                      {t("access.password")}
+                      {!statusPage && <span className="text-red-500 ml-1">*</span>}
+                    </Label>
+                    {statusPage?.passwordProtection && (
+                      <p className="text-sm text-muted-foreground">
+                        {t("access.passwordKeepCurrent")}
+                      </p>
+                    )}
                     <div className="flex gap-2 max-w-sm">
                       <div className="relative flex-1">
                         <Input
@@ -758,7 +783,11 @@ export function StatusPageEditPanel({
                               password: e.target.value || undefined,
                             }))
                           }
-                          placeholder={t("access.passwordPlaceholder")}
+                          placeholder={
+                            statusPage?.passwordProtection
+                              ? t("access.passwordPlaceholderEdit")
+                              : t("access.passwordPlaceholder")
+                          }
                           className="pr-10"
                         />
                         <Button
@@ -878,6 +907,28 @@ export function StatusPageEditPanel({
                     <p className="text-xs text-muted-foreground">
                       {t("access.ipHint")}
                     </p>
+
+                    {clientIp && (
+                      <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border">
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">
+                            Deine aktuelle IP-Adresse:
+                          </p>
+                          <code className="text-sm font-mono">{clientIp}</code>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(clientIp);
+                            // You could add a toast notification here
+                          }}
+                        >
+                          Kopieren
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>

@@ -31,10 +31,12 @@ export interface Monitor {
   // SLA Configuration
   slaTarget: number | null; // Target uptime percentage (e.g., 99.9)
   maxResponseTime: number | null; // Maximum acceptable response time in ms
+  // HTTP-specific configuration (only for type === "http")
+  httpConfig?: HttpMonitorConfig;
 }
 
-// HTTP Methods
-export type HttpMethod = "GET" | "POST" | "HEAD" | "PUT" | "PATCH" | "DELETE";
+// HTTP Methods (lowercase to match backend enum serialization)
+export type HttpMethod = "get" | "post" | "head" | "put" | "patch" | "delete";
 
 // DNS Record Types
 export type DnsRecordType = "A" | "AAAA" | "MX" | "CNAME" | "TXT" | "NS";
@@ -42,20 +44,18 @@ export type DnsRecordType = "A" | "AAAA" | "MX" | "CNAME" | "TXT" | "NS";
 // Authentication Types
 export type AuthType = "none" | "basic" | "bearer";
 
-// HTTP-specific configuration
+// HTTP-specific configuration (from backend API)
 export interface HttpMonitorConfig {
-  method: HttpMethod;
-  expectedStatusCodes: string; // "200" or "200,201" or "200-299"
-  headers: Record<string, string>;
+  method?: HttpMethod;
+  validStatusCodes?: number[]; // Backend sends int[] (e.g., [200, 201])
+  headers?: Record<string, string>;
   body?: string;
   checkKeyword?: string;
-  verifyCertificate: boolean;
-  certExpiryWarningDays: number;
-  authType: AuthType;
+  validateSsl?: boolean; // Backend field name
   authUsername?: string;
   authPassword?: string;
   authToken?: string;
-  followRedirects: boolean;
+  followRedirects?: boolean;
 }
 
 // TCP-specific configuration

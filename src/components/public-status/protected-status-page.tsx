@@ -3,19 +3,22 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSyncExternalStore } from "react";
 import type { StatusPage, Monitor, ExtendedIncident, StatusPageTheme } from "@/types";
-
-// TODO: Replace with proper server-side password protection
-interface PublicStatusPageMetadata {
-  slug: string;
-  passwordProtection: boolean;
-}
-
-// TODO: Implement proper server-side authentication
-const isAuthenticated = (_slug: string) => false;
-const setAuthenticated = (_slug: string, _value: boolean) => {};
+import { isAuthenticated, setAuthenticated } from "@/lib/public-status-utils";
+import { API_BASE } from "@/lib/api-client";
 import { PublicStatusPage } from "./public-status-page";
 import { PublicStatusSkeleton } from "./public-status-skeleton";
 import { PasswordProtectionDialog } from "./password-protection-dialog";
+
+interface PublicStatusPageMetadata {
+  slug: string;
+  passwordProtection: boolean;
+  title?: string;
+  description?: string;
+  logo?: string;
+  primaryColor?: string;
+  theme?: string;
+  customCss?: string;
+}
 
 interface ProtectedStatusPageProps {
   /** Minimal metadata - always safe to show */
@@ -106,20 +109,28 @@ export function ProtectedStatusPage({
     };
   }, [metadata.theme]);
 
-  // Fetch data using stored session auth
+  // Fetch data using stored session token
   const fetchDataWithStoredAuth = async () => {
     try {
-      // In production: call API with session token
-      // For mock: simulate API call
-      const response = await fetch(`/api/status/${metadata.slug}/data`, {
-        credentials: "include",
+      const token = sessionStorage.getItem(`status-token-${metadata.slug}`);
+      if (!token) return;
+
+      const response = await fetch(`${API_BASE}/status-pages/${metadata.slug}/data`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
-        setAuthenticatedData(data);
+        setAuthenticatedData({
+          statusPage: data.statusPage,
+          monitors: data.monitors,
+          incidents: data.incidents,
+        });
       }
-    } catch {
+    } catch (error) {
+      console.error("Failed to fetch authenticated data:", error);
       // Session might be invalid, will show password dialog
     }
   };
@@ -130,24 +141,40 @@ export function ProtectedStatusPage({
     setPasswordError(null);
 
     try {
-      // Call API to validate password and get data
-      const response = await fetch(`/api/status/${metadata.slug}/auth`, {
+      // Call authentication endpoint
+      const response = await fetch(`${API_BASE}/status-pages/${metadata.slug}/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
-        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
-        setAuthenticatedData(data);
+
+        // Store token in sessionStorage
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(`status-token-${metadata.slug}`, data.token);
+        }
+
+        // Store authenticated data
+        setAuthenticatedData({
+          statusPage: data.data.statusPage,
+          monitors: data.data.monitors,
+          incidents: data.data.incidents,
+        });
+
+        // Mark as authenticated
         setAuthenticated(metadata.slug);
         return true;
-      } else {
+      } else if (response.status === 401) {
         setPasswordError("Falsches Passwort. Bitte erneut versuchen.");
         return false;
+      } else {
+        setPasswordError("Ein Fehler ist aufgetreten. Bitte erneut versuchen.");
+        return false;
       }
-    } catch {
+    } catch (error) {
+      console.error("Password authentication error:", error);
       setPasswordError("Verbindungsfehler. Bitte erneut versuchen.");
       return false;
     } finally {

@@ -273,24 +273,37 @@ export function generateDailyUptimeData(
   // TODO: Replace with API call to GET /api/monitors/:id/uptime-history?days=N
   // This should return real historical uptime data from the backend
 
-  // For now, return only today's data based on current monitor status
-  // No mock historical data
   const data: DayUptimeData[] = [];
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // Only show today's actual status
-  const uptime = monitor.status === "up" ? 100 : monitor.status === "down" ? 0 : 50;
-  const status: DayUptimeData["status"] =
-    monitor.status === "up" ? "up" :
-    monitor.status === "down" ? "down" :
-    "partial";
+  // Generate data for the last N days
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
 
-  data.push({
-    date: now.toISOString(),
-    uptime,
-    status,
-  });
+    if (i === 0) {
+      // Today: show actual monitor status
+      const uptime = monitor.status === "up" ? 100 : monitor.status === "down" ? 0 : 50;
+      const status: DayUptimeData["status"] =
+        monitor.status === "up" ? "up" :
+        monitor.status === "down" ? "down" :
+        "partial";
+
+      data.push({
+        date: date.toISOString(),
+        uptime,
+        status,
+      });
+    } else {
+      // Past days: show "no-data" until backend API is implemented
+      data.push({
+        date: date.toISOString(),
+        uptime: 0,
+        status: "no-data",
+      });
+    }
+  }
 
   return data;
 }

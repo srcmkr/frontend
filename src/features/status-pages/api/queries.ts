@@ -52,3 +52,14 @@ export function useStatusPageBySlug(slug: string | null) {
     enabled: !!slug,
   });
 }
+
+/**
+ * Fetch client IP address (for testing IP whitelist)
+ */
+export function useClientIp() {
+  return useQuery({
+    queryKey: ["clientIp"],
+    queryFn: () => statusPageApi.getClientIp(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}

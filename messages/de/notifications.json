@@ -3,6 +3,7 @@
   "subtitle": "Systemereignisse und Status-Updates",
   "unreadCount": "({count} ungelesen)",
   "markAllAsRead": "Alle als gelesen",
+  "loading": "Lade Benachrichtigungen...",
 
   "pagination": {
     "previous": "Zurück",

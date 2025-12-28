@@ -1,140 +1,56 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useStatusPageBySlug } from "@/features/status-pages/api/queries";
 import { ProtectedStatusPage } from "@/components/public-status/protected-status-page";
-import type { Metadata } from "next";
+import { PublicStatusSkeleton } from "@/components/public-status/public-status-skeleton";
+import StatusPageNotFound from "./not-found";
 
-interface StatusPageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function StatusPage() {
+  const params = useParams();
+  const slug = params.slug as string;
 
-// Backend API base URL - use environment variable or default to localhost
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5291";
+  const { data: statusPage, isLoading, error } = useStatusPageBySlug(slug);
 
-interface StatusPageDetailResponse {
-  id: string;
-  title: string;
-  slug: string;
-  description?: string;
-  isPublic: boolean;
-  groups: Array<{
-    id: string;
-    name: string;
-    sortOrder: number;
-    monitors: string[];  // Monitor IDs
-  }>;
-  monitors: Array<{
-    id: string;
-    name: string;
-    url?: string;
-    type: string;
-    status: string;
-    sortOrder: number;
-    uptimePercentage?: number;
-    avgResponseTimeMs?: number;
-  }>;
-  recentIncidents: Array<{
-    id: string;
-    title: string;
-    description?: string;
-    type: string;
-    severity: string;
-    status: string;
-    affectedMonitorIds: string[];
-    cause?: string;
-    startedAt: string;
-    resolvedAt?: string;
-    createdAt: string;
-    updatedAt?: string;
-  }>;
-  customCss?: string;
-  logoUrl?: string;
-  primaryColor?: string;
-  theme: string;
-  showUptimeHistory: boolean;
-  uptimeHistoryDays: number;
-  showIncidents: boolean;
-  incidentHistoryDays: number;
-  showMaintenanceCalendar: boolean;
-  showPoweredByBranding: boolean;
-  passwordProtection: boolean;
-  ipWhitelistEnabled: boolean;
-  ipWhitelist?: string[];
-  announcements: Array<{
-    id: string;
-    title: string;
-    message: string;
-    type: string;
-    enabled: boolean;
-    pinned: boolean;
-    startAt?: string;
-    endAt?: string;
-    createdAt: string;
-  }>;
-  scheduledMaintenances: Array<{
-    id: string;
-    title: string;
-    description?: string;
-    affectedGroupIds: string[];
-    scheduledStart: string;
-    scheduledEnd: string;
-    notifyBeforeMinutes?: number;
-    autoStart: boolean;
-    status: string;
-    createdAt: string;
-  }>;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-async function fetchStatusPage(slug: string): Promise<StatusPageDetailResponse | null> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/status-pages/${slug}`, {
-      cache: "no-store", // Always fetch fresh data for status pages
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
-      }
-      throw new Error(`Failed to fetch status page: ${response.status}`);
+  // Update page title client-side for better UX
+  useEffect(() => {
+    if (statusPage) {
+      document.title = statusPage.title || "Status Page";
     }
+  }, [statusPage]);
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching status page:", error);
-    return null;
-  }
-}
+  // Handle 401 - redirect to login
+  useEffect(() => {
+    if (error && 'status' in error && error.status === 401) {
+      // Redirect to login with return URL
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      window.location.href = `/login?returnUrl=${returnUrl}`;
+    }
+  }, [error]);
 
-export async function generateMetadata({
-  params,
-}: StatusPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const statusPage = await fetchStatusPage(slug);
-
-  if (!statusPage) {
-    return {
-      title: "Status Page Not Found",
-      description: undefined,
-    };
+  // Handle loading state
+  if (isLoading) {
+    return <PublicStatusSkeleton groupCount={3} />;
   }
 
-  return {
-    title: statusPage.title,
-    description: statusPage.description || `Status page for ${statusPage.title}`,
-  };
-}
+  // Handle 403 (IP blocked)
+  if (error && 'status' in error && error.status === 403) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold">Zugriff verweigert</h1>
+          <p className="text-muted-foreground">
+            Deine IP-Adresse ist nicht berechtigt, diese Status-Seite anzuzeigen.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-export default async function StatusPage({ params }: StatusPageProps) {
-  const { slug } = await params;
-
-  // Fetch status page from backend
-  const statusPage = await fetchStatusPage(slug);
-
-  if (!statusPage) {
-    notFound();
+  // Handle 404 and other errors
+  if (error || !statusPage) {
+    return <StatusPageNotFound />;
   }
 
   // Prepare metadata for password protection check
@@ -165,14 +81,24 @@ export default async function StatusPage({ params }: StatusPageProps) {
           theme: statusPage.theme,
           passwordProtection: statusPage.passwordProtection,
           ipWhitelistEnabled: statusPage.ipWhitelistEnabled,
-          monitors: statusPage.groups.flatMap((g) => g.monitors),  // Flatten all monitor IDs
+          // Display Configuration
+          showUptimeHistory: statusPage.showUptimeHistory,
+          uptimeHistoryDays: statusPage.uptimeHistoryDays,
+          showIncidents: statusPage.showIncidents,
+          incidentHistoryDays: statusPage.incidentHistoryDays,
+          showMaintenanceCalendar: statusPage.showMaintenanceCalendar,
+          showPoweredByBranding: statusPage.showPoweredByBranding,
+          customCss: statusPage.customCss,
+          ipWhitelist: statusPage.ipWhitelist,
+          password: statusPage.password,
+          monitors: statusPage.groups.flatMap((g) => g.monitors),
           groups: statusPage.groups,
           announcements: statusPage.announcements,
           scheduledMaintenances: statusPage.scheduledMaintenances,
           createdAt: statusPage.createdAt,
           updatedAt: statusPage.updatedAt,
         },
-        monitors: statusPage.monitors || [],  // Full monitor objects from backend (default to empty array)
+        monitors: statusPage.monitors || [],
         incidents: statusPage.recentIncidents || [],
       };
 

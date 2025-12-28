@@ -20,7 +20,8 @@
     "maxResponseLabel": "Max Response Time (ms)",
     "errorLoading": "Error loading report: {message}",
     "noPeriodSelected": "Select a period",
-    "generatedAt": "Report generated on"
+    "generatedAt": "Report generated on",
+    "refreshTooltip": "Regenerate report (clear cache)"
   },
   "executiveSummary": {
     "title": "Executive Summary",
@@ -39,7 +40,10 @@
     "title": "Availability",
     "uptime": "Uptime",
     "available": "Available",
+    "totalUptime": "Total Uptime",
     "downtime": "Downtime",
+    "totalDowntime": "Total Downtime",
+    "allowedDowntime": "Allowed at {sla}%: {allowed}",
     "slaBreaches": "SLA Breaches",
     "viewMode": {
       "daily": "Daily",
@@ -158,6 +162,7 @@
     "downtime": "Downtime",
     "trendVsPrevious": "Trend vs. Previous Period:",
     "available": "Available",
+    "allowedDowntime": "Allowed at {sla}%: {allowed}",
     "slaBreaches": "SLA Breaches",
     "table": {
       "week": "Week",

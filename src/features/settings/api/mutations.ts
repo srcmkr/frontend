@@ -17,6 +17,10 @@ import type {
   StatusPageSettings,
   SystemSettings,
 } from "./types";
+import type {
+  CreateNotificationChannelRequest,
+  UpdateNotificationChannelRequest,
+} from "./settings-api";
 
 /**
  * Update monitoring settings
@@ -90,5 +94,69 @@ export function useUpdateSystemSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.system() });
     },
+  });
+}
+
+// ============================================
+// Notification Channel Mutations
+// ============================================
+
+/**
+ * Create notification channel
+ */
+export function useCreateNotificationChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateNotificationChannelRequest) =>
+      settingsApi.createNotificationChannel(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: settingsKeys.notificationChannels(),
+      });
+    },
+  });
+}
+
+/**
+ * Update notification channel (PATCH semantics)
+ */
+export function useUpdateNotificationChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateNotificationChannelRequest }) =>
+      settingsApi.updateNotificationChannel(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: settingsKeys.notificationChannels(),
+      });
+    },
+  });
+}
+
+/**
+ * Delete notification channel
+ */
+export function useDeleteNotificationChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => settingsApi.deleteNotificationChannel(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: settingsKeys.notificationChannels(),
+      });
+    },
+  });
+}
+
+/**
+ * Test notification channel
+ */
+export function useTestNotificationChannel() {
+  return useMutation({
+    mutationFn: (id: string) => settingsApi.testNotificationChannel(id),
+    // No cache invalidation needed - this is just a test
   });
 }

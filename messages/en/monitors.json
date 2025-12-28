@@ -70,7 +70,11 @@
     "in": "in",
     "days7": "7 Days",
     "days30": "30 Days",
-    "of": "of"
+    "of": "of",
+    "deleteCheckTitle": "Delete Check Result",
+    "deleteCheckDescription": "Do you really want to delete this check from {timestamp} {time}? This action cannot be undone.",
+    "deleting": "Deleting...",
+    "cancel": "Cancel"
   },
   "list": {
     "search": "Search monitors...",

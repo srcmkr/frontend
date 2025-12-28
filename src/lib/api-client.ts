@@ -5,7 +5,7 @@
  * It makes HTTP requests to the backend API.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api";
 
 /**
  * Custom error class for API errors with status code and optional error code
@@ -115,10 +115,11 @@ export const apiClient = {
   get: <T>(endpoint: string, params?: Record<string, unknown>) =>
     request<T>(endpoint, { method: "GET", params }),
 
-  post: <T>(endpoint: string, data?: unknown) =>
+  post: <T>(endpoint: string, data?: unknown, params?: Record<string, unknown>) =>
     request<T>(endpoint, {
       method: "POST",
       body: data ? JSON.stringify(data) : undefined,
+      params,
     }),
 
   put: <T>(endpoint: string, data: unknown) =>

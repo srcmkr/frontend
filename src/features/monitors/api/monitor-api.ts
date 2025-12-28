@@ -95,6 +95,12 @@ export const monitorApi = {
   },
 
   /**
+   * Delete a specific check result
+   */
+  deleteCheck: (monitorId: string, checkId: string) =>
+    apiClient.delete<void>(`/monitors/${monitorId}/checks/${checkId}`),
+
+  /**
    * Get detailed statistics for a monitor
    */
   getDetailedStats: (id: string) =>

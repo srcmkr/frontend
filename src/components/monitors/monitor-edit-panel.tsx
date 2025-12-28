@@ -70,12 +70,12 @@ interface TypeOption {
 // MONITOR_TYPES will be built dynamically using translations inside the component
 
 const HTTP_METHODS: { value: HttpMethod; label: string }[] = [
-  { value: "GET", label: "GET" },
-  { value: "POST", label: "POST" },
-  { value: "HEAD", label: "HEAD" },
-  { value: "PUT", label: "PUT" },
-  { value: "PATCH", label: "PATCH" },
-  { value: "DELETE", label: "DELETE" },
+  { value: "get", label: "GET" },
+  { value: "post", label: "POST" },
+  { value: "head", label: "HEAD" },
+  { value: "put", label: "PUT" },
+  { value: "patch", label: "PATCH" },
+  { value: "delete", label: "DELETE" },
 ];
 
 const DNS_RECORD_TYPES: DnsRecordType[] = ["A", "AAAA", "MX", "CNAME", "TXT", "NS"];

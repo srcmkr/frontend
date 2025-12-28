@@ -70,7 +70,11 @@
     "in": "in",
     "days7": "7 Tage",
     "days30": "30 Tage",
-    "of": "von"
+    "of": "von",
+    "deleteCheckTitle": "Check löschen",
+    "deleteCheckDescription": "Möchtest du diesen Check vom {timestamp} {time} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen"
   },
   "list": {
     "search": "Monitore durchsuchen...",

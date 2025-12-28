@@ -96,6 +96,16 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 2,
   },
+  statSubLabel: {
+    fontSize: 7,
+    color: "#888",
+    marginTop: 2,
+  },
+  statSubLabelRed: {
+    fontSize: 7,
+    color: "#dc2626",
+    marginTop: 2,
+  },
   statValue: {
     fontSize: 14,
     fontWeight: "bold",
@@ -202,6 +212,7 @@ export interface PDFTranslations {
   downtime: string;
   trendVsPrevious: string;
   available: string;
+  allowedDowntime: string;
   slaBreaches: string;
   table: {
     week: string;
@@ -268,6 +279,52 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
     if (uptime >= 99.9) return styles.statValueGreen;
     if (uptime >= 95) return styles.statValueYellow;
     return styles.statValueRed;
+  };
+
+  /**
+   * Calculate allowed downtime based on SLA target and period
+   */
+  const calculateAllowedDowntime = () => {
+    const start = new Date(report.period.startDate);
+    const end = new Date(report.period.endDate);
+    const now = new Date();
+    const actualEnd = end > now ? now : end;
+    const periodHours = (actualEnd.getTime() - start.getTime()) / (1000 * 60 * 60);
+    const allowedDowntimePercent = 100 - report.slaTarget;
+    return (periodHours * allowedDowntimePercent) / 100;
+  };
+
+  const allowedDowntimeHours = calculateAllowedDowntime();
+
+  /**
+   * Format duration in a human-readable way for PDF
+   */
+  const formatDuration = (hours: number) => {
+    const totalMinutes = Math.round(hours * 60);
+
+    if (totalMinutes < 1) {
+      return "< 1m";
+    }
+
+    if (totalMinutes < 60) {
+      return `${totalMinutes}m`;
+    }
+
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    if (totalHours < 24) {
+      return remainingMinutes > 0
+        ? `${totalHours}h ${remainingMinutes}m`
+        : `${totalHours}h`;
+    }
+
+    const days = Math.floor(totalHours / 24);
+    const remainingHours = totalHours % 24;
+
+    return remainingHours > 0
+      ? `${days}d ${remainingHours}h`
+      : `${days}d`;
   };
 
   return (
@@ -344,14 +401,17 @@ export function SLAReportPDF({ report, locale = "en-US", translations: t }: SLAR
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>{t.available}</Text>
-              <Text style={styles.statValue}>
-                {report.availability.uptimeHours}h {report.availability.uptimeMinutes}m
+              <Text style={styles.statValueGreen}>
+                {formatDuration(report.availability.uptimeHours)}
               </Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>{t.downtime}</Text>
-              <Text style={styles.statValueRed}>
-                {report.availability.downtimeHours}h {report.availability.downtimeMinutes}m
+              <Text style={report.availability.downtimeMinutes > 0 ? styles.statValueRed : styles.statValueGreen}>
+                {formatDuration(report.availability.downtimeHours)}
+              </Text>
+              <Text style={report.availability.downtimeHours <= allowedDowntimeHours ? styles.statSubLabel : styles.statSubLabelRed}>
+                {t.allowedDowntime.replace("{sla}", String(report.slaTarget)).replace("{allowed}", formatDuration(allowedDowntimeHours))}
               </Text>
             </View>
             <View style={styles.statBox}>

@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Download, Loader2, Settings } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Download, Loader2, RefreshCw, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/format-utils";
 import {
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/popover";
 import { SLAReportPeriodSelector } from "./sla-report-period-selector";
 import { SLAReportContent } from "./sla-report-content";
-import { useReportPeriods, useSLAReport } from "@/features/reports";
+import { useReportPeriods, useSLAReport, reportApi, reportKeys } from "@/features/reports";
 import type { Monitor, ReportPeriod, ReportPeriodType } from "@/types";
 
 interface SLAReportDialogProps {
@@ -39,6 +40,7 @@ export function SLAReportDialog({
   const t = useTranslations("reports.dialog");
   const tPdf = useTranslations("reports.pdf");
   const locale = useLocale();
+  const queryClient = useQueryClient();
 
   // Build PDF translations object
   const pdfTranslations = {
@@ -54,6 +56,7 @@ export function SLAReportDialog({
     downtime: tPdf("downtime"),
     trendVsPrevious: tPdf("trendVsPrevious"),
     available: tPdf("available"),
+    allowedDowntime: tPdf.raw("allowedDowntime") as string,
     slaBreaches: tPdf("slaBreaches"),
     table: {
       week: tPdf("table.week"),
@@ -109,6 +112,9 @@ export function SLAReportDialog({
   // PDF export state
   const [isExporting, setIsExporting] = useState(false);
 
+  // Refresh state
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // Fetch available periods using React Query
   const { data: periods = [] } = useReportPeriods(periodType);
 
@@ -138,6 +144,37 @@ export function SLAReportDialog({
     setPeriodType(type);
     setSelectedPeriod(null);
   }, []);
+
+  // Handle refresh report
+  const handleRefresh = useCallback(async () => {
+    if (!selectedPeriod) return;
+
+    setIsRefreshing(true);
+
+    try {
+      // Call the refresh API to invalidate backend cache and get fresh data
+      await reportApi.refreshSLAReport(
+        monitor.id,
+        selectedPeriod,
+        slaTarget ?? undefined,
+        maxResponseTime ?? undefined
+      );
+
+      // Invalidate frontend cache to refetch
+      await queryClient.invalidateQueries({
+        queryKey: reportKeys.slaReport(
+          monitor.id,
+          selectedPeriod,
+          slaTarget ?? undefined,
+          maxResponseTime ?? undefined
+        ),
+      });
+    } catch (error) {
+      console.error("Failed to refresh report:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [monitor.id, selectedPeriod, slaTarget, maxResponseTime, queryClient]);
 
   // Handle PDF export
   const handleExportPDF = useCallback(async () => {
@@ -272,6 +309,17 @@ export function SLAReportDialog({
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Refresh Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing || !selectedPeriod || reportLoading}
+            title={t("refreshTooltip")}
+          >
+            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+          </Button>
 
           {/* Export PDF Button */}
           <Button

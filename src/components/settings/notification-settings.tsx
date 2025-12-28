@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Plus, Mail, Webhook, MoreHorizontal, Trash2, Pencil, Loader2 } from "lucide-react";
+import { Plus, Mail, Webhook, MoreHorizontal, Trash2, Pencil, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,8 +43,17 @@ import { DEFAULT_NOTIFICATION_SETTINGS } from "@/lib/settings-defaults";
 import type { NotificationChannel } from "@/types";
 import { NotificationChannelDialog } from "./notification-channel-dialog";
 import type { NotificationChannelFormData } from "@/lib/validations/notification-channel";
-import { useNotificationSettings } from "@/features/settings/api/queries";
-import { useUpdateNotificationSettings } from "@/features/settings/api/mutations";
+import {
+  useNotificationSettings,
+  useNotificationChannels,
+} from "@/features/settings/api/queries";
+import {
+  useUpdateNotificationSettings,
+  useCreateNotificationChannel,
+  useUpdateNotificationChannel,
+  useDeleteNotificationChannel,
+  useTestNotificationChannel,
+} from "@/features/settings/api/mutations";
 
 export function NotificationSettings() {
   const t = useTranslations("settings");
@@ -57,8 +66,19 @@ export function NotificationSettings() {
   // Mutation for updating settings
   const updateMutation = useUpdateNotificationSettings();
 
-  // TODO: Fetch channels from API
-  const [channels, setChannels] = useState<NotificationChannel[]>([]);
+  // Fetch channels from API
+  const {
+    data: channels = [],
+    isLoading: channelsLoading,
+    error: channelsError,
+  } = useNotificationChannels();
+
+  // Mutation hooks for channel operations
+  const createChannelMutation = useCreateNotificationChannel();
+  const updateChannelMutation = useUpdateNotificationChannel();
+  const deleteChannelMutation = useDeleteNotificationChannel();
+  const testChannelMutation = useTestNotificationChannel();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingChannel, setEditingChannel] = useState<NotificationChannel | undefined>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -100,11 +120,20 @@ export function NotificationSettings() {
 
   const handleConfirmDelete = () => {
     if (channelToDelete) {
-      setChannels((prev) => prev.filter((ch) => ch.id !== channelToDelete.id));
-      toast.success(t("notificationSettings.channelDeleted"));
-      setChannelToDelete(null);
+      deleteChannelMutation.mutate(channelToDelete.id, {
+        onSuccess: () => {
+          toast.success(t("notificationSettings.channelDeleted"));
+          setChannelToDelete(null);
+          setDeleteDialogOpen(false);
+        },
+        onError: (error: any) => {
+          toast.error(`${t("notificationSettings.deleteFailed")}: ${error.message}`);
+          setDeleteDialogOpen(false);
+        },
+      });
+    } else {
+      setDeleteDialogOpen(false);
     }
-    setDeleteDialogOpen(false);
   };
 
   const handleOpenCreate = () => {
@@ -117,9 +146,28 @@ export function NotificationSettings() {
     setDialogOpen(true);
   };
 
+  const handleTestChannel = (channel: NotificationChannel) => {
+    testChannelMutation.mutate(channel.id, {
+      onSuccess: (result) => {
+        if (result.success) {
+          toast.success(t("notificationSettings.testSuccess"));
+        } else {
+          // Show translated message with error details if available
+          const errorMessage = result.errorDetails
+            ? `${t("notificationSettings.testFailed")}: ${result.errorDetails}`
+            : t("notificationSettings.testFailed");
+          toast.error(errorMessage);
+        }
+      },
+      onError: (error: any) => {
+        toast.error(`${t("notificationSettings.testFailed")}: ${error.message}`);
+      },
+    });
+  };
+
   const handleSaveChannel = (data: NotificationChannelFormData) => {
     // Build the config with proper typing
-    const config = data.type === "email"
+    const requestConfig = data.type === "email"
       ? {
           apiKey: data.config.apiKey,
           fromEmail: data.config.fromEmail,
@@ -132,38 +180,49 @@ export function NotificationSettings() {
 
     if (editingChannel) {
       // Update existing channel
-      setChannels((prev) =>
-        prev.map((ch) =>
-          ch.id === editingChannel.id
-            ? {
-                id: ch.id,
-                createdAt: ch.createdAt,
-                name: data.name,
-                type: data.type,
-                enabled: data.enabled,
-                config,
-              }
-            : ch
-        )
+      updateChannelMutation.mutate(
+        {
+          id: editingChannel.id,
+          data: {
+            name: data.name,
+            enabled: data.enabled,
+            config: requestConfig,
+          },
+        },
+        {
+          onSuccess: () => {
+            toast.success(t("notificationSettings.channelUpdated"));
+            setDialogOpen(false);
+            setEditingChannel(undefined);
+          },
+          onError: (error: any) => {
+            toast.error(`${t("notificationSettings.updateFailed")}: ${error.message}`);
+          },
+        }
       );
-      toast.success(t("notificationSettings.channelUpdated"));
     } else {
       // Create new channel
-      const newChannel: NotificationChannel = {
-        id: `ch-${Date.now()}`,
-        name: data.name,
-        type: data.type,
-        enabled: data.enabled,
-        config,
-        createdAt: new Date().toISOString(),
-      };
-      setChannels((prev) => [...prev, newChannel]);
-      toast.success(t("notificationSettings.channelCreated"));
+      createChannelMutation.mutate(
+        {
+          name: data.name,
+          type: data.type,
+          config: requestConfig,
+        },
+        {
+          onSuccess: () => {
+            toast.success(t("notificationSettings.channelCreated"));
+            setDialogOpen(false);
+          },
+          onError: (error: any) => {
+            toast.error(`${t("notificationSettings.createFailed")}: ${error.message}`);
+          },
+        }
+      );
     }
   };
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || channelsLoading) {
     return (
       <div className="space-y-6">
         <div>
@@ -180,14 +239,15 @@ export function NotificationSettings() {
   }
 
   // Error state
-  if (error) {
+  if (error || channelsError) {
+    const errorMessage = error?.message || channelsError?.message || "Unknown error";
     return (
       <div className="p-6 border border-destructive/50 rounded-lg bg-destructive/10">
         <h3 className="font-semibold text-destructive mb-2">
           {t("errors.loadFailed")}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {error.message}
+          {errorMessage}
         </p>
       </div>
     );
@@ -254,6 +314,13 @@ export function NotificationSettings() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleTestChannel(channel)}
+                            disabled={testChannelMutation.isPending}
+                          >
+                            <Send className="h-4 w-4 mr-2" />
+                            {t("notificationSettings.test")}
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleOpenEdit(channel)}>
                             <Pencil className="h-4 w-4 mr-2" />
                             {t("notificationSettings.edit")}
